@@ -20,7 +20,6 @@ updated: 2026-06-03
 |------|------|
 | [[STRUCTURE]] | `docs/` 目录决策树、wikilink 规范、新建目录阈值 |
 | [[writing-rules]] | 单篇知识节点的标准结构与 frontmatter |
-| `30天-agent学习路线/README.md` | 日历式学习路径（与根 `README.md` 同名，不用 wikilink） |
 | [[AI 趋势洞察]] | `trends/` 日报 SOP；每日 `trends/YYYY-MM-DD/index.md` + `index.html` |
 | [[速览索引]] | 尚无独立 wiki 节点的模式文（`docs/topic-overviews/map.md`） |
 | `scripts/generate-trends.sh` | 趋势日报生成脚本（见 trends README） |

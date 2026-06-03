@@ -19,5 +19,7 @@ trends/*/.research/
 new-idea/
 resources/
 .obsidian/
+# 本地元数据 / 插件生成（不提交）
 _meta/
+
 .midscene_mcp/

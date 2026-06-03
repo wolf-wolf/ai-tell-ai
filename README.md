@@ -1,151 +1,151 @@
 # AI Tell AI — AI 教你学 AI
 
-> 用 AI 生成、人工校验的方式，构建 Agent 学习知识图谱。  
-> 每个概念都是一个可链接的节点，所有节点共同构成一张可以漫游的知识地图。
+> 个人 AI 知识库：用 Obsidian 双链组织**可长期迭代的 wiki**，并用 `trends/` 记录**可验证的每日生态信号**。  
+> 内容由 AI 辅助起草，人工校验；「我的理解」与图谱连线是不可省略的一步。
 
 ---
 
-## 这个项目是什么
+## 这个仓库里有什么
 
-一份**不一样的 AI 学习笔记**：
+两套内容，分工不同：
 
-- 内容由 AI 生成初稿，人工校验 + 注入个人理解
-- 每个知识点是独立文档，通过双链形成网状图谱
-- 配套 30 天 Agent 学习路线，学习过程即内容产出
-- 用 Obsidian 打开，可视化浏览整个知识图谱
+| 体系 | 位置 | 时效 | 读什么 |
+|------|------|------|--------|
+| **知识图谱** | `docs/` + [map.md](map.md) | 长期（按 `stability` 标注） | 模型 → 方法论 → Agent 的因果链与机制 |
+| **趋势日报** | `trends/YYYY-MM-DD/` | 短（按日归档） | GitHub / HF / 大厂 / 论文等多源信号；**日常看 `index.html`** |
 
-普通学习笔记是线性的流水账，这里是**可以漫游的知识地图**。
+稳定、值得深挖的主题写在 `docs/`；同一主题在趋势里连续出现且边界清晰后，可升格为 `docs/latest/` 等节点。规则见 [trends/README.md](trends/README.md)。
 
 ---
 
 ## 快速开始
 
-**第一步：clone 项目**
+### 1. 用 Obsidian 打开本仓库
+
+1. Obsidian → **Open folder as vault** → 选择仓库根目录  
+2. 从 [map.md](map.md) 进入（知识地图骨架，不是文件树目录）  
+3. 打开 **Graph View** 查看节点之间的双链关系  
+
+### 2. 读知识节点
+
+- 目录怎么分、新文章放哪：[docs/STRUCTURE.md](docs/STRUCTURE.md)  
+- 单篇怎么写（frontmatter、章节顺序）：[writing-rules.md](writing-rules.md)  
+- 尚无独立 wiki 的速览文：[docs/topic-overviews/map.md](docs/topic-overviews/map.md)  
+
+新建节点可复制 [templates/template-knowledge-node.md](templates/template-knowledge-node.md)，但以 `writing-rules.md` 为准（当前正文多用 Obsidian callout，而非旧版 emoji 小节标题）。
+
+### 3. 看趋势日报
 
 ```bash
-git clone https://github.com/your-username/ai-tell-ai.git
+# 浏览器阅读（推荐）
+open trends/$(date +%Y-%m-%d)/index.html
+
+# 或读 Markdown 源稿
+open trends/$(date +%Y-%m-%d)/index.md
 ```
 
-**第二步：用 Obsidian 打开**
+生成、校验、定时任务说明见 [trends/README.md](trends/README.md)。本地一键生成：
 
-1. 打开 Obsidian → Open folder as vault
-2. 选择 `ai-tell-ai/` 根目录
-3. 点击左侧图谱视图（Graph View）
-
-你会看到这样的知识图谱：
-
+```bash
+./scripts/generate-trends.sh              # 今天
+./scripts/install-trends-schedule.sh    # macOS：可选，每天定时（需 Cursor CLI）
 ```
-concept-agent ─── pattern-tool-use
-      │                  │
-concept-workflow    pattern-planning
-      │                  │
-   concept-llm    pattern-reflection
-                         │
-                  pattern-multi-agent
-```
-
-**第三步：开始学习**
-
-按 `30天-agent学习路线/README.md` 的日历执行，每天学完后：
-1. 用 `templates/template-daily-note.md` 写当日笔记
-2. 用 `templates/template-knowledge-node.md` 生成新的知识节点
-3. 在图谱中确认新节点已连接
 
 ---
 
-## 项目结构
+## 知识分层（因果链）
+
+```
+模型层 docs/model/     →  LLM 是什么、怎么训练、机制与边界
+方法论 docs/methodology/ →  怎么和模型协作（Prompt / Context / Harness …）
+应用层 docs/agent/     →  怎么做成 Agent 系统（RAG、Tool、Skill、多 Agent …）
+```
+
+此外还有：
+
+- **算法与度量** — `docs/algorithms/`（BM25、余弦相似度、RRF、ANN …）  
+- **前沿产品** — `docs/latest/`（演化快，版本敏感）  
+- **工具笔记** — `docs/tools/`（如 Obsidian 用法）  
+
+完整索引与稳定性标注（`permanent` / `long` / `mid` / `short`）见 [map.md](map.md)。
+
+---
+
+## 仓库结构
 
 ```
 ai-tell-ai/
-├── README.md                        ← 你在这里
-├── 30天-agent学习路线/
-│   ├── README.md                    ← 30 天学习日历
-│   ├── PROJECT-PLAN.md              ← 项目设计规划
-│   └── notes/                       ← 每日学习笔记
-│
-├── trends/                          ← AI 趋势日报（YYYY-MM-DD/index.md + index.html）
-│   ├── README.md                    ← SOP 与主源清单
-│   ├── weekly/                      ← 周报（可选）
-│   └── prompts/                     ← Cursor Agent 生成提示词
-│
-├── concepts/                        ← 概念类：是什么
-├── principles/                      ← 原理类：为什么
-├── techniques/                      ← 技术类：怎么做
-├── tools/                           ← 工具类：用什么
-├── patterns/                        ← 模式类：套路
-├── resources/                       ← 资源类：去哪学
-└── templates/                       ← 文档模板
+├── README.md                 # 本文件
+├── map.md                    # 知识地图总入口（Obsidian 内优先打开）
+├── writing-rules.md          # 知识节点写作规范
+├── docs/                     # 知识节点正文
+│   ├── STRUCTURE.md          # 目录决策树与 wikilink 约定
+│   ├── model/                # 概念、机制、训练 …
+│   ├── methodology/
+│   ├── agent/                # core / pattern / retrieval / skill / tool …
+│   ├── algorithms/
+│   ├── latest/
+│   ├── topic-overviews/      # 模式速览（map.md 索引）
+│   ├── data/                 # 数据工程（占位扩展）
+│   └── tools/
+├── trends/                   # 每日趋势（index.md + index.html）
+│   ├── README.md             # SOP、主源、升格规则
+│   ├── prompts/              # Agent 生成与检索提示词
+│   ├── schema/               # 信号 JSON 契约
+│   └── YYYY-MM-DD/
+├── templates/                # 知识节点、趋势日报、周报等模板
+├── scripts/                  # 趋势流水线（generate / validate / render …）
+├── tools/                    # 自研 Obsidian 插件源码
+│   ├── obsidian-read-tracker/  # 阅读统计、热力图、雷达图
+│   └── obsidian-cursor-chat/   # 侧栏对接 Cursor Agent CLI
+└── assets/                   # 配图等静态资源
 ```
 
-### 知识节点分类
-
-| 类型 | 目录 | 例子 |
-|------|------|------|
-| concept | concepts/ | Agent、LLM、Context Window |
-| principle | principles/ | Attention 机制、Token 预测 |
-| technique | techniques/ | Prompt Engineering、RAG、CoT |
-| tool | tools/ | MCP、LangChain、vLLM |
-| pattern | patterns/ | Reflection、Tool Use、Planning |
-| resource | resources/ | Karpathy 课程、Anthropic 文档 |
+**默认不纳入版本库**（见 [.gitignore](.gitignore)）：`.obsidian/plugins/`、`_meta/`、`30天-agent学习路线/`、`new-idea/`、`resources/`、`trends/.logs/`、`trends/*/.research/` 等。克隆后插件需本地安装，见各 `tools/*/README.md`。
 
 ---
 
-## 知识节点格式
+## 可选：Obsidian 插件
 
-每个节点文档统一结构，**从上到下越来越深**：
+在仓库根目录安装到当前 Vault：
 
+```bash
+bash tools/obsidian-read-tracker/install.sh   # 阅读次数、热力图、Top 笔记雷达
+bash tools/obsidian-cursor-chat/install.sh    # 侧栏 Cursor Agent（需本机 agent CLI）
 ```
-⚡ 30 秒速览    ← 3 句话，独立可读
-🧠 深入理解    ← 完整讲解
-💡 示例        ← 具体例子
-⚠️ 常见误区    ← 容易踩的坑
-💬 我的理解    ← 个人注释，AI 生成内容里的人味
-🔗 关联概念    ← 双链，构成图谱边
-📚 延伸阅读    ← 指向 resource 节点或外部链接
-```
+
+启用：**设置 → 社区插件** → 关闭限制模式 → 打开对应插件。改代码后 `Cmd+P` →「重新加载本插件」。
+
+| 插件 | 作用 |
+|------|------|
+| AI Read Tracker | 侧栏阅读统计；热力图按日打开次数；笔记雷达 Top N |
+| AI Cursor Chat | 在 Obsidian 内对当前 Vault 发 Agent 任务，可附带选区/当前笔记 |
 
 ---
 
-## AI 教 AI 的工作方式
-
-每个节点的生产流程：
+## 知识节点怎么产出
 
 ```
-1. 学习日历触发某个概念
-2. 让 AI 按模板生成初稿
-3. 对照原始资料校验，标注不准确的地方
-4. 写入「我的理解」——这是最不能省的一步
-5. 补充 related 字段，在图谱中连线
-6. 学到更深时回来迭代
+选定主题（阅读、趋势升格、或 map 上的缺口）
+    → AI 按 writing-rules + 模板起草
+    → 对照来源校验
+    → 写清「我的理解」/ callout 里的个人判断
+    → 维护 related / prerequisites，在图谱中连线
+    → 学到更深时迭代；stability 标短的主题优先跟 trends 对齐更新
 ```
 
 ---
 
-## 当前进度
+## 贡献
 
-```
-学习进度：D__ / 30
-开始日期：____-__-__
-知识节点：__ 个
-图谱连接：__ 条
-```
+欢迎 PR 修正或补充 **docs/** 下的节点：
 
----
+1. 遵守 [writing-rules.md](writing-rules.md) 与 [docs/STRUCTURE.md](docs/STRUCTURE.md)  
+2. 新节点需有 `related`（或 `prerequisites`），避免孤立页  
+3. 标明 `stability` / `layer`；勿把未核实传闻写成 `long`  
+4. Commit 建议：`add: docs/agent/foo.md`、`fix: algorithms/bm25 误区`  
 
-## 贡献指南
-
-欢迎提 PR 补充或修正知识节点：
-
-1. fork 本仓库
-2. 按 `templates/template-knowledge-node.md` 新建节点，或修正已有节点
-3. 确保 `related` 字段正确链接到相关节点
-4. commit message 格式：`add: concept-xxx` 或 `fix: pattern-xxx 误区描述`
-5. 提 PR，说明新增节点解决了什么学习问题
-
-**不接受的贡献：**
-- 没有 30 秒速览的节点
-- 没有任何 related 链接的孤立节点
-- 纯转载，没有个人理解或校验
+**趋势日报**由本地 Agent 流水线生成，一般不通过 PR 批量提交当日 `.research/` 底稿。
 
 ---
 
