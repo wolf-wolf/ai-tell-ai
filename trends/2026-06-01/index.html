@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 趋势日报 — 2026-06-01</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --paper: #f5f4f1;
+  --rule: #d4d2cb;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #d4d2cb;
+  --accent: #ff6b3d;
+  --link: #2563eb;
+  --dir-fg: #9a3412;
+  --dir-bg: #fff2e8;
+  --sel-fg: #1e40af;
+  --sel-bg: #eff6ff;
+  --tool-fg: #065f46;
+  --tool-bg: #ecfdf5;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Inter", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 0.8125rem;
+  background: #e2e0db;
+  color: var(--text);
+  line-height: 1.58;
+  margin: 0;
+}
+.page-header {
+  padding: 0.7rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--rule);
+  background: #fafaf8;
+}
+.ph-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+.ph-date {
+  color: #374151;
+  font-size: 0.8rem;
+}
+.ph-meta {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  column-gap: 0;
+  row-gap: 0;
+  align-items: stretch;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
+  background: var(--paper);
+}
+.wrap > * {
+  grid-column: 1 / -1;
+}
+.section-github-growth { grid-column: 1 / 3; }
+.section-github-novel { grid-column: 3 / 5; }
+.section-papers { grid-column: 5 / 7; }
+.section-huggingface { grid-column: 1 / 3; }
+.section-bigtech-en { grid-column: 3 / 5; }
+.section-bigtech-zh { grid-column: 5 / 7; }
+.section-judgment { grid-column: 1 / 3; }
+.section-deep { grid-column: 3 / 7; }
+h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  padding: 0 0 0.32rem;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
+.section-title {
+  flex: 0 1 auto;
+}
+.section-intro {
+  flex: 1 1 auto;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.4;
+}
+.section-intro::before {
+  content: "·";
+  margin-right: 0.35rem;
+  color: #9ca3af;
+}
+h3 {
+  font-size: 1.03rem;
+  margin: 0.8rem 0 0.45rem;
+  color: #374151;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
+  font-size: 0.74rem;
+  color: #4b5563;
+  margin: 0;
+  padding: 0.55rem 0.95rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.meta .meta-item {
+  padding: 0.08rem 0.32rem;
+  border-bottom: none;
+}
+hr {
+  display: none;
+}
+.section-block {
+  min-width: 0;
+  border-radius: 0;
+  padding: 0.65rem 0.95rem 0.75rem;
+  margin: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.section-papers,
+.section-bigtech-zh,
+.section-deep,
+.wrap > .section-block:not(.section-github-growth):not(.section-github-novel):not(.section-papers):not(.section-huggingface):not(.section-bigtech-en):not(.section-bigtech-zh):not(.section-judgment):not(.section-deep) {
+  border-right: none;
+}
+p { margin: 0.45rem 0; font-size: 0.78rem; }
+ul {
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+  font-size: 0.78rem;
+}
+li { margin: 0.22rem 0; }
+.section-judgment p,
+.section-judgment li {
+  font-size: 0.76rem;
+  line-height: 1.52;
+  margin: 0.28rem 0;
+}
+.judgment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.judgment-prose {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.62;
+  color: #1f2937;
+}
+.section-judgment ul {
+  margin: 0.25rem 0;
+}
+
+.signal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.35rem 0 0;
+  border-top: none;
+}
+.signal-card {
+  padding: 0.5rem 0;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+}
+.signal-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.signal-head-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  margin-bottom: 0.2rem;
+}
+.signal-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+}
+.signal-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.signal-title a:hover {
+  color: var(--link);
+}
+.signal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  color: #4b5563;
+  line-height: 1.48;
+}
+.signal-chip {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px;
+  padding: 0.1rem 0.38rem;
+}
+.confidence-low-chip {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+.chip-label {
+  color: #6b7280;
+  font-weight: 600;
+  margin-right: 0.15em;
+}
+.confidence-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+}
+.confidence-high {
+  color: #065f46;
+  background: #ecfdf5;
+}
+.confidence-low {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+.signal-body {
+  font-size: 0.75rem;
+  margin: 0.15rem 0 0.22rem;
+}
+.signal-body .kv-row {
+  margin: 0.18rem 0;
+}
+.signal-plain {
+  margin: 0;
+  line-height: 1.65;
+  color: #1f2937;
+}
+.signal-lead {
+  margin: 0 0 0.2rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.45;
+}
+.signal-prose {
+  margin: 0.2rem 0 0;
+  line-height: 1.58;
+  color: #1f2937;
+}
+.signal-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  color: #1f2937;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+.signal-prose-list li {
+  margin: 0.14rem 0;
+}
+.insight-action {
+  margin: 0.35rem 0 0;
+  padding: 0.28rem 0 0.28rem 0.45rem;
+  border-left: 2px solid #93c5fd;
+  font-size: 0.75rem;
+  line-height: 1.52;
+  color: #1e3a5f;
+}
+.insight-list {
+  margin: 0.15rem 0 0.2rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.insight-list li {
+  margin: 0.12rem 0;
+  line-height: 1.5;
+}
+.kv-row {
+  margin: 0.18rem 0;
+  line-height: 1.52;
+  font-size: 0.75rem;
+  color: #1f2937;
+}
+.field-label {
+  font-weight: 700;
+  color: #111827;
+}
+.field-label::after {
+  content: "：";
+  font-weight: 700;
+}
+.field-head {
+  margin: 0.22rem 0 0.1rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.35;
+}
+.field-head::after {
+  content: "：";
+}
+
+.badge-dir,
+.badge-sel,
+.badge-tool {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.08rem 0.52rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.badge-dir { color: var(--dir-fg); background: var(--dir-bg); border-color: #fed7aa; }
+.badge-sel { color: var(--sel-fg); background: var(--sel-bg); border-color: #bfdbfe; }
+.badge-tool { color: var(--tool-fg); background: var(--tool-bg); border-color: #bbf7d0; }
+
+.wikilink {
+  color: #b45309;
+  border-bottom: 1px dashed #f59e0b;
+}
+
+.deep-article {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.52;
+}
+.deep-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.32rem;
+  border-bottom: 1px solid var(--rule);
+}
+.deep-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.4;
+  flex: 1 1 12rem;
+}
+.deep-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.deep-title a:hover {
+  color: var(--link);
+}
+.deep-aux {
+  font-size: 0.68rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.deep-aux-link {
+  color: var(--link);
+  text-decoration: none;
+  margin-left: 0.35rem;
+}
+.deep-aux-link:hover {
+  text-decoration: underline;
+}
+.deep-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.deep-prose {
+  margin: 0;
+  color: #1f2937;
+  line-height: 1.62;
+  font-size: 0.78rem;
+}
+.deep-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: #374151;
+}
+.deep-prose-list li {
+  margin: 0.14rem 0;
+}
+.deep-foot {
+  margin: 0.2rem 0 0;
+  padding-top: 0.28rem;
+  border-top: 1px dashed var(--rule);
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.footer {
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  background: #fafaf8;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 900px) {
+  .wrap {
+    display: block;
+  }
+  .section-block {
+    border-right: none;
+  }
+}
+@media (max-width: 760px) {
+  .page-header { padding: 0.72rem 0.6rem; }
+  .wrap { padding: 0 0 1.5rem; }
+  .meta { padding: 0.55rem 0.75rem; }
+  .section-block { padding: 0.55rem 0.7rem 0.65rem; }
+}
+</style>
+</head>
+<body>
+<header class="page-header"><span class="ph-title">AI 趋势日报</span><span class="ph-date">2026-06-01</span><span class="ph-meta">观测窗口 · 约 15–25 分钟 · 信号分级阅读</span></header>
+<div class="wrap">
+<div class="meta"><span class="meta-item"><strong>Star 说明</strong>：观测日 2026-06-01；GitHub REST API 当日触达限速，增速仓 Star 取自公开仓库页/检索快照（非总榜头部仓 OpenClaw 类）。</span></div>
+<hr>
+<section class="section-block section-judgment"><h2 id="judgment"><span class="section-title">今日关键判断</span><span class="section-intro">今日主线</span></h2><div class="judgment-body"><p class="judgment-prose">1. `` <strong>Harness 与 Model 解耦</strong>成为可验证主线：Life-Harness 用冻结 Qwen3-4B 演化 harness 即 +88.5%，与 revfactory/harness「团队拓扑工厂」形成产品—论文共振。</p><p class="judgment-prose">2. `` <strong>企业市场资金与采用率</strong>倒向 Anthropic（$965B / Ramp 34.4% vs OpenAI 32.3%），OpenAI 用 Codex 生产闭环叙事对冲 IPO 预期。</p><p class="judgment-prose">3. `` <strong>开源 MoE 编码栈</strong>（Qwen3.6-35B-A3B）以 SWE-bench 73.4% + 永久低价 API（DeepSeek V4-Pro）挤压闭源批量编码毛利。</p></div></section><section class="section-block section-deep"><h2 id="deep-dive"><span class="section-title">深读 1 条</span><span class="section-intro">完整摘要</span></h2>
+<article class="deep-article"><header class="deep-head"><h3 class="deep-title"><a href="https://arxiv.org/abs/2605.22166" target="_blank" rel="noopener">Life-Harness — <em>Adapting the Interface, Not the Model</em>（arXiv:2605.22166）</a><span class="deep-aux"><a class="deep-aux-link" href="https://github.com/Tianshi-Xu/Life-Harness" target="_blank" rel="noopener">GitHub</a></span></h3></header><div class="deep-body"><p class="deep-prose">确定性 Agent 环境（τ-bench、AgentBench 等）失败常源于「模型—环境接口」不匹配，而非单纯能力不足；传统做法微调权重或改环境规则，成本高且难迁移。</p><p class="deep-prose">在&lt;strong&gt;冻结&lt;/strong&gt; LLM 与&lt;strong&gt;不变&lt;/strong&gt;评测环境前提下，从训练轨迹抽取重复失败，演化四类 runtime 干预——环境合约（h3）、程序技能（h5）、动作实现（h2）、轨迹调节（h4）；评测阶段固定 harness，测未见任务。 7 个基准 × 18 骨干共 &lt;strong&gt;126&lt;/strong&gt; 组设定中 &lt;strong&gt;116&lt;/strong&gt; 组提升；平均相对增益 &lt;strong&gt;88.5%&lt;/strong&gt;；仅用 Qwen3-4B-Instruct 轨迹演化的 harness 可迁移到 &lt;strong&gt;17&lt;/strong&gt; 个其他模型。</p><ul class="deep-prose-list"><li>把「Agent 工程」从 Prompt 调参推进到可版本化的 harness 资产，与 Claude Code skills / revfactory 团队拓扑互补。</li><li>支持「小模型 + 强 harness」路线，降低对单一 frontier 模型的依赖。</li><li>生产落地应开始记录失败轨迹分类（合约违反 vs 动作解析 vs 轨迹发散），作为 harness 演化输入。</li><li>与 OpenAI Codex 税务案例同构：二者都强调接口层迭代，差异在于 Life-Harness 免训练、Codex 案例偏代码级 eval 循环。</li></ul><p class="deep-foot">待建 &lt;code&gt;Harness-runtime-adaptation&lt;/code&gt;</p></div></article>
+</section><section class="section-block section-github-growth"><h2 id="github-growth"><span class="section-title">GitHub 动态增长</span><span class="section-intro">看增速，非总 Star</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/pewdiepie-archdaemon/odysseus" target="_blank" rel="noopener">pewdiepie-archdaemon/odysseus</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">增速信号</span> 2026-05-31 创建，约 24h 内 7k+ ★（公开页 ~7.4k–8.3k）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">机制</strong> 单体自托管 Workspace，集成 Chroma 记忆、IMAP/CalDAV、Deep Research、MCP、PWA。</p><p class="kv-row"><strong class="field-label">差异</strong> 相对 OpenClaw 偏「个人控制台」而非多通道 Bot 网关；相对 LangGraph 无编排 DSL，靠内置 Agent + 本地向量检索。</p><p class="kv-row"><strong class="field-label">层级</strong> Harness（工具/记忆/通道编排）+ Context（持久化检索）。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/withkynam/vibecode-pro-max-kit" target="_blank" rel="noopener">withkynam/vibecode-pro-max-kit</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">增速信号</span> 近 7 日新建，~668 ★（GitHub Search 快照）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">机制</strong> Spec 驱动「vibe coding」套件，用持久化 spec/轨迹对抗会话遗忘。</p><p class="kv-row"><strong class="field-label">差异</strong> 比裸 Codex CLI 多项目级记忆契约；比 LangGraph 轻量、无运行时图。</p><p class="kv-row"><strong class="field-label">层级</strong> Context + Harness（规范约束层）。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/HKUDS/nanobot" target="_blank" rel="noopener">HKUDS/nanobot</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">增速信号</span> 5/30 发版说明 + 持续迭代，~43k ★ 存量</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">机制</strong> 5/30 收紧 Matrix 校验、媒体下载上限与 WebUI 模型时间线，降低通道 Agent 被滥用面。</p><p class="kv-row"><strong class="field-label">差异</strong> 相对 OpenClaw 仍走「多 IM 网关 + CLI Apps/MCP」路线，但强调安全边界而非 Star 冲榜。</p><p class="kv-row"><strong class="field-label">层级</strong> Harness（通道/沙箱）+ Model 路由。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/revfactory/harness" target="_blank" rel="noopener">revfactory/harness</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">增速信号</span> 3 月创建，~4.2k ★，5/29 仍活跃推送</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">机制</strong> Claude Code 插件，一句「build a harness」从 6 种团队架构模式生成 <code>.claude/agents/</code> 与 skills。</p><p class="kv-row"><strong class="field-label">差异</strong> 对标 Archon 的 Runtime-Configuration Factory，本仓定位 Team-Architecture Factory（编排拓扑 vs 运行时确定性）。</p><p class="kv-row"><strong class="field-label">层级</strong> Harness（L3 Meta-Factory）。</p></div></article></div>
+<p><strong>数据源</strong>：GitHub Trending / Search（<code>created:&gt;2025-05-25</code>）；Star 为观测日公开快照。</p>
+</section><section class="section-block section-github-novel"><h2 id="github-novel"><span class="section-title">GitHub 新颖探索</span><span class="section-intro">&lt; 5k ★ 或新发布，含社区讨论</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Tianshi-Xu/Life-Harness" target="_blank" rel="noopener">Tianshi-Xu/Life-Harness</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号类型</span> 论文配套开源</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">创新点</strong> 冻结模型，演化 runtime harness 四层。</p><p class="kv-row"><strong class="field-label">差异</strong> 不改权重、不改环境，只改 action/contract/trajectory/skill 接口；相对 RL 微调 Agent 是 interface-first。</p><p class="kv-row"><strong class="field-label">层级</strong> Harness。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Sophomoresty/gemini-web2api" target="_blank" rel="noopener">Sophomoresty/gemini-web2api</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号类型</span> 新工具链</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">创新点</strong> 零 OAuth 把 Gemini Web 转 OpenAI 兼容 API。</p><p class="kv-row"><strong class="field-label">差异</strong> 相对官方 Gemini API 走非官方 Web 通道，部署简单但合规/稳定性风险高。</p><p class="kv-row"><strong class="field-label">层级</strong> 工具级网关。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/pewdiepie-archdaemon/odysseus" target="_blank" rel="noopener">pewdiepie-archdaemon/odysseus</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号类型</span> 社区讨论</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">创新点</strong> 创作者自托管「ChatGPT 式」全家桶。</p><p class="kv-row"><strong class="field-label">差异</strong> HN 讨论聚焦隐私与 mobile-first 开发，而非 Star 规模。</p><p class="kv-row"><strong class="field-label">层级</strong> 产品形态实验。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/revfactory/harness" target="_blank" rel="noopener">revfactory/harness</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号类型</span> 低星高概念</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">创新点</strong> 自然语言生成多 Agent 团队拓扑。</p><p class="kv-row"><strong class="field-label">差异</strong> 相对 <code>everything-claude-code</code> 偏跨仓规范，本仓一次生成领域团队 + orchestrator skill。</p><p class="kv-row"><strong class="field-label">层级</strong> Harness 元工厂。</p></div></article></div>
+</section><section class="section-block section-papers"><h2 id="papers"><span class="section-title">论文速览</span><span class="section-intro">arxiv 近 1–3 日</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2605.22166" target="_blank" rel="noopener">Life-Harness（2605.22166）</a></strong></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> 冻结 LLM + 确定性环境轨迹 →</p><p class="kv-row"><strong class="field-label">方法</strong> 从失败演化 contract/skill/action/trajectory 四层 harness →</p><p class="kv-row"><strong class="field-label">输出</strong> 116/126 设定提升，+88.5% 平均相对增益，Qwen3-4B 演化可迁移 17 骨干。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2605.31584" target="_blank" rel="noopener">LongTraceRL（2605.31584）</a></strong></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> KG 随机游走多跳问 + 搜索 Agent 轨迹 →</p><p class="kv-row"><strong class="field-label">方法</strong> 分层干扰文档 + rubric 实体级过程奖励（仅正样本）→</p><p class="kv-row"><strong class="field-label">输出</strong> 5 个长上下文基准一致超基线。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2605.31492" target="_blank" rel="noopener">LinTree（2605.31492）</a></strong></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> Blocks World / Sokoban 等推理环境 →</p><p class="kv-row"><strong class="field-label">方法</strong> 在隐式搜索轨迹上加 parent pointer 显式 LinTree →</p><p class="kv-row"><strong class="field-label">输出</strong> 优于仅 LLM-heuristic 的 best-first。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2605.31593" target="_blank" rel="noopener">Stateful Online Monitoring（2605.31593）</a></strong></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> 多账号分散 Agent 流量 →</p><p class="kv-row"><strong class="field-label">方法</strong> 实时聚类弱信号 + 少量跨账号 LLM 升级 →</p><p class="kv-row"><strong class="field-label">输出</strong> 分布式攻击检出提前 30%，~99% 流量低延迟。</p></div></article></div>
+</section><section class="section-block section-huggingface"><h2 id="huggingface"><span class="section-title">HuggingFace 动态</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/Qwen/Qwen3.6-35B-A3B" target="_blank" rel="noopener">Qwen/Qwen3.6-35B-A3B</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Trending / 高下载</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">任务</strong> 多模态 Agent 编码（SWE-bench 73.4%、Terminal-Bench 51.5%）。</p><p class="kv-row"><strong class="field-label">可替换</strong> Claude Opus/GPT-5.5 API 做批量代码与工具调用。</p><p class="kv-row"><strong class="field-label">限制</strong> 35B MoE 仅 3B 激活，需多卡或云推理；Apache-2.0。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/google/gemma-4-31B-it" target="_blank" rel="noopener">google/gemma-4-31B-it</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Trending</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">任务</strong> any-to-any 多模态对话 + 函数调用。</p><p class="kv-row"><strong class="field-label">可替换</strong> GPT-4o 类闭源多模态 API。</p><p class="kv-row"><strong class="field-label">限制</strong> 31B 密集权重 ~62GB 级文件体积，端侧需量化；Apache-2.0。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF" target="_blank" rel="noopener">unsloth/Qwen3.6-35B-A3B-GGUF</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 社区量化生态</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">任务</strong> 本地 GGUF 部署 Qwen3.6 MoE。</p><p class="kv-row"><strong class="field-label">可替换</strong> 官方 FP8 权重 + vLLM。</p><p class="kv-row"><strong class="field-label">限制</strong> 量化损精度；单卡仅适合小上下文切片。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/google/gemma-4-E4B-it" target="_blank" rel="noopener">google/gemma-4-E4B-it</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 架构实验</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">任务</strong> 任意模态组合的 E4B any-to-any。</p><p class="kv-row"><strong class="field-label">可替换</strong> 标准 <code>gemma-4-31B-it</code> 若不需任意模态 IO。</p><p class="kv-row"><strong class="field-label">限制</strong> E 系列上下文 128K（小于 31B 的 256K）；算力低于 26B-A4B MoE 活跃参数路径。</p></div></article></div>
+</section><section class="section-block section-bigtech-en"><h2 id="bigtech-en"><span class="section-title">英文大厂</span><span class="section-intro">海外大厂产品与模型发布</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.anthropic.com/news/anthropic-raises-65b-in-series-h-funding-at-965b-post-money-valuation" target="_blank" rel="noopener">Anthropic</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> Series H / $965B 估值（5/28）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：估值叙事从「追赶 OpenAI」</p><p class="kv-row"><strong class="field-label">输出</strong> 企业 ARR $47B、Ramp 统计 4 月企业采用率超 OpenAI。行动：评估 Claude Code / Managed Agents 是否纳入企业合规采购清单。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://openai.com/index/building-self-improving-tax-agents-with-codex/" target="_blank" rel="noopener">OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> Codex 自改进税务 Agent 案例（5/27）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：人工逐条修 bug</p><p class="kv-row"><strong class="field-label">输出</strong> 生产纠错自动变 bounded eval，Codex 循环改代码。行动：在自有领域复制「trace + 专家纠错</p><p class="kv-row"><strong class="field-label">结论</strong> eval 套件</p><p class="kv-row"><strong class="field-label">结论</strong> Codex 迭代」闭环，而非期待权重在线学习。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.anthropic.com/news/claude-opus-4-8" target="_blank" rel="noopener">Anthropic</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> Claude Opus 4.8（5/28）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：Opus 4.7 工具不稳/冗长注释</p><p class="kv-row"><strong class="field-label">输出</strong> 4.8 强调长程任务与 Dynamic Workflows（数百子 Agent 并行编排）。行动：在 Claude Code 用 <code>workflow</code> 或 ultracode 试多子任务，并预算 token 飙升。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://openai.com/index/discrete-geometry-conjecture/" target="_blank" rel="noopener">OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> 离散几何猜想反例（5/20 研究帖，窗口内持续引用）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：模型仅证定理</p><p class="kv-row"><strong class="field-label">输出</strong> 对 Erdős 1946 平面单位距离上界给出更优排列反例。行动：把 LLM 当「猜想生成器」，人类仍负责形式化审查与投稿流程。</p></div></article></div></section><section class="section-block section-bigtech-zh"><h2 id="bigtech-zh"><span class="section-title">中文生态</span><span class="section-intro">国内媒体报道与生态价格</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.qbitai.com/2026/05/423162.html" target="_blank" rel="noopener">量子位 / DeepSeek</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> V4-Pro API 永久降为原价 1/4（5/22 官宣，6/1 起生效）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：限时 2.5 折到期恢复原价</p><p class="kv-row"><strong class="field-label">输出</strong> 输入 0.025 元/百万（缓存命中）等永久价。行动：重算 Agent 流水线 token 账单，缓存命中策略直接决定 10× 级成本差。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.qbitai.com/2026/05/426314.html" target="_blank" rel="noopener">量子位 / Anthropic</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> Claude Opus 4.8 中文解读（5/29）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：单会话 Codex</p><p class="kv-row"><strong class="field-label">输出</strong> Dynamic Workflows 用 JS 编排脚本 fan-out 子智能体。行动：国内团队对照是否用国产编排框架复刻「编排脚本 + 子 Agent 池」，避免锁定 CLI 预览接口。</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://news.sciencenet.cn/htmlnews/2026/5/565727.shtm" target="_blank" rel="noopener">科学网 / OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">事件</span> 模型推翻 Erdős 平面单位距离猜想报道（5/31）</span></div></header><div class="signal-body"><p class="kv-row"><strong class="field-label">输入</strong> before</p><p class="kv-row"><strong class="field-label">方法</strong> after：数学界默认猜想为真</p><p class="kv-row"><strong class="field-label">输出</strong> AI 搜索反直觉构造并获菲尔兹奖学者认可可发表。行动：在科研辅助场景分离「探索性猜想生成」与「证明审稿」职责。</p></div></article></div></section><section class="section-block"><h2 id="八-跟进"><span class="section-title">跟进</span></h2>
+<ul>
+<li>[ ] 观察 — Life-Harness 在自有 τ-bench/内部环境的复现成本与演化 prompt 泄露风险</li>
+<li>[ ] 观察 — Anthropic Dynamic Workflows 预览版的 token 曲线与企业配额策略</li>
+<li>[ ] 观察 — DeepSeek V4-Pro 永久价生效后 OpenRouter/国内云厂商路由份额变化</li>
+<li>[ ] 升格 — <span class="wikilink" title="Harness-runtime-adaptation">Harness-runtime-adaptation</span>（若连续 ≥2 日有 harness 论文/产品共振）</li>
+</ul>
+</section><section class="section-block"><h2 id="九-与昨日衔接"><span class="section-title">与昨日衔接</span></h2>
+<ul>
+<li>昨日：无 <code>trends/2026-05-31/index.md</code> 存档（本目录首篇按日日志）</li>
+<li>周信号：Harness / interface-first 与 MoE 开源编码栈、头部 IPO/估值叙事三条线并行；今日与 README 预告的「Managed Agents + harness 工具链」方向一致</li>
+</ul>
+</section><section class="section-block"><h2 id="十-疑问-待查"><span class="section-title">疑问 / 待查</span></h2>
+<ul>
+<li>GitHub API 恢复后补核 odysseus / vibecode-pro-max-kit 的精确 Star 与 7 日增速曲线</li>
+<li>Life-Harness 演化 harness 的 token 开销与「仅 Qwen3-4B 轨迹」是否在其他中文骨干上衰减</li>
+<li>OpenAI 机密 S-1 与 Anthropic 10 月 IPO 窗口的公开披露时间点</li>
+</ul></section>
+<p class="footer">由 trends/index.md 自动生成 · 2026-06-01</p>
+</div>
+</body>
+</html>

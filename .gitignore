@@ -1,0 +1,21 @@
+# Obsidian 工作区缓存（不提交）
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/
+.obsidian/themes/
+.obsidian/snippets/
+.obsidian/cache
+
+# 个人隐私日记（按需取消注释）
+# 30天-agent学习路线/notes/
+
+# AI 趋势自动化日志与检索底稿
+trends/.logs/
+trends/*/.research/
+
+# macOS
+.DS_Store
+30天-agent学习路线/
+new-idea/
+resources/
+.obsidian/

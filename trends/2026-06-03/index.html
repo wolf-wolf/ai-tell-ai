@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 趋势日报 — 2026-06-03</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --paper: #f5f4f1;
+  --rule: #d4d2cb;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #d4d2cb;
+  --accent: #ff6b3d;
+  --link: #2563eb;
+  --dir-fg: #9a3412;
+  --dir-bg: #fff2e8;
+  --sel-fg: #1e40af;
+  --sel-bg: #eff6ff;
+  --tool-fg: #065f46;
+  --tool-bg: #ecfdf5;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Inter", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 0.8125rem;
+  background: #e2e0db;
+  color: var(--text);
+  line-height: 1.58;
+  margin: 0;
+}
+.page-header {
+  padding: 0.7rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--rule);
+  background: #fafaf8;
+}
+.ph-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+.ph-date {
+  color: #374151;
+  font-size: 0.8rem;
+}
+.ph-meta {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  column-gap: 0;
+  row-gap: 0;
+  align-items: stretch;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
+  background: var(--paper);
+}
+.wrap > * {
+  grid-column: 1 / -1;
+}
+.section-github-growth { grid-column: 1 / 3; }
+.section-github-novel { grid-column: 3 / 5; }
+.section-papers { grid-column: 5 / 7; }
+.section-huggingface { grid-column: 1 / 3; }
+.section-bigtech-en { grid-column: 3 / 5; }
+.section-bigtech-zh { grid-column: 5 / 7; }
+.section-judgment { grid-column: 1 / 3; }
+.section-deep { grid-column: 3 / 7; }
+h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  padding: 0 0 0.32rem;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
+.section-title {
+  flex: 0 1 auto;
+}
+.section-intro {
+  flex: 1 1 auto;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.4;
+}
+.section-intro::before {
+  content: "·";
+  margin-right: 0.35rem;
+  color: #9ca3af;
+}
+h3 {
+  font-size: 1.03rem;
+  margin: 0.8rem 0 0.45rem;
+  color: #374151;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
+  font-size: 0.74rem;
+  color: #4b5563;
+  margin: 0;
+  padding: 0.55rem 0.95rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.meta .meta-item {
+  padding: 0.08rem 0.32rem;
+  border-bottom: none;
+}
+hr {
+  display: none;
+}
+.section-block {
+  min-width: 0;
+  border-radius: 0;
+  padding: 0.65rem 0.95rem 0.75rem;
+  margin: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.section-papers,
+.section-bigtech-zh,
+.section-deep,
+.wrap > .section-block:not(.section-github-growth):not(.section-github-novel):not(.section-papers):not(.section-huggingface):not(.section-bigtech-en):not(.section-bigtech-zh):not(.section-judgment):not(.section-deep) {
+  border-right: none;
+}
+p { margin: 0.45rem 0; font-size: 0.78rem; }
+ul {
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+  font-size: 0.78rem;
+}
+li { margin: 0.22rem 0; }
+.section-judgment p,
+.section-judgment li {
+  font-size: 0.76rem;
+  line-height: 1.52;
+  margin: 0.28rem 0;
+}
+.judgment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.judgment-prose {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.62;
+  color: #1f2937;
+}
+.section-judgment ul {
+  margin: 0.25rem 0;
+}
+
+.signal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.35rem 0 0;
+  border-top: none;
+}
+.signal-card {
+  padding: 0.5rem 0;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+}
+.signal-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.signal-head-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  margin-bottom: 0.2rem;
+}
+.signal-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+}
+.signal-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.signal-title a:hover {
+  color: var(--link);
+}
+.signal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  color: #4b5563;
+  line-height: 1.48;
+}
+.signal-chip {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px;
+  padding: 0.1rem 0.38rem;
+}
+.confidence-low-chip {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+.chip-label {
+  color: #6b7280;
+  font-weight: 600;
+  margin-right: 0.15em;
+}
+.confidence-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+}
+.confidence-high {
+  color: #065f46;
+  background: #ecfdf5;
+}
+.confidence-low {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+.signal-body {
+  font-size: 0.75rem;
+  margin: 0.15rem 0 0.22rem;
+}
+.signal-body .kv-row {
+  margin: 0.18rem 0;
+}
+.signal-plain {
+  margin: 0;
+  line-height: 1.65;
+  color: #1f2937;
+}
+.signal-lead {
+  margin: 0 0 0.2rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.45;
+}
+.signal-prose {
+  margin: 0.2rem 0 0;
+  line-height: 1.58;
+  color: #1f2937;
+}
+.signal-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  color: #1f2937;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+.signal-prose-list li {
+  margin: 0.14rem 0;
+}
+.insight-action {
+  margin: 0.35rem 0 0;
+  padding: 0.28rem 0 0.28rem 0.45rem;
+  border-left: 2px solid #93c5fd;
+  font-size: 0.75rem;
+  line-height: 1.52;
+  color: #1e3a5f;
+}
+.insight-list {
+  margin: 0.15rem 0 0.2rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.insight-list li {
+  margin: 0.12rem 0;
+  line-height: 1.5;
+}
+.kv-row {
+  margin: 0.18rem 0;
+  line-height: 1.52;
+  font-size: 0.75rem;
+  color: #1f2937;
+}
+.field-label {
+  font-weight: 700;
+  color: #111827;
+}
+.field-label::after {
+  content: "：";
+  font-weight: 700;
+}
+.field-head {
+  margin: 0.22rem 0 0.1rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.35;
+}
+.field-head::after {
+  content: "：";
+}
+
+.badge-dir,
+.badge-sel,
+.badge-tool {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.08rem 0.52rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.badge-dir { color: var(--dir-fg); background: var(--dir-bg); border-color: #fed7aa; }
+.badge-sel { color: var(--sel-fg); background: var(--sel-bg); border-color: #bfdbfe; }
+.badge-tool { color: var(--tool-fg); background: var(--tool-bg); border-color: #bbf7d0; }
+
+.wikilink {
+  color: #b45309;
+  border-bottom: 1px dashed #f59e0b;
+}
+
+.deep-article {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.52;
+}
+.deep-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.32rem;
+  border-bottom: 1px solid var(--rule);
+}
+.deep-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.4;
+  flex: 1 1 12rem;
+}
+.deep-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.deep-title a:hover {
+  color: var(--link);
+}
+.deep-aux {
+  font-size: 0.68rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.deep-aux-link {
+  color: var(--link);
+  text-decoration: none;
+  margin-left: 0.35rem;
+}
+.deep-aux-link:hover {
+  text-decoration: underline;
+}
+.deep-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.deep-prose {
+  margin: 0;
+  color: #1f2937;
+  line-height: 1.62;
+  font-size: 0.78rem;
+}
+.deep-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: #374151;
+}
+.deep-prose-list li {
+  margin: 0.14rem 0;
+}
+.deep-foot {
+  margin: 0.2rem 0 0;
+  padding-top: 0.28rem;
+  border-top: 1px dashed var(--rule);
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.footer {
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  background: #fafaf8;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 900px) {
+  .wrap {
+    display: block;
+  }
+  .section-block {
+    border-right: none;
+  }
+}
+@media (max-width: 760px) {
+  .page-header { padding: 0.72rem 0.6rem; }
+  .wrap { padding: 0 0 1.5rem; }
+  .meta { padding: 0.55rem 0.75rem; }
+  .section-block { padding: 0.55rem 0.7rem 0.65rem; }
+}
+</style>
+</head>
+<body>
+<header class="page-header"><span class="ph-title">AI 趋势日报</span><span class="ph-date">2026-06-03</span><span class="ph-meta">观测窗口 · 约 15–25 分钟 · 信号分级阅读</span></header>
+<div class="wrap">
+<div class="meta"><span class="meta-item"><strong>Star 说明</strong>：GitHub REST <code>/repos</code> 批量调用触发 403；总量经 Search API 单条核实，增速仅来自 Trending「Built by」字段。</span></div>
+<hr>
+<section class="section-block section-judgment"><h2 id="judgment"><span class="section-title">今日关键判断</span><span class="section-intro">今日主线</span></h2><div class="judgment-body"><p class="judgment-prose">GitHub 增速侧延续 Context 工具链（headroom、Understand-Anything），并新增 <strong>microsoft/agent-governance-toolkit</strong> 与 <strong>Mirage</strong> 统一 VFS——工具面从「减 token」扩展到「可挂载、可治理」。</p><p class="judgment-prose">同日大厂叙事集中在 harness 与安全部署：<strong>Anthropic Glasswing</strong> 扩伙伴、<strong>OpenAI Codex 角色插件</strong>、<strong>NVIDIA×Microsoft</strong> 统一 agentic 栈，安全扫描与 OS/云/边缘部署话术共振。</p><p class="judgment-prose">论文与模型侧，<strong>JAMEL</strong> 把 GUI 探索与 latent memory 收成联合训练闭环，<strong>Cosmos 3 Physical AI</strong> 权重上架 HF；综合来看，今日信号指向「压缩上下文带宽 + 统一工具/部署面 + 治理与安全 harness」三条主线并行。</p></div></section><section class="section-block section-deep"><h2 id="deep-dive"><span class="section-title">深读 1 条</span><span class="section-intro">一条深读</span></h2>
+<article class="deep-article"><header class="deep-head"><h3 class="deep-title"><a href="https://arxiv.org/abs/2606.01528" target="_blank" rel="noopener">JAMEL — <em>Joint Agent Memory and Exploration Learning via Novelty Signals</em>（arXiv:2606.01528）</a><span class="deep-aux"><a class="deep-aux-link" href="https://github.com/MobileLLM/JAMEL" target="_blank" rel="noopener">GitHub</a><a class="deep-aux-link" href="https://huggingface.co/papers/2606.01528" target="_blank" rel="noopener">papers/2606.01528</a></span></h3></header><div class="deep-body"><p class="deep-prose">JAMEL 面向 GUI agent 在从未见过的 Web/App 上探索：传统 ReAct 要么外挂向量记忆、要么纯 RAG，很难在无标注数据下同时学好「往哪点」和「记住什么」。论文用 JS code coverage 等 persistent novelty 信号，联合训练 latent memory compressor（Qwen3-VL-2B）和 exploration policy（Qwen2.5-VL-7B），在 ScaleWoB 96 个 app（86 训 / 10 测）与 BrowserGym 动作空间上完成训练，代码 2026-06-02 开源。</p><p class="deep-prose">在 10 个未见 app、50 step 设定下，JAMEL-9B 平均 cumulative coverage reward 20.7，接近 Gemini 3.1 Flash-Lite ReAct-vision 的 20.9，明显高于 MAI-UI-8B 的 8.4；token 消耗约为 ReAct-vision 的 1/22。训练规模 24k samples / 86 apps；GitHub 页面仅 3 stars，尚处早期。</p><p class="deep-prose">对行业的影响在于把「探索策略 + latent memory」收成一条训练闭环，弱化「先探索完再挂向量库」的两段式 harness，尤其适合企业内网 GUI 缺标注轨迹的场景；与 OpenWebRL 的 live-web 多轮 RL 形成互补（JAMEL 偏 app 覆盖，OpenWebRL 偏浏览器任务链）。风险是 benchmark 外泛化与独立复现尚未验证。</p></div></article>
+<p>在 10 个未见 app、50 step 设定下，JAMEL-9B 平均 cumulative coverage reward 20.7，接近 Gemini 3.1 Flash-Lite ReAct-vision 的 20.9，明显高于 MAI-UI-8B 的 8.4；token 消耗约为 ReAct-vision 的 1/22。训练规模 24k samples / 86 apps；GitHub 页面仅 3 stars，尚处早期。</p>
+<p>对行业的影响在于把「探索策略 + latent memory」收成一条训练闭环，弱化「先探索完再挂向量库」的两段式 harness，尤其适合企业内网 GUI 缺标注轨迹的场景；与 OpenWebRL 的 live-web 多轮 RL 形成互补（JAMEL 偏 app 覆盖，OpenWebRL 偏浏览器任务链）。风险是 benchmark 外泛化与独立复现尚未验证。</p>
+<ul>
+<li><strong>知识库节点</strong>：待建 <code>GUI-agent-memory-exploration</code></li>
+</ul>
+</section><section class="section-block section-github-growth"><h2 id="github-growth"><span class="section-title">GitHub 动态增长</span><span class="section-intro">看增速，非总 Star</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/chopratejas/headroom" target="_blank" rel="noopener">chopratejas/headroom</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 总 star 6,488；+1,265 today、+3,002 this week<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">RAG 入口压缩双榜第一</p><p class="signal-prose">headroom 在 tool output、log、文件与 RAG chunk 进入 LLM 前做压缩，README 宣称 60–95% token 节省，并提供 library、proxy 与 MCP server。Trending daily #1 与 weekly 同时上榜，单日 +1,265、本周 +3,002 约占总量 46%，仍是 Agent/RAG 垂直最清晰的增速 breakout。</p><ul class="signal-prose-list"><li>最近 release v0.22.4（2026-06-01）</li><li>与 codegraph 预索引互补：headroom 压 payload，图谱减检索轮次</li></ul><p class="insight-action">在 RAG 链路上游接 headroom proxy，对照 bare chunk 的 tool call 解析错误率与召回</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Lum1104/Understand-Anything" target="_blank" rel="noopener">Lum1104/Understand-Anything</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 总 star 50,127；+15,774 this week<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">代码图谱本周仍+1.5万</p><p class="signal-prose">Understand-Anything 把代码库转为可探索、可搜索、可问答的交互式知识图谱，README 明确兼容 Claude Code、Codex、Cursor、Copilot 与 Gemini CLI。Trending weekly 本周 +15,774 star，增量约占总量 31%，与 colbymchenry/codegraph 并列 coding-agent 上下文基础设施爆发。</p><ul class="signal-prose-list"><li>TypeScript 实现</li><li>适合与 headroom 做 A/B：结构索引 vs 流式压缩</li></ul><p class="insight-action">在自有 monorepo 对比 Understand-Anything 与纯 grep 的首轮定位 token 与准确率</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/microsoft/agent-governance-toolkit" target="_blank" rel="noopener">microsoft/agent-governance-toolkit</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 总 star 3,817；+1,391 this week<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Agent 治理 harness 周增四成</p><p class="signal-prose">agent-governance-toolkit 提供 policy enforcement、zero-trust identity、execution sandboxing 与 reliability engineering，README 宣称覆盖 OWASP Agentic Top 10 全部 10 项。本周 +1,391 star 约占总量 36%，反映 agent 从「能跑」到「能管」的二阶需求与 revfactory/harness 等配置层升温并行。</p><ul class="signal-prose-list"><li>Python 实现，企业向</li><li>与 Context 层爆发形成「带宽 + 治理」双线</li></ul><p class="insight-action">对照现有 agent 沙箱策略，试跑 toolkit 的 policy 模板是否覆盖自有 tool/MCP 面</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/nesquena/hermes-webui" target="_blank" rel="noopener">nesquena/hermes-webui</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 总 star 12,551；+1,722 today<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Hermes Agent 单日+1.7k UI</p><p class="signal-prose">hermes-webui 为 Hermes Agent 提供 Web 与手机端 UI（Python），Trending daily 单日 +1,722 star，显示 terminal agent 向多端 UI 扩散。与 ECC 文档中的 Hermes operator shell 叙事同生态；本周 weekly Top 20 片段未核实，仅 daily 增速有证据。</p><ul class="signal-prose-list"><li>属 agent 运行时/UI 层，非模型权重</li><li>与 NVIDIA×Microsoft agentic 栈、OpenClaw 类本地助手形成多端入口竞争</li></ul><p class="insight-action">若已用 Hermes CLI，评估 WebUI 是否降低长会话监控与审批摩擦</p></div></article></div>
+<p><strong>数据源</strong>：GitHub Trending（today/weekly）；Star 经 Search API 核对。</p>
+</section><section class="section-block section-github-novel"><h2 id="github-novel"><span class="section-title">GitHub 新颖探索</span><span class="section-intro">&lt; 5k ★ 或新发布，含社区讨论</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/strukto-ai/mirage" target="_blank" rel="noopener">strukto-ai/mirage</a><span class="deep-aux"><a class="deep-aux-link" href="https://news.ycombinator.com/item?id=48077914" target="_blank" rel="noopener">社区</a></span></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 2,992；Created 2026-05-06；HN item 48077914<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">多后端统一虚拟文件系统</p><p class="signal-prose">Mirage 将 S3、Slack、Gmail、GitHub、Redis 等挂载为单一虚拟文件树，Agent 用 grep/cat/cp 等 bash 管道跨服务编排，README 对标「agents reason about one abstraction instead of N SDKs and M MCPs」。提供 Python/TS SDK、FUSE 挂载与 workspace snapshot，可插入 OpenAI Agents SDK、LangChain、Pydantic AI 等作为 sandbox/tool 层。</p><ul class="signal-prose-list"><li>不做 LangGraph 状态图，统一工具面语义</li><li>与 OpenClaw 个人助手 runtime 不同层：Mirage 是基础设施</li></ul><p class="insight-action">选两条跨服务查询用 Mirage 路径语法对照 per-service MCP tool 的 token 与步骤数</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/open-gitagent/gitagent-protocol" target="_blank" rel="noopener">open-gitagent/gitagent-protocol</a><span class="deep-aux"><a class="deep-aux-link" href="https://news.ycombinator.com/item?id=47376584" target="_blank" rel="noopener">社区</a></span></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 2,796；Spec v0.1.0；HN item 47376584<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Git 原生 Agent 开放标准</p><p class="signal-prose">OpenGAP（Git Agent Protocol）以 agent.yaml + SOUL.md 为最小必需文件，opengap export/run 可适配 Claude Code、OpenAI Agents SDK、CrewAI、LangChain、OpenClaw、Nanobot、Cursor 等。内置 Segregation of Duties、FINRA/SEC 合规字段与 SkillsFlow 确定性 YAML workflow，把 identity/prompt/skills 从各框架抽离为 git 制品。</p><ul class="signal-prose-list"><li>不实现 runtime graph；与 LangGraph 编排正交</li><li>HN Show HN 讨论 portability vs runtime discovery</li></ul><p class="insight-action">用 export 把现有 Claude Code agents 目录转为 OpenGAP 布局，评估 PR 级版本化是否降低跨框架迁移成本</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/self-evolving/repo" target="_blank" rel="noopener">self-evolving/repo</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 38；Created 2026-04-28；release v0.3.0<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">GHA 内自进化协作 Agent</p><p class="signal-prose">Sepo 在 issue/PR/discussion 中 @sepo-agent 触发，运行在 GitHub Actions 而非独立 chat gateway。持久上下文放在 repo 分支 agent/memory 与 agent/rubrics，支持 /implement、/review、/fix-pr、/orchestrate 等路由，可定时 workflow 做 daily summary 与 agent 自更新。</p><ul class="signal-prose-list"><li>与 OpenClaw 多 channel 个人助手不同：协作面在 GitHub 原生 UI</li><li>记忆是 git 分支上的 curated artifacts，非 chunk+embedding RAG</li></ul><p class="insight-action">在试点 repo 开一条只读 chore issue 试 @sepo-agent，核对 GHA secret 与写权限边界</p></div></article></div>
+</section><section class="section-block section-papers"><h2 id="papers"><span class="section-title">论文速览</span><span class="section-intro">arxiv 近 1–3 日</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.01528" target="_blank" rel="noopener">Joint Agent Memory and Exploration Learning via Novelty Signals (JAMEL)</a></strong></div></header><div class="signal-body"><p class="signal-lead">GUI 探索+记忆联合训练</p><p class="signal-prose">清华 + 百度 + 北大等（2026-06-02，cs.AI）提出 JAMEL：用 JS code coverage 等 persistent novelty signal 无标注监督 latent memory 与 exploration policy；Qwen3-VL-2B compressor + Qwen2.5-VL-7B policy。JAMEL-9B 在 10 个未见 GUI app 上 50 step 平均 cumulative coverage reward 20.7，对比 Gemini 3.1 Flash-Lite ReAct-vision 20.9、MAI-UI-8B 8.4；token 消耗约为 ReAct-vision 的 1/21.92；训练 24k samples / 86 apps（ScaleWoB）。</p><ul class="signal-prose-list"><li>代码仓 2026-06-02 创建，GitHub 3 stars（页面可见）</li><li>把 GUI agent 探索与记忆从外挂 RAG 推进到联合 RL</li></ul></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.02031" target="_blank" rel="noopener">OpenWebRL: Demystifying Online Multi-turn Reinforcement Learning for Visual Web Agents</a></strong></div></header><div class="signal-body"><p class="signal-lead">Live-web VLM RL 管线</p><p class="signal-prose">Microsoft + UIUC（2026-06-01，cs.LG）在 live browser 上 SFT warm-start + 多轮 MM-GRPO；OpenWebRL-4B 在三项 live-web benchmark 平均 68.4% success（WebVoyager 74.1%、Online-Mind2Web 67.0%、DeepShop 64.0%）。训练 0.4K SFT + 2.2K RL tasks；OpenWebRL-Judge-8B 蒸馏 F1 92.1% vs GPT-4.1 oracle；HF 数据集 OpenWebRL-RL-Tasks 含 2,198 条 RL tasks。</p><ul class="signal-prose-list"><li>基于 Qwen3-VL-4B/8B backbone</li><li>GitHub star 数未核实（API rate limit）</li></ul></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.02559" target="_blank" rel="noopener">From Layers to Submodules: Rethinking Granularity in Replacement-Based LLM Compression (SubFit)</a></strong></div></header><div class="signal-body"><p class="signal-lead">子模块粒度 LLM 剪枝</p><p class="signal-prose">2026-06-01 投稿（cs.CL, cs.AI），SubFit 在 Attention/FFN 子模块做非连续选择 + fitted residual bypass。25% sparsity 下 aggregate downstream accuracy retention 84.6%（最强 baseline 81.6%），perplexity degradation 2.42× vs baseline 4.34×；评测 10 LLM × 5 sparsity levels。代码见 eliacunegatti/SubFit；GitHub 0 stars（页面可见，2026-06-03）。</p><ul class="signal-prose-list"><li>工程向 post-training 压缩</li><li>与本地大模型部署门槛叙事相关</li></ul></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.02568" target="_blank" rel="noopener">ClinEnv: An Interactive Multi-Stage Long Horizon EHR Environment for Agents</a></strong></div></header><div class="signal-body"><p class="signal-lead">住院 EHR 长程 Agent 环境</p><p class="signal-prose">Georgia Tech + 北大 + 清华等（2026-06-02 批次）提出 ClinEnv：真实 EHR 多阶段住院轨迹 + 四 agent（patient/nurse/lab/history）主动查信息 + 确定性 ontology 打分。7 个 LLM 中最强 decision F1 仅 0.31；discharge diagnosis F1 0.51 vs management F1 0.17；基于 MIMIC-IV v3.1 + MIMIC-IV-Note v2.2。HF 数据集页存在但 dataset 为空（2.5 kB），论文摘要未给出 GitHub。</p><ul class="signal-prose-list"><li>医疗 agent 长程评测基础设施</li><li>artifact 尚未就绪，落地置信低于 JAMEL/OpenWebRL</li></ul></div></article></div>
+</section><section class="section-block section-huggingface"><h2 id="huggingface"><span class="section-title">HuggingFace 动态</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/blog/nvidia/cosmos-3-for-physical-ai" target="_blank" rel="noopener">NVIDIA Cosmos 3</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Cosmos3-Nano 16B · 9.07k downloads · 109 likes；Cosmos3-Super 65B · 2.83k · 98；Blog 2026-06-01<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Physical AI omni 世界模型</p><p class="signal-prose">NVIDIA Cosmos 3 以 MoT（AR reasoner + diffusion generator）统一世界生成、物理推理与 action 生成，替代此前 Cosmos Predict/Reason/Transfer/Policy 多模型流水线。Cosmos3-Nano 16B（8B+8B，RTX PRO 6000 级工作站）与 Cosmos3-Super 64B（32B+32B，Hopper/Blackwell）已上架 Hub Trending，支持 Diffusers Cosmos3OmniPipeline 与 vLLM-Omni。</p><ul class="signal-prose-list"><li>许可 OpenMDW 1.1；仅 BF16 官方测试</li><li>HN 强调主攻机器人/AV 合成数据，非消费级纯视频生成竞品</li></ul><p class="insight-action">若做具身或仿真数据管线，先读 Nano 卡面算力门槛再决定是否接 Diffusers pipeline</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/blog/JetBrains/mellum2-launch" target="_blank" rel="noopener">JetBrains Mellum2</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 12B · 799 downloads · 132 likes；Blog 2026-06-01；2.5B active/token<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">12B MoE 专做 sub-agent</p><p class="signal-prose">Mellum2 为 12B 总参 / 2.5B active/token MoE（64 experts, 8 active），面向 routing、RAG、摘要、sub-agent 与高吞吐 coding，Apache 2.0。JetBrains 称相对同规模开源模型 &gt;2× 推理速度（见 arxiv 2605.31268）；预训练约 10.6T tokens，128K context（YaRN）。</p><ul class="signal-prose-list"><li>非 frontier 多模态通用模型</li><li>适合 IDE 内嵌或私有部署的高频中间步骤</li></ul><p class="insight-action">用 Mellum2-Instruct 替换现有 sub-agent 规划调用，记录延迟与下游主模型 token 节省</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/blog/Hcompany/holo31" target="_blank" rel="noopener">H Company Holo3.1</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Blog 2026-06-02；0.8B–35B-A3B；AndroidWorld 67%→79.3%（35B-A3B，厂商自述）<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">GUI Agent 量化本地栈</p><p class="signal-prose">Holo3.1 是基于 Qwen 族的 GUI computer-use VLM，覆盖 web/desktop/mobile，新增 function-calling 与 Holo3 JSON 输出；首发 FP8、Q4 GGUF、NVFP4 量化（35B-A3B）。厂商称 NVFP4 在 DGX Spark 上相对 BF16 1.74× token 吞吐，强调私有、不出网执行路径。</p><ul class="signal-prose-list"><li>可与 Holo Models API 或 Hub collection 部署</li><li>与 Qwen3.7-Plus 等同属屏幕 agent 竞争带</li></ul><p class="insight-action">在目标 OS 上试 9B Q4 本地 agent，对照云 API 的 AndroidWorld 类任务成功率与单价</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/docs/hub/main/en/spaces-agents" target="_blank" rel="noopener">Spaces agents.md</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 每 Space 四行模板（schema/call/poll/auth）；示例 microsoft/TRELLIS.2<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Gradio Space 当 Agent 工具</p><p class="signal-prose">Hub 文档定义 <code>https://huggingface.co/spaces/&lt;ns&gt;/&lt;repo&gt;/agents.md</code> 端点，返回 Gradio API schema、POST/GET 模板与 Bearer HF_TOKEN 提示。Agent 可链式调用 Space（如 flux-klein 出图 → TRELLIS.2 3D），无需硬编码集成；ZeroGPU Space 需 token 计费至用户配额。</p><ul class="signal-prose-list"><li>与 huggingface_hub Agents SDK / MCP 互补：前者 curl/任意 coding agent 通用</li><li>优势在 discoverability 与统一 auth</li></ul><p class="insight-action">用 curl 拉一条目标 Space 的 agents.md，试把其接入现有 Claude Code tool 列表</p></div></article></div>
+</section><section class="section-block section-bigtech-en"><h2 id="bigtech-en"><span class="section-title">英文大厂</span><span class="section-intro">海外大厂产品与模型发布</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.anthropic.com/news/expanding-project-glasswing" target="_blank" rel="noopener">Anthropic</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-02 扩展 Project Glasswing；新增约 150 家组织、15+ 国家；累计伙伴约 200<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Glasswing 扩至约200伙伴</p><p class="signal-prose">Anthropic 2026-06-02 宣布 Project Glasswing 扩展至电力、水务、医疗、通信、硬件等此前代表性不足行业，新增约 150 家组织、15+ 国家，累计伙伴约 200。早期约 50 家伙伴用 Claude Mythos Preview 扫描代码库，官网引用其已发现 10,000+ 高/严重漏洞；同步推出面向公众的 Claude Security（基于 Opus 4.8 等公开模型做代码扫描与补丁建议）。</p><ul class="signal-prose-list"><li>强调 6–12 个月内同业或将具备 Mythos 级能力</li><li>与同日秘交 S-1 形成安全能力 + 资本叙事双线</li></ul><p class="insight-action">企业安全团队对照 Claude Security 与现有 SAST 流水线，评估 Mythos 级能力披露节奏对补丁 SLA 的影响</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://openai.com/index/codex-for-every-role-tool-workflow/" target="_blank" rel="noopener">OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-02；周活 &gt;500 万；非开发者约 20%、增速为开发者 3×+；6 角色插件、62 应用、110 skills<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Codex 六角色插件扩职能</p><p class="signal-prose">OpenAI 2026-06-02 发布数据分析、创意、销售、产品设计、公募股权投资、投行等 6 个角色向 Codex 插件，捆绑 62 个应用与 110 项 skills；官方称 Codex 周活 &gt;500 万，非开发者用户约 20% 且增速为开发者 3×+。同步推出 Sites（Business/Enterprise 预览，可生成可分享 URL 的工作区站点）与 Annotations（对文档/表格/幻灯片选定区域就地迭代）。</p><ul class="signal-prose-list"><li>把 Codex 从纯编码 harness 扩到企业知识工作流</li><li>与 2026-06-01 AWS Bedrock 路径形成云治理 + 职能扩展</li></ul><p class="insight-action">选一条非开发 chore（如销售简报）试角色插件，对照 hand-written skills 的稳定性</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://nvidianews.nvidia.com/news/nvidia-partners-with-microsoft-on-unified-stack-for-agentic-ai-deployment" target="_blank" rel="noopener">NVIDIA + Microsoft</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 新闻稿 2026-06-02；Windows—云—本地统一 agentic AI 部署栈<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">NV×MS 统一 Agent 部署栈</p><p class="signal-prose">NVIDIA Newsroom 2026-06-02 稿称 NVIDIA 与 Microsoft 联合提供从 Windows 终端到云与本地的 agentic AI 部署统一栈，与 COMPUTEX / GTC Taipei 2026 发布节奏同期。详细 SKU/GA 条款本次未在正文逐条核实，但标题与日期来自官方 Newsroom 列表。</p><ul class="signal-prose-list"><li>与 2026-06-01 Jetson JetPack 7.2 / NemoClaw 边缘叙事衔接</li><li>本地 Hermes/OpenClaw 类 agent 与云端 Codex 的企业采购可能进一步收敛到「同一栈」叙事</li></ul><p class="insight-action">跟踪 keynote 全文中的 GA 范围，再决定是否调整 Windows 端 agent 运行时选型</p></div></article></div></section><section class="section-block section-bigtech-zh"><h2 id="bigtech-zh"><span class="section-title">中文生态</span><span class="section-intro">国内媒体报道与生态价格</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://finance.sina.com.cn/tech/shenji/2026-06-02/doc-inhzysxu3287083.shtml" target="_blank" rel="noopener">阿里云 / 千问</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-02 发布 Qwen3.7-Plus；已上线阿里云百炼 API</span></div></header><div class="signal-body"><p class="signal-lead">千问3.7-Plus 多模态</p><p class="signal-prose">新浪财经 2026-06-02 报道阿里发布千问 3.7 系列多模态模型 Qwen3.7-Plus，强调 GUI/屏幕理解、长程「看想写做验」工作流与一键复刻 App 等场景，已上线阿里云百炼 API。文内 Vision Arena 排名等为报道转述，榜单名次未独立核实；与 Holo3.1、MiniMax M3 等同周竞争为媒体对比。</p><ul class="signal-prose-list"><li>发布日与产品名来自新浪财经</li><li>国内 GUI agent 团队可对照百炼定价做 screen agent 批量任务</li></ul><p class="insight-action">在百炼控制台试 Qwen3.7-Plus 屏幕输入 agent，对照 Claude/GPT 多模态 API 延迟与单价</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.qbitai.com/2026/06/427238.html" target="_blank" rel="noopener">量子位 / OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> OpenAI Robotics 大规模招聘；文称部分岗位年薪 21–31 万美元</span></div></header><div class="signal-body"><p class="signal-lead">OpenAI 机器人赛道重启</p><p class="signal-prose">量子位报道称世界模拟团队转型 OpenAI Robotics，开放电气/仿真/执行器/控制系统工程师等岗位，回顾 2019 Dactyl 与 2020 年前后关停机器人团队背景。URL 路径为 2026/06，页面未显示精确发布日；录用规模与编制人数未核实，属组织扩张信号而非产品 GA。</p><ul class="signal-prose-list"><li>与 NVIDIA Cosmos 3 Physical AI 权重形成模型侧 + 组织侧共振</li><li>落地节奏仍待 OpenAI 官方新闻稿</li></ul><p class="insight-action">跟踪 OpenAI 官方是否发布 Robotics 专文，避免仅凭招聘页推断产品路线图</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://finance.sina.com.cn/stock/t/2026-06-02/doc-inhzzqcm1518957.shtml" target="_blank" rel="noopener">腾讯云 / DeepSeek</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-02 公告；2026-06-03 00:00 起调价；最高降幅 97.5%（文内）</span></div></header><div class="signal-body"><p class="signal-lead">腾讯 DeepSeek-V4 降价</p><p class="signal-prose">新浪财经转述腾讯云 2026-06-02 公告：自 2026-06-03 00:00 起调整 DeepSeek-V4-Pro / Flash 推理与缓存命中价格，文称最高降幅 97.5% 且与 DeepSeek 官方价「持平」。具体价目表未逐条对照腾讯云官网；报道同时提及腾讯股价波动，与模型能力无直接因果关系。</p><ul class="signal-prose-list"><li>属云厂商 API 价格战 / 开发者成本信号</li><li>影响 agent 流水线中 DeepSeek 后端选型而非 harness 架构</li></ul><p class="insight-action">对照腾讯云价目表与 DeepSeek 直客价，更新 agent 批处理任务的单价模型</p></div></article></div></section><section class="section-block"><h2 id="八-跟进"><span class="section-title">跟进</span></h2>
+<ul>
+<li>[ ] 观察 — headroom proxy 与 Mirage VFS 在同一 agent loop 的 token 与步骤数三角对照</li>
+<li>[ ] 观察 — Anthropic Claude Security 公开版 vs Mythos Preview 的能力边界与披露节奏</li>
+<li>[ ] 观察 — NVIDIA×Microsoft 统一栈 keynote 全文中的 GA 与 Windows 端运行时名单</li>
+<li>[ ] 观察 — JAMEL GitHub 独立 benchmark 复现（当前 3 stars）</li>
+<li>[ ] 升格 — <span class="wikilink" title="GUI-agent-memory-exploration">GUI-agent-memory-exploration</span>（若连续 ≥2 日有 GUI memory/探索论文或产品共振）</li>
+</ul>
+</section><section class="section-block"><h2 id="九-与昨日衔接"><span class="section-title">与昨日衔接</span></h2>
+<ul>
+<li>昨日：<span class="wikilink" title="2026-06-02">2026-06-02</span> — Context 爆发（headroom、codegraph、Understand-Anything）；Anthropic S-1 + Codex 角色插件；RTX Spark / Cosmos 3 / OpenWebRL 深读</li>
+<li>周信号：Context 压缩与预索引延续；今日新增 <strong>治理 toolkit</strong>、<strong>Mirage VFS</strong>、<strong>Glasswing 扩伙伴</strong> 与 <strong>JAMEL</strong> 深读，Harness 层从配置扩展到工具面统一与安全扫描</li>
+</ul>
+</section><section class="section-block"><h2 id="十-疑问-待查"><span class="section-title">疑问 / 待查</span></h2>
+<ul>
+<li>GitHub API 恢复后补核 affaan-m/ECC 总量 203,988 的 star-history（research 标中置信，未写入 JSON）</li>
+<li>Mirage HN 帖 48077914 讨论尚少，社区验证待观察</li>
+<li>ClinEnv HF 数据集为空，代码发布未核实</li>
+<li>SeClaw（2606.02302）preliminary + 0 stars，未写入 JSON</li>
+<li>Qwen3.7-Plus Vision Arena 排名、腾讯云价目表需对照官网</li>
+<li>Google/Meta 近 3 日无新高置信官方稿（research 范围说明）</li>
+</ul></section>
+<p class="footer">由 trends/index.md 自动生成 · 2026-06-03</p>
+</div>
+</body>
+</html>

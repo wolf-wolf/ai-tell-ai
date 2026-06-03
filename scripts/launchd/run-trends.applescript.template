@@ -1,0 +1,17 @@
+-- 由 install-trends-schedule.sh 生成到 ~/Library/Application Support/ai-tell-ai/
+-- launchd 调用此脚本，在用户会话下执行仓库内的 generate-trends.sh（可访问 Desktop）
+
+set repoRoot to "@REPO_ROOT@"
+set logFile to repoRoot & "/trends/.logs/launchd-osascript.log"
+
+set shCmd to "export PATH='/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin'; " ¬
+	& "cd " & quoted form of repoRoot & " && " ¬
+	& "./scripts/generate-trends.sh >> " & quoted form of logFile & " 2>&1"
+
+try
+	do shell script shCmd
+on error errMsg number errNum
+	set errLine to "ERROR (" & errNum & "): " & errMsg
+	do shell script "echo " & quoted form of errLine & " >> " & quoted form of logFile
+	error errMsg number errNum
+end try

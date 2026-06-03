@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "description": "AI 趋势日报信号区 JSON 契约。body 为 Markdown 字符串（非固定字段对象）。",
+  "tier_values": ["方向级", "选型级", "工具级"],
+  "body_type": "markdown_string",
+  "body_min_chars": 40,
+  "kinds": {
+    "github-growth": {
+      "section_h2_id": "github-growth",
+      "action_rule": "required_if_tier_选型级",
+      "min_signals": 2,
+      "title_field": "title",
+      "url_field": "url",
+      "metric_field": "metric"
+    },
+    "github-novel": {
+      "section_h2_id": "github-novel",
+      "action_rule": "optional",
+      "min_signals": 2,
+      "title_field": "title",
+      "url_field": "url",
+      "metric_field": "signal_type",
+      "extra_fields": ["community_url"]
+    },
+    "huggingface": {
+      "section_h2_id": "huggingface",
+      "action_rule": "optional",
+      "min_signals": 2,
+      "title_field": "title",
+      "url_field": "url",
+      "metric_field": "signal"
+    },
+    "bigtech": {
+      "section_h2_id": "bigtech",
+      "action_rule": "required",
+      "min_signals": 1,
+      "title_field": "entity",
+      "url_field": "url",
+      "metric_field": "event"
+    },
+    "papers": {
+      "section_h2_id": "papers",
+      "action_rule": "optional",
+      "min_signals": 2,
+      "title_field": "title",
+      "url_field": "url",
+      "metric_field": null,
+      "extra_fields": ["repo_url"]
+    }
+  },
+  "spine_fields": ["tier", "title", "url", "metric", "hook", "layer", "body", "action"],
+  "optional_fields": ["source_confidence", "community_url", "repo_url"]
+}

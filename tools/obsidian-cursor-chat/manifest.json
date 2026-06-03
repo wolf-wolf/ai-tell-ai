@@ -1,0 +1,9 @@
+{
+  "id": "ai-cursor-chat",
+  "name": "AI Cursor Chat",
+  "version": "0.3.8",
+  "minAppVersion": "1.12.0",
+  "description": "在 Obsidian 侧栏与 Cursor Agent（CLI/ACP）对话；支持手动加入选区与当前笔记上下文。",
+  "author": "ai-tell-ai",
+  "isDesktopOnly": true
+}

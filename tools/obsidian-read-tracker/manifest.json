@@ -1,0 +1,9 @@
+{
+  "id": "ai-read-tracker",
+  "name": "AI Read Tracker",
+  "version": "0.4.9",
+  "minAppVersion": "1.4.0",
+  "description": "记录 Markdown 打开次数与滚动位置；活动热力图与热门笔记条形图。",
+  "author": "ai-tell-ai",
+  "isDesktopOnly": false
+}

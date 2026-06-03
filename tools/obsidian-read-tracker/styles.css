@@ -1,0 +1,695 @@
+/* AI Read Tracker — Obsidian-native dashboard UI */
+
+/* Leaf: single scroll zone lives inside the table, not the whole pane */
+.workspace-leaf-content[data-type="ai-read-tracker-dashboard"] > .view-content {
+  overflow: hidden;
+  padding: 0;
+  height: 100%;
+}
+
+.ai-read-tracker-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px 12px 8px;
+  box-sizing: border-box;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  line-height: 1.45;
+}
+
+/* —— Fixed header: summary stats —— */
+.ai-read-tracker-dashboard .art-dashboard-header {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+
+.ai-read-tracker-dashboard .art-stats {
+  margin-bottom: 0;
+}
+
+.ai-read-tracker-dashboard .art-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ai-read-tracker-dashboard .art-stat-card {
+  padding: 5px 4px;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  text-align: center;
+  min-width: 0;
+}
+
+.ai-read-tracker-dashboard .art-stat-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  color: var(--text-normal);
+  letter-spacing: -0.01em;
+}
+
+.ai-read-tracker-dashboard .art-stat-card.art-stat-accent .art-stat-value {
+  color: var(--interactive-accent);
+}
+
+.ai-read-tracker-dashboard .art-stat-card.art-stat-muted .art-stat-value {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.ai-read-tracker-dashboard .art-stat-label {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-faint, var(--text-muted));
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-read-tracker-dashboard .art-stat-current {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-smaller, 12px);
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.ai-read-tracker-dashboard .art-stat-current-tag {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+}
+
+.ai-read-tracker-dashboard .art-stat-current-name {
+  font-weight: 600;
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+
+.ai-read-tracker-dashboard .art-stat-current-meta {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* —— Collapsible panels —— */
+.ai-read-tracker-dashboard .art-dashboard-insights,
+.ai-read-tracker-dashboard .art-table-section {
+  flex-shrink: 0;
+  min-height: 0;
+  margin-bottom: 6px;
+  border-radius: var(--radius-m, 8px);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.ai-read-tracker-dashboard .art-table-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 120px;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+.ai-read-tracker-dashboard .art-table-section.is-collapsed {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.ai-read-tracker-dashboard .art-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  user-select: none;
+  min-width: 0;
+  line-height: 1.35;
+  border-radius: var(--radius-m, 8px);
+  transition: background 0.12s ease;
+}
+
+.ai-read-tracker-dashboard .art-panel-head:hover {
+  background: var(--background-modifier-hover);
+}
+
+.ai-read-tracker-dashboard .art-panel-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+.ai-read-tracker-dashboard .art-panel-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ai-read-tracker-dashboard .art-panel-title {
+  flex-shrink: 0;
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.ai-read-tracker-dashboard .art-panel-sep {
+  flex-shrink: 0;
+  color: var(--text-faint, var(--text-muted));
+  font-size: var(--font-ui-smaller, 12px);
+  opacity: 0.7;
+}
+
+.ai-read-tracker-dashboard .art-panel-hint {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-ui-smaller, 12px);
+  color: var(--text-faint, var(--text-muted));
+  font-weight: 400;
+}
+
+.ai-read-tracker-dashboard .art-dashboard-insights.is-collapsed .art-insights-body,
+.ai-read-tracker-dashboard .art-table-section.is-collapsed .art-table-body {
+  display: none;
+}
+
+/* —— Insights: heatmap + top notes side by side —— */
+.ai-read-tracker-dashboard .art-insights-body {
+  padding: 0 10px 10px;
+}
+
+.ai-read-tracker-dashboard .art-insights-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-wrap,
+.ai-read-tracker-dashboard .art-radar-wrap {
+  margin-bottom: 0;
+  padding: 10px;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-read-tracker-dashboard .art-card-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.ai-read-tracker-dashboard .art-card-foot-desc {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-faint, var(--text-muted));
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* —— Heatmap —— */
+.ai-read-tracker-dashboard .art-heatmap-grid-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ai-read-tracker-dashboard .art-heatmap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--art-heatmap-gap, 2px);
+  width: 100%;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell {
+  width: var(--art-heatmap-cell, 11px);
+  height: var(--art-heatmap-cell, 11px);
+  flex: 0 0 auto;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition:
+    box-shadow 0.12s ease,
+    transform 0.12s ease;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.is-hovered {
+  box-shadow: 0 0 0 2px var(--interactive-accent);
+  transform: scale(1.15);
+  z-index: 1;
+  position: relative;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.art-l0 {
+  background: var(--background-modifier-border);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.art-l1 {
+  background: rgba(63, 185, 80, 0.35);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.art-l2 {
+  background: rgba(63, 185, 80, 0.55);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.art-l3 {
+  background: rgba(63, 185, 80, 0.78);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-cell.art-l4 {
+  background: var(--color-green, #3fb950);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-faint, var(--text-muted));
+  font-size: 10px;
+  flex-wrap: wrap;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-legend .art-heatmap-cell {
+  cursor: default;
+  width: var(--art-heatmap-cell, 11px);
+  height: var(--art-heatmap-cell, 11px);
+  flex-shrink: 0;
+}
+
+/* —— Radar chart —— */
+.ai-read-tracker-dashboard .art-radar-chart {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.ai-read-tracker-dashboard .art-heatmap-tooltip,
+.ai-read-tracker-dashboard .art-radar-tooltip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  padding: 6px 8px;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  max-width: min(220px, 90%);
+}
+
+.ai-read-tracker-dashboard .art-heatmap-tooltip.is-visible,
+.ai-read-tracker-dashboard .art-radar-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ai-read-tracker-dashboard .art-hover-tip-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-normal);
+  line-height: 1.3;
+  word-break: break-all;
+}
+
+.ai-read-tracker-dashboard .art-hover-tip-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--interactive-accent);
+  font-weight: 600;
+}
+
+.ai-read-tracker-dashboard .art-hover-tip-path {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--text-faint, var(--text-muted));
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.ai-read-tracker-dashboard .art-radar-svg {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  display: block;
+}
+
+.ai-read-tracker-dashboard .art-radar-grid {
+  fill: none;
+  stroke: var(--background-modifier-border);
+  stroke-width: 1;
+}
+
+.ai-read-tracker-dashboard .art-radar-axis {
+  stroke: var(--background-modifier-border);
+  stroke-width: 1;
+}
+
+.ai-read-tracker-dashboard .art-radar-fill {
+  fill: var(--interactive-accent);
+  fill-opacity: 0.18;
+  stroke: none;
+}
+
+.ai-read-tracker-dashboard .art-radar-dot {
+  fill: var(--interactive-accent);
+  stroke: var(--background-primary);
+  stroke-width: 1.5;
+  cursor: pointer;
+  transition: r 0.12s ease;
+}
+
+.ai-read-tracker-dashboard .art-radar-dot.is-active {
+  fill: var(--interactive-accent-hover, var(--interactive-accent));
+}
+
+.ai-read-tracker-dashboard .art-radar-hit {
+  fill: transparent;
+  stroke: none;
+  cursor: pointer;
+}
+
+.ai-read-tracker-dashboard .art-radar-dot:hover {
+  fill: var(--interactive-accent-hover, var(--interactive-accent));
+}
+
+.ai-read-tracker-dashboard .art-radar-label {
+  fill: var(--text-muted);
+  font-size: 9px;
+  font-family: var(--font-interface);
+  cursor: pointer;
+  transition: fill 0.12s ease;
+}
+
+.ai-read-tracker-dashboard .art-radar-label.is-active,
+.ai-read-tracker-dashboard .art-radar-label:hover {
+  fill: var(--text-accent);
+  font-weight: 600;
+}
+
+.ai-read-tracker-dashboard .art-radar-empty {
+  color: var(--text-faint, var(--text-muted));
+  padding: 24px 8px;
+  text-align: center;
+  font-size: var(--font-ui-smaller, 12px);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai-read-tracker-dashboard .art-empty {
+  color: var(--text-faint, var(--text-muted));
+  padding: 16px 8px;
+  text-align: center;
+  font-size: var(--font-ui-smaller, 12px);
+}
+
+/* —— Table section: fills remaining height, scrolls internally —— */
+.ai-read-tracker-dashboard .art-table-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 10px 10px;
+}
+
+.ai-read-tracker-dashboard .art-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.ai-read-tracker-dashboard .art-sort-group {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 2px;
+  border-radius: var(--radius-m, 8px);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: none;
+}
+
+.ai-read-tracker-dashboard .art-toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-read-tracker-dashboard .art-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-ui-smaller, 12px);
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.ai-read-tracker-dashboard .art-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--background-modifier-border-focus, var(--interactive-accent));
+}
+
+.ai-read-tracker-dashboard .art-btn-segment {
+  padding: 5px 10px;
+  border-radius: calc(var(--radius-m, 8px) - 2px);
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.ai-read-tracker-dashboard .art-btn-segment:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.ai-read-tracker-dashboard .art-btn-segment.is-active {
+  color: var(--text-on-accent, var(--text-normal));
+  background: var(--interactive-accent);
+  font-weight: 600;
+}
+
+.ai-read-tracker-dashboard .art-btn-segment.is-active:hover {
+  background: var(--interactive-accent-hover, var(--interactive-accent));
+}
+
+.ai-read-tracker-dashboard .art-btn-ghost {
+  padding: 5px 10px;
+  border-radius: var(--radius-m, 8px);
+  color: var(--text-muted);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.ai-read-tracker-dashboard .art-btn-ghost:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+  border-color: var(--background-modifier-border-hover);
+}
+
+.ai-read-tracker-dashboard .art-btn-accent {
+  padding: 5px 10px;
+  border-radius: var(--radius-m, 8px);
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+}
+
+.ai-read-tracker-dashboard .art-btn-accent:hover {
+  background: var(--interactive-accent-hover, var(--interactive-accent));
+}
+
+.ai-read-tracker-dashboard .art-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: var(--radius-s, 6px);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.ai-read-tracker-dashboard table.art-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11px;
+}
+
+.ai-read-tracker-dashboard table.art-table th,
+.ai-read-tracker-dashboard table.art-table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  vertical-align: middle;
+}
+
+.ai-read-tracker-dashboard table.art-table th:nth-child(1),
+.ai-read-tracker-dashboard table.art-table td.art-note-cell {
+  width: 38%;
+}
+
+.ai-read-tracker-dashboard table.art-table th:nth-child(2),
+.ai-read-tracker-dashboard table.art-table td.art-num {
+  width: 14%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-read-tracker-dashboard table.art-table th:nth-child(3),
+.ai-read-tracker-dashboard table.art-table td.art-time {
+  width: 36%;
+  color: var(--text-muted);
+}
+
+.ai-read-tracker-dashboard table.art-table th:nth-child(4),
+.ai-read-tracker-dashboard table.art-table td.art-scroll {
+  width: 12%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-read-tracker-dashboard table.art-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  position: sticky;
+  top: 0;
+  background: var(--background-secondary);
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+  box-shadow: 0 1px 0 var(--background-modifier-border);
+}
+
+.ai-read-tracker-dashboard table.art-table th:nth-child(2),
+.ai-read-tracker-dashboard table.art-table th:nth-child(4) {
+  text-align: right;
+}
+
+.ai-read-tracker-dashboard table.art-table td.art-time {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-read-tracker-dashboard tr.art-row {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.ai-read-tracker-dashboard tr.art-row:hover td {
+  background: var(--background-modifier-hover);
+}
+
+.ai-read-tracker-dashboard tr.art-row:last-child td {
+  border-bottom: none;
+}
+
+.ai-read-tracker-dashboard .art-note-cell {
+  overflow: hidden;
+}
+
+.ai-read-tracker-dashboard a.art-note-link {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.ai-read-tracker-dashboard a.art-note-link:hover {
+  text-decoration: underline;
+}
+
+/* Narrow sidebar: stack insights vertically */
+@media (max-width: 380px) {
+  .ai-read-tracker-dashboard .art-insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-read-tracker-dashboard .art-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* —— Status bar —— */
+.ai-read-tracker-status {
+  cursor: pointer;
+  opacity: 0.9;
+  font-size: var(--font-ui-smaller, 12px);
+}
+
+.ai-read-tracker-status:hover {
+  opacity: 1;
+  color: var(--text-accent);
+}

@@ -1,0 +1,4 @@
+#!/bin/zsh
+# launchd 入口：放在 Application Support，避免直接执行 Desktop 上的脚本被 TCC 拦截
+set -euo pipefail
+exec /usr/bin/osascript "@APP_SUPPORT@/run-trends.applescript"
