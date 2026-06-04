@@ -1,59 +1,93 @@
 ---
-tags: [pattern]
-aliases: [Reflection, 自我反思, 反思模式]
-related: ["[[agent]]", "[[tool-use]]", "[[planning]]", "[[chain-of-thought]]"]
+tags:
+  - pattern
+aliases:
+  - Reflection
+  - 自我反思
+  - 反思模式
+prerequisites:
+  - "[[llm]]"
+  - "[[agent]]"
+related:
+  - "[[agent]]"
+  - "[[tool-use]]"
+  - "[[planning]]"
+  - "[[chain-of-thought]]"
+  - "[[reAct]]"
+  - "[[skill-engineering]]"
+  - "[[skill-scripts]]"
 stability: long
 layer: application
-updated: 2026-05-25
+updated: 2026-06-04
 ---
 
 # Reflection（反思模式）
 
-## ⚡ 30 秒速览
+> [!tip] 核心本质
+> Reflection 让 [[agent|Agent]] 在生成初稿后，再调用 [[llm|LLM]]（或另一模型）审查输出中的错误、遗漏与可改进点，并据批评修订——相当于把人类的「草稿 → 审稿 → 修改」搬进自动化循环，用 **token 换准确率**。没有 Reflection，[[reAct|ReAct]] 循环里一步工具结果错了，后续轮次往往在错误前提上继续推进；Reflection 补的是**质量与自洽**，不能替代 [[planning|Planning]]（定做什么）或 [[tool-use|工具]]（获取新事实）。适合有明确评判标准的任务；无法凭空补全模型不知道的外部事实。
 
-Reflection 是让 Agent 生成输出后，再调用一次 LLM 检查和批评自己的结果，然后根据反馈改进。
-它在不依赖人类反馈的情况下提升输出质量，本质是用 token 换准确率。
-记住：先做，再自我批评，再改——LLM 版的草稿审查。
+## 生命周期与演进
 
----
+**当前定位**：Agent 四大设计模式之一；常作为 [[reAct]] 在 Observation 之后的可选节点，或独立的多轮 Generate→Reflect→Revise 流水线。Cursor / Claude Code 的「检查 diff」「运行测试后再改」是 Reflection + 工具验证的工程化形态。
 
-## 🧠 深入理解
+**预期寿命**：长期。只要输出质量比单次生成更重要，且评判标准可表述，就会保留反思轮；与 Reasoning 模型结合后，单轮自检能力增强，但显式 Reflect 仍利于可审计与解耦角色。
 
-### 背景
+**近期演进**：双模型 / 不同 system prompt 的「生成者与批评者」分离；用测试、linter、类型检查等**工具结果**作为 Reflect 的硬证据（而不仅是 LLM 自说自话）；与 [[skill-scripts]] 的 Grounding（必须引用 tool output）形成闭环。
 
-人类写作时会草稿 → 检查 → 修改。Reflection 把这个过程搬给 LLM 做，让它充当自己的「审稿人」。
+**终极威胁**：更强模型一次生成即达标的任务上，额外 Reflect 轮成为纯成本；开放性创作若强加反思，可能压扁风格。Reflection 不会取代需要新信息的检索或人类审批。
 
-### 核心机制
+## Generate → Reflect → Revise
+
+人类写作时的审稿流程，在 Agent 里被拆成可重复的调用链：
 
 ```
 生成（Generate）
     ↓
-反思（Reflect）：「这个输出有什么问题？」
+反思（Reflect）：「输出有什么问题？与目标/约束是否一致？」
     ↓
 修改（Revise）：根据批评重新生成
     ↓
-（可多轮循环，直到质量满足标准）
+（可选）多轮，直到满足标准或达到轮次上限
 ```
 
-反思步骤的 prompt 通常是：
-> "请检查上面的输出，指出其中的错误、遗漏或可以改进的地方。"
+常用 Reflect prompt 形态：
 
-### 两种实现方式
+> 请检查上面的输出，指出其中的错误、遗漏或可以改进的地方。
 
-1. **单模型反思**：同一个 LLM 既生成又反思。简单，但容易陷入「自我确认」偏差。
-2. **双模型反思**：一个 LLM 生成，另一个 LLM（或同模型不同 prompt）做批评。更客观，成本更高。
+Harness 负责：把初稿与原始任务约束一并传入 Reflect 轮；将批评结构化后触发 Revise；设 `max_reflect_rounds` 防止成本失控。
 
-### 什么时候 Reflection 有效
+## 单模型反思与双模型反思
 
-- 任务有明确的质量标准（代码正确性、逻辑自洽）
-- 第一次生成容易犯系统性错误（如遗漏边界条件）
-- 任务不依赖外部事实（Reflection 不能创造新知识，只能改进已有输出）
+| 方式 | 做法 | 优点 | 风险 |
+| --- | --- | --- | --- |
+| **单模型** | 同一 LLM 生成又批评 | 实现简单、延迟低 | 「自我确认」偏差——模型坚持初稿错误 |
+| **双模型 / 双角色** | 生成者与批评者分离（可不同模型或不同 system prompt） | 批评更客观 | 成本约 2× 起，需协调上下文 |
 
----
+降低自我确认偏差的工程手段：批评者 prompt 明确要求「假设初稿可能有错」；Reflect 输入中**不包含**生成者的 hidden reasoning，只给可核验的产出；用 [[tool-use]] 跑测试 / 静态检查，把失败栈 trace 作为 Observation 喂回 Revise。
 
-## 💡 示例
+## 何时有效、何时无效
 
-**代码审查场景**：
+**有效**：
+
+- 有明确质量标准（代码正确性、逻辑自洽、格式约束）
+- 初稿易犯**系统性**错误（漏 base case、漏边界、步骤跳跃）
+- 批评所依信息已在 context 内（含 tool result）
+
+**无效或慎用**：
+
+- 需要**新事实**（最新新闻、实时库存）——应再调工具或检索，而非多一轮 Reflect
+- 开放性创作（文风、幽默）——反思易过度「安全化」输出
+- 无客观标准的主观题——模型互评仍可能一致幻觉
+
+与 [[chain-of-thought]] 的关系：CoT 外化**推理过程**；Reflection 外化**对产出的批评**。可先 CoT 生成，再 Reflect 检查推理与结论是否一致。
+
+与 [[planning]] 的关系：Planning 在执行前定路径；Reflection 在执行后（或每步后）评质量。二者正交，常串联。
+
+与 [[reAct]] 的关系：在 Observe 之后插入 Reflect，可缓解「第 2 步错了、后面全错」的累积；见 [[agent]] 工程风险表中的错误累积对策。
+
+## 实践与应用
+
+**代码审查（纯 LLM 反思）**：
 
 ```
 Round 1 - 生成：
@@ -70,35 +104,26 @@ Round 3 - 修改：
   输出：def fib(n): if n <= 1: return n; return fib(n-1) + fib(n-2)
 ```
 
----
+**工具增强反思**：Reflect 轮不只做文本批评，而是 `python_exec` / `pytest` / `read_lints`；Observation 为失败用例或报错，再 Revise——比纯自评更接近「可证伪」。
 
-## ⚠️ 常见误区
+[[skill-engineering]] 中的 Grounding 要求输出引用 tool output，与「Reflect 必须可对照证据」同一原则；执行层细节见 [[skill-scripts]]。
 
-- **误区：Reflection 总是有用的。** 如果任务需要的是新信息（如最新新闻），Reflection 无法改善——LLM 无法凭空创造它不知道的事实。
-- **误区：Reflection 轮数越多越好。** 通常 1-2 轮后收益递减，且成本线性增加。
+## 常见误区
 
----
+- **Reflection 总是有用**：缺新信息时多轮 Reflect 只会重复幻觉，应先 [[tool-use]] 或检索。
+- **轮数越多越好**：通常 1–2 轮收益递减，成本近线性上升。
+- **Reflection 能替代 Planning**：反思不帮你发现「还缺哪一步」，只评已有产出好不好。
+- **批评者与生成者同一上下文无偏**：需刻意分离角色或引入外部验证信号。
+- **Reflection 等于人工审批（HITL）**：人工审批是信任边界；Reflection 是自动化质量环，不能替代高风险写操作审批。
 
-## 💬 我的理解
+## 进一步阅读
 
-> Reflection 本质是用 token 换质量。适合质量要求高且有明确判断标准的任务，不适合开放性创作。
-> 和 Planning 的区别：Planning 是决定做什么，Reflection 是检查做得好不好。
-
----
-
-## 🔗 关联概念
-
-- [[agent]] — Reflection 是 Agent 四大设计模式之一
-- [[planning]] — Planning 决定路径，Reflection 检查结果
-- [[tool-use]] — 可以用工具来验证 Reflection 发现的问题（如运行代码）
-- [[chain-of-thought]] — CoT 让 LLM 展示推理过程，Reflection 在此基础上做批评
-- [[skill-engineering]] — Skill 脚本 Grounding：要求引用 tool output，与 Reflection 闭环
-
----
-
-## 📚 延伸阅读
-
-- [[skill-scripts]] — 执行层输出如何供 Reflection 验证
-
-- [[agentic-ai-deeplearning]] — DeepLearning.AI Agentic AI 课程 Mod1-2
-- [[building-effective-agents]] — Anthropic Agent 设计指南
+- [[agent]] — Reflection 在设计模式与错误累积对策中的位置
+- [[planning]] — 执行前的路径分解，与 Reflection 正交
+- [[reAct]] — Observe 后挂 Reflect 的常见增强
+- [[tool-use]] — 用执行结果验证反思结论
+- [[chain-of-thought]] — 推理外化 vs 产出批评
+- [[skill-scripts]] — 执行层输出如何供验证与 Grounding
+- [[skill-engineering]] — Skill 与反思闭环的工程约定
+- [Reflexion: Language Agents with Verbal Reinforcement Learning (Shinn et al., 2023)](https://arxiv.org/abs/2303.11366) — 将反思轨迹用于改进后续尝试的代表工作
+- [Building effective agents (Anthropic)](https://www.anthropic.com/engineering/building-effective-agents) — 何时用 Workflow / Agent 及质量与成本权衡（外部）

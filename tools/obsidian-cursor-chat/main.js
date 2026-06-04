@@ -736,6 +736,12 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+function truncateQueuePreview(text, max = 96) {
+  const s = String(text || "").replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max - 1) + "…";
+}
+
 class PermissionModal extends Modal {
   constructor(app, summary, onChoose) {
     super(app);
@@ -816,6 +822,8 @@ class CursorChatView extends ItemView {
     this.messagesEl = main.createDiv({ cls: "acc-messages" });
 
     const dock = root.createDiv({ cls: "acc-bottom-dock" });
+
+    this.queueDockEl = dock.createDiv({ cls: "acc-queue-dock is-hidden" });
 
     const composer = dock.createDiv({ cls: "acc-composer" });
     this.composerBoxEl = composer.createDiv({ cls: "acc-composer-box" });
@@ -1035,6 +1043,42 @@ class CursorChatView extends ItemView {
       }
       this.inputEl.setAttr("data-placeholder", placeholder);
     }
+  }
+
+  renderQueueDock() {
+    if (!this.queueDockEl) return;
+    this.queueDockEl.empty();
+    const showQueue =
+      this.sendQueue.length > 0 &&
+      (this._queueProcessing || this.isSending);
+    if (!showQueue) {
+      this.queueDockEl.addClass("is-hidden");
+      return;
+    }
+    this.queueDockEl.removeClass("is-hidden");
+    const head = this.queueDockEl.createDiv({ cls: "acc-queue-head" });
+    setIcon(head.createSpan({ cls: "acc-queue-head-icon" }), "list-ordered");
+    head.createSpan({
+      cls: "acc-queue-head-label",
+      text: `${this.sendQueue.length} 条排队`,
+    });
+    const list = this.queueDockEl.createDiv({ cls: "acc-queue-list" });
+    this.sendQueue.forEach((job, index) => {
+      const item = list.createDiv({ cls: "acc-queue-item" });
+      item.createSpan({ cls: "acc-queue-index", text: String(index + 1) });
+      const body = item.createDiv({ cls: "acc-queue-body" });
+      body.createDiv({
+        cls: "acc-queue-text",
+        text: truncateQueuePreview(job.userText),
+        attr: { title: job.userText },
+      });
+      if (job.contextSummary?.length) {
+        body.createDiv({
+          cls: "acc-queue-meta",
+          text: `${job.contextSummary.length} 个上下文`,
+        });
+      }
+    });
   }
 
   /** @deprecated use updateComposerChrome */
@@ -1592,25 +1636,29 @@ class CursorChatView extends ItemView {
       content: userText,
       contextSummary: contextSummary.length ? contextSummary : undefined,
     };
-    this.messages.push(userMsg);
-    this.contextBlocks = [];
-    this.clearComposerEditor();
-    this.appendUserMessageToDom(userMsg);
 
     this.sendQueue.push({
       userText,
       contextSnapshot,
       contextSummary,
+      userMsg,
     });
+    this.contextBlocks = [];
+    this.clearComposerEditor();
+    this.renderQueueDock();
     this.updateComposerChrome();
 
     if (this._queueProcessing) {
-      const n = this.sendQueue.length;
-      this.setStatus(n > 0 ? `已加入队列（${n} 条等待）` : "回复中…");
+      this.setStatus(`已加入队列（${this.sendQueue.length} 条等待）`);
       return;
     }
 
     requestAnimationFrame(() => void this.processSendQueue());
+  }
+
+  promoteJobToChat(job) {
+    this.messages.push(job.userMsg);
+    this.appendUserMessageToDom(job.userMsg);
   }
 
   async processSendQueue() {
@@ -1621,11 +1669,14 @@ class CursorChatView extends ItemView {
     while (this.sendQueue.length > 0) {
       if (this._userCancelled) {
         this.sendQueue.length = 0;
+        this.renderQueueDock();
         break;
       }
       const job = this.sendQueue.shift();
+      this.renderQueueDock();
       this.updateComposerChrome();
       const remaining = this.sendQueue.length;
+      this.promoteJobToChat(job);
       if (remaining > 0) {
         this.setStatus(`回复中 · 队列剩余 ${remaining}`);
       }
@@ -1635,6 +1686,7 @@ class CursorChatView extends ItemView {
     this._queueProcessing = false;
     this.isSending = false;
     this.streamingAssistant = false;
+    this.renderQueueDock();
     this.updateComposerChrome();
     this.markToolsCompleted();
     this.scheduleToolRender();
@@ -1718,6 +1770,7 @@ class CursorChatView extends ItemView {
 
     this._userCancelled = true;
     this.sendQueue.length = 0;
+    this.renderQueueDock();
     const acp = this.plugin.acp;
     if (acp?.isRunning() && this.acpSessionId) {
       acp.sessionCancel(this.acpSessionId);
