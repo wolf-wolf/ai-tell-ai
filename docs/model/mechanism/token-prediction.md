@@ -1,7 +1,7 @@
 ---
 tags: [principle]
 aliases: [下一个 token 预测, Next Token Prediction, 语言建模]
-related: ["[[llm]]", "[[transformer]]", "[[principle-attention]]"]
+related: ["[[llm]]", "[[transformer]]", "[[attention]]"]
 stability: permanent
 layer: model
 updated: 2026-05-25
@@ -9,15 +9,20 @@ updated: 2026-05-25
 
 # Token 预测（下一个 Token 预测）
 
-## ⚡ 30 秒速览
+> [!tip] 核心本质
+> 下一个 token 预测是 LLM 的唯一预训练目标：给定前文，预测最可能的下一 token。这个自监督任务无需人工标注，却迫使模型把语法、常识与推理压进参数；推理时同样是逐 token 自回归展开。若忘记「生成 = 滚动预测」而非查表回忆，就会误判幻觉、温度与「模型在思考」等现象。
 
-LLM 的核心训练任务只有一件事：给定前面所有 token，预测下一个最可能出现的 token。
-这个看似简单的自监督任务不需要人工标注，却让模型从海量文本中涌现出语法、常识、推理等复杂能力。
-记住：把「猜下一个词」做到极致，就什么都会了——这就是 LLM 能力的来源。
+## 生命周期与演进
 
----
+**当前定位**：所有自回归 LLM 的训练与推理基础；与 Transformer 架构强绑定。
 
-## 🧠 深入理解
+**预期寿命**：范式层永久；目标函数可能扩展（多 token、世界模型），但自回归仍是主流。
+
+**近期演进**：reasoning 模型在生成前增加隐藏思考链；RLHF/DPO 在对齐阶段叠加偏好目标。
+
+**终极威胁**：「预测下一状态/动作」的世界模型若全面胜出，纯语言 token 预测可能收窄为子模块。
+
+## 核心原理
 
 ### 背景：为什么选这个训练目标
 
@@ -112,7 +117,7 @@ top-p = 0.9：只考虑前 90% 累积概率的候选 token
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 **感受 temperature 的差异：**
 
@@ -147,7 +152,7 @@ GPT tokenizer 切分：
 
 ---
 
-## ⚠️ 常见误区
+## 常见误区
 
 - **误区 1：LLM 在「思考」答案然后输出。** 错。LLM 是逐个 token 生成的，每次只看当前 context 决定下一个词，没有「先想好再说」的过程（Chain of Thought 在一定程度上模拟了这个，但那是输出过程中的思维展开，不是输出前的计划）。
 
@@ -157,27 +162,13 @@ GPT tokenizer 切分：
 
 - **误区 4：token 就是字。** 英文一个词可能被切成多个 token，中文一个字通常是一个 token，但复杂汉字可能是两个 token。永远用 token 而非字数来估算 context 用量。
 
----
+## 进一步阅读
 
-## 💬 我的理解
-
-> 理解 LLM 的幻觉，要从这里开始：它不是「知道但说错了」，而是「从来不是在查事实，只是在生成统计上合理的下一个词」。这是一个根本性的认知校准。
-> 和 Transformer 的衔接：Transformer 是执行这个预测任务的架构——每次预测下一个 token，都是在跑一次完整的 Transformer 前向传播。理解了这两个原理，LLM 的行为（为什么有时聪明、为什么会幻觉、为什么 temperature 有效）就都可以从第一原理推导出来。
-
----
-
-## 🔗 关联概念
-
-- [[llm]] — Token 预测是 LLM 的核心训练机制，两者直接对应
-- [[transformer]] — 执行 token 预测的神经网络架构
-- [[principle-attention]] — Transformer 里处理 token 间关系的核心机制
-- [[rag]] — 弥补纯 token 预测不访问实时事实的缺陷
-- [[context-window]] — token 预测所能看到的历史上下文范围
-
----
-
-## 📚 延伸阅读
-
-- Radford et al. 2019, "Language Models are Unsupervised Multitask Learners" — GPT-2 论文，展示了 next token prediction 的涌现能力
-- Wei et al. 2022, "Emergent Abilities of Large Language Models" — 涌现能力的系统研究
-- Andrej Karpathy, "Intro to Large Language Models"（YouTube）— 最清晰的 LLM 原理入门视频
+- [[llm]] — Token 预测与 LLM 直接对应
+- [[transformer]] — 执行预测的架构
+- [[attention]] — token 间关系的核心机制
+- [[rag]] — 弥补不访问实时事实的缺陷
+- [[context-window]] — 预测可见的历史范围
+- Radford et al. 2019, "Language Models are Unsupervised Multitask Learners" — GPT-2
+- Wei et al. 2022, "Emergent Abilities of Large Language Models"
+- Andrej Karpathy, "Intro to Large Language Models"（YouTube）

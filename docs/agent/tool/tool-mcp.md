@@ -69,5 +69,5 @@ flowchart LR
 - [[tool-use]] — LLM 与 Harness 的职责分离。
 - [[skill]] — Skill 与 MCP 的分工。
 - [[skill-scripts]] — 本地 scripts 与 MCP 的边界。
-- [[resources/writing-tools-for-agents]] — 如何写好 MCP / 工具描述。
-- [[resources/mcp-code-execution]] — MCP 代码执行模式。
+- [[writing-tools-for-agents]] — 如何写好 MCP / 工具描述。
+- [[mcp-code-execution]] — MCP 代码执行模式。

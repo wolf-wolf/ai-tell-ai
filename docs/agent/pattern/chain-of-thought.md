@@ -9,15 +9,20 @@ updated: 2026-05-25
 
 # Chain of Thought（思维链）
 
-## ⚡ 30 秒速览
+> [!tip] 核心本质
+> Chain of Thought（CoT）是在给出最终答案前，把推理步骤外化进 context 的 prompting 技巧——每一步成为下一步 token 预测的可见上文，减少「一步跳结论」的算术与逻辑错误。若不在复杂推理任务上强制分步，模型会在单次预测里压缩中间步骤，错误往往在最终答案才暴露。
 
-Chain of Thought（CoT）是让 LLM 在给出答案前先写出推理步骤的 prompting 技巧，能显著提升复杂推理的准确率。
-LLM 直接跳答案容易出错，CoT 强制它把推理过程「外化」，相当于让它先打草稿再交卷。
-记住：让 LLM 先打草稿再给答案，准确率就上去了。
+## 生命周期与演进
 
----
+**当前定位**：提示与 Agent 规划的基础技巧；Zero-shot / Few-shot CoT、Self-consistency、ToT、ReAct 均由此延伸。
 
-## 🧠 深入理解
+**预期寿命**：长期有效；reasoning 模型把部分 CoT 内化到隐藏思考链，显式 CoT 在简单题上收益下降。
+
+**近期演进**：与 thinking budget、工具交替（ReAct）结合；生产侧更关注 token 成本与步骤可控性。
+
+**终极威胁**：推理能力默认内建后，手写 CoT 变成冗余；但可审计、可约束步骤格式的场景仍需要外显链。
+
+## 核心原理
 
 ### 背景
 
@@ -105,7 +110,7 @@ A：
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 **场景：用 CoT 解决逻辑题**
 
@@ -140,7 +145,7 @@ A：
 
 ---
 
-## ⚠️ 常见误区
+## 常见误区
 
 - **误区 1：CoT 万能，所有任务都用它。** 简单任务加 CoT 是浪费 token，还可能让模型「想太多」反而出错。只在推理复杂度高时使用。
 - **误区 2：推理链越长越好。** 冗长的推理链里也可能有错误，且会显著增加 token 消耗。关键是推理步骤要正确，不是要多。
@@ -148,28 +153,13 @@ A：
 - **误区 4：只有「一步步思考」这一种触发方式。** 触发词多样：「请详细说明你的推理过程」「分析之前先列出已知条件」「让我们系统地分析这个问题」，效果相似。
 - **误区 5：CoT 只适合数学题。** 代码调试、商业决策、法律分析等需要多步推理的任务都适用，不局限于数学。
 
----
+## 进一步阅读
 
-## 💬 我的理解
-
-> CoT 的本质洞察非常优雅：LLM 生成的每个 token 都是下一个 token 的 context。当你让它「先想再答」，中间过程就变成了显式的 context，每一步推理都能「站在前一步的肩膀上」，而不是在一次跳跃里把所有中间步骤压缩处理。
-> 和 technique-prompt-engineering 的衔接：CoT 是提示工程里「控制推理过程」的核心技巧，本质上是在 prompt 结构里加入一个「先推理，后回答」的约束。
-> 和 pattern-planning 的衔接：Agent 的规划（planning）能力很大程度依赖 CoT——让 LLM 先把任务分解成步骤，再逐步执行，就是 CoT 思想在 Agent 架构里的体现。
-
----
-
-## 🔗 关联概念
-
-- [[prompt-engineering]] — CoT 是提示工程的高级技巧，在 prompt 结构中通过示例或指令触发
-- [[llm]] — CoT 利用的是 LLM token 预测的工作机制，理解机制才能理解为什么有效
-- [[planning]] — Agent 的规划模式是 CoT 的延伸：先分解任务再执行
-- [[reflection]] — Reflection 模式是 CoT 的变体：生成答案后再用 CoT 检验答案
-
----
-
-## 📚 延伸阅读
-
+- [[prompt-engineering]] — CoT 是提示工程里「先推理、后回答」的核心技巧
+- [[llm]] — CoT 利用 token 预测机制，理解机制才能理解为什么有效
+- [[planning]] — Agent 规划是 CoT 在任务分解上的延伸
+- [[reflection]] — 生成答案后再用 CoT 检验答案
 - [Chain-of-Thought Prompting Elicits Reasoning (Wei et al., 2022)](https://arxiv.org/abs/2201.11903) — CoT 原始论文
-- [Large Language Models are Zero-Shot Reasoners (Kojima et al., 2022)](https://arxiv.org/abs/2205.11916) — Zero-shot CoT「Let's think step by step」的来源
-- [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601) — CoT 的进化：树状推理路径
-- [ReAct: Synergizing Reasoning and Acting (2022)](https://arxiv.org/abs/2210.03629) — CoT + 工具调用在 Agent 中的应用
+- [Large Language Models are Zero-Shot Reasoners (Kojima et al., 2022)](https://arxiv.org/abs/2205.11916) — Zero-shot CoT
+- [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601) — 树状推理路径
+- [ReAct: Synergizing Reasoning and Acting (2022)](https://arxiv.org/abs/2210.03629) — CoT + 工具调用

@@ -105,13 +105,13 @@ Step 3 → LLM 生成社交媒体帖子（固定）
 | 风险 | 表现 | 应对 |
 | --- | --- | --- |
 | **步骤定义不全** | 边界 case 无分支，流水线卡死或输出垃圾 | 补齐校验与 fallback 分支；搞不定的步骤再考虑 Agent |
-| **步间状态膨胀** | 每步全文传递，token 浪费 | 步间只传结构化摘要；见 [[technique-prompt-chaining]] |
+| **步间状态膨胀** | 每步全文传递，token 浪费 | 步间只传结构化摘要；见 [[context-engineering]] |
 | **误当 Agent 用** | 在 Workflow 里让 LLM 决定跳步 | 把「是否继续」写成显式规则或独立校验节点 |
 
 ## 进一步阅读
 
 - [[agent]] — Workflow 的自主化升级版；谱系与 Runtime 循环
 - [[multi-agent]] — 再往上才是多 Agent 分工
-- [[technique-prompt-chaining]] — Workflow 各步之间如何传递 prompt 与中间结果
+- [[context-engineering]] — Workflow 各步之间如何传递 prompt 与中间结果
 - [[prompt-engineering]] — 单步 LLM 调用的提示设计
 - [[building-effective-agents]] — Anthropic 对 Workflow vs Agent 的权威区分

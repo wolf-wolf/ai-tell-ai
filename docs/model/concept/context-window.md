@@ -9,17 +9,20 @@ updated: 2026-05-25
 
 # Context Window（上下文窗口）
 
-## 🤔 想一想
+> [!tip] 核心本质
+> Context Window 是单次调用里模型能同时「看见」的 token 总量上限——窗口外的一切对这次推理不存在，就像每次见面都是全新的对话。若没有在这块固定桌面上做裁剪、检索与摘要，长任务必然撞墙：要么丢关键信息，要么被噪声淹没。
 
-**你跟朋友聊了一晚上，第二天他什么都不记得了——每次见面对他来说都是第一次。**
+## 生命周期与演进
 
-*LLM 就是这样：没有记忆，每次调用都是全新的。它唯一能"看到"的，就是你这次塞给它的那段文字。*
+**当前定位**：LLM 与 Agent 工程的第一硬约束；RAG、摘要、Skill 渐进披露都围绕它设计。
 
-这段文字的长度上限，就叫 Context Window。窗口外的一切，对它来说不存在。
+**预期寿命**：上限持续扩大（百万 token 级），但「Lost in the Middle」与成本使「能塞满」≠「该塞满」长期成立。
 
----
+**近期演进**：长上下文模型改变 RAG 必要性边界；多模态 token 计入同一预算。
 
-## 🧠 深入理解
+**终极威胁**：外部记忆与子图检索让「全量塞入」过时；窗口仍限单次融合深度。
+
+## 核心原理
 
 ### 什么是 Token
 
@@ -87,7 +90,7 @@ Token 不等于字符或词语，是 LLM 分词器（tokenizer）切分文本的
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 **场景：用 GPT-4o（128K context）处理一份 50 页 PDF**
 
@@ -113,7 +116,7 @@ if current_tokens > max_tokens * 0.8:  # 超过 80% 警戒线
 
 ---
 
-## ⚠️ 常见误区
+## 常见误区
 
 - **误区 1：Context window 越大越好，直接塞所有内容。** 大 context 成本高、速度慢，且存在 lost in the middle 问题。精心选择放入 context 的内容比堆砌更重要。
 - **误区 2：LLM 会记住之前的对话。** 不会。每次 API 调用都是全新的，「记忆」是靠应用层把历史对话手动塞回 context 实现的。
@@ -122,25 +125,11 @@ if current_tokens > max_tokens * 0.8:  # 超过 80% 警戒线
 
 ---
 
-## 💬 我的理解
-
-> 把 context window 想象成一张固定大小的桌子——你只能在桌子上操作能放上去的东西，东西太多就得决定扔掉什么。
-> 和 concept-agent 的衔接：Agent 每次循环都要往 context 里写入新的工具结果和观察，管理 context 是 Agent Harness 最核心的工程问题之一。理解了 context window 的限制，就能理解为什么 RAG、摘要压缩是必须的——不是可选的优化，而是长期运行 Agent 的基础设施。
-
----
-
-## 🔗 关联概念
+## 进一步阅读
 
 - [[llm]] — context window 是 LLM 底层架构决定的固有限制
-- [[agent]] — Agent 每次循环都在读写 context，管理 context 是 Agent 工程的核心
-- [[rag]] — 解决 context 放不下大量文档的最主流方案
-- [[context-engineering]] — 系统性管理 context 内容和结构的技术
-
----
-
-## 📚 延伸阅读
-
-- [Lost in the Middle (2023)](https://arxiv.org/abs/2307.03172) — 证明 LLM 对 context 中间内容注意力下降的研究
-- [Anthropic: Context Window Best Practices](https://docs.anthropic.com/claude/docs/context-windows) — 官方 context 管理指南
-- [[rag]] — RAG 的完整原理和实现
-- [[context-engineering]] — context 工程化管理的系统方法
+- [[agent]] — Agent 每次循环都在读写 context
+- [[rag]] — 放不下大量文档时的主流方案
+- [[context-engineering]] — 系统性管理 context 内容与结构
+- [Lost in the Middle (2023)](https://arxiv.org/abs/2307.03172) — 中间位置注意力下降
+- [Anthropic: Context Window Best Practices](https://docs.anthropic.com/claude/docs/context-windows) — 官方指南

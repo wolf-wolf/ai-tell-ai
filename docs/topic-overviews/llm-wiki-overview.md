@@ -1,12 +1,34 @@
+---
+tags: [overview, workflow, knowledge-management]
+aliases: [LLM Wiki, Karpathy LLM Wiki]
+related:
+  - "[[rag]]"
+  - "[[context-engineering]]"
+  - "[[agent-context-stack]]"
+  - "[[obsidian]]"
+stability: mid
+layer: application
+updated: 2026-06-01
+---
+
 # LLM Wiki：让知识像代码一样复利增长
 
-| 文字字数 | 预估阅读分钟数 | 撰写日期 | 文章难度 |
-| --- | --- | --- | --- |
-| 约 3200 字（含标点） | 约 8 分钟 | 2026-06-01 | ★★☆☆☆（2/5） |
+> [!tip] 核心本质
+> LLM Wiki 是让 Agent 担任维基维护者、把资料**编译**成持久 Markdown 知识库的模式（[Karpathy Gist][karpathy-gist]）——从「每次查询重捞 raw」转为「一次摄入、持续修订、可链接综合」。若没有编译层与 Schema 约束，对话里的洞见无法复利，RAG 会话结束即消散。
 
-**LLM Wiki** 是 Andrej Karpathy 于 2026 年 4 月提出的一种**个人知识库构建模式**（[详见][karpathy-gist]）：不再把 LLM 当作「每次提问时从原始文档里捞片段」的检索器，而是让它担任**维基维护者**——把资料**编译**成一份持久、结构化、可链接的 Markdown Wiki，并随新来源与提问持续更新。适合已用过 ChatGPT 上传文件、NotebookLM 或 RAG，却感到「问过的洞见没有沉淀」的读者；若只需知道「和 RAG 有何不同」，读完 **§1.1 摘要** 与 **§2.1 三层架构** 即可止步。
+## 生命周期与演进
 
-## 1. 问题与动机
+**当前定位**：个人/小团队知识库范式；与 Obsidian、Claude Code/Codex、qmd 等工具链结合。
+
+**预期寿命**：模式长期有效；v2 扩展（置信度、图谱、混合检索）随规模 OPTIONAL 引入。
+
+**近期演进**：社区 SCHEMA 模板、Hooks 自动化 Lint/Ingest、与本仓库类 Agent 学习图谱思路 converging。
+
+**终极威胁**：平台内置「永远记得一切」且可验证时，自建 Wiki 维护动机下降——可审计、可协作的本地制品仍有价值。
+
+## 核心原理
+
+### 问题与动机
 
 本节说明：为什么「上传文档 + 提问」往往知识不复利，以及 LLM Wiki 把问题换成了什么。
 
@@ -26,7 +48,7 @@
 
 LLM Wiki 的洞见是：**知识只编译一次，然后保持最新**，而不是每次查询重新推导（[详见][karpathy-gist]）。加入新来源时，LLM 不只建索引，而是**读入、抽取要点、更新实体页与主题摘要、标注新旧矛盾**，让交叉引用与综合结论已经写在 Wiki 里。Wiki 是**可复利增长的制品**（persistent, compounding artifact）：每多一篇来源、每多一次有深度的提问，体系都更厚一点。由此自然引出下一节的三层架构与三个操作。
 
-## 2. 原理与机制
+### 架构与机制
 
 本节拆解 LLM Wiki 的静态结构与动态工作流：资料如何分层、日常如何运转。
 
@@ -84,7 +106,7 @@ flowchart LR
 
 复利来自两条路径：**来源摄入**与**探索式问答**。一次对比分析、一条跨文档推论，若写回 Wiki，就与论文摘要一样成为后续 Query 的**预制积木**。这与 Vannevar Bush 1945 年 **Memex** 的愿景相近：珍贵的不只是文档，还有文档之间的**关联轨迹**；LLM Wiki 补上了 Bush 当时无法解决的——**谁来做维护**（[详见][karpathy-gist]）。
 
-## 3. 实践含义：场景、边界与辨析
+## 实践与应用
 
 本节讨论如何落地、何时不适用，以及社区在 v1 模式上的扩展。
 
@@ -138,20 +160,17 @@ v2 是**模式延伸**，不否定 v1；小 Wiki 可从三层 + 三操作起步�
 
 > **辨析**：**LLM Wiki**（Karpathy 模式）≠ 本仓库产品名，也≠ 任意「用 LLM 写维基」的泛称；它特指 **raw / wiki / schema 三层 + ingest-query-lint + 复利制品** 这一套工作流。
 
-## 4. 延伸阅读
+## 进一步阅读
 
-- [Karpathy — llm-wiki.md（Gist）][karpathy-gist] — 模式原文，建议复制给 Agent 共同实例化。
-- [LLM Wiki v2（Gist）][llm-wiki-v2] — 置信度、图谱、混合检索与 hooks 的扩展说明。
-- [yologdev/karpathy-llm-wiki](https://github.com/yologdev/karpathy-llm-wiki) — 带 `SCHEMA.md` 的开源 Wiki 约定示例（人机共读的操作规范）。
-- [AI Builder Club — Karpathy's LLM Wiki](https://www.aibuilderclub.com/blog/karpathy-llm-wiki) — 英文入门解读与工具链梳理。
-- [qmd](https://github.com/tobi/qmd) — 本地 Markdown 混合检索，可作为 Wiki 长大后的搜索后端。
-
-## 5. 参考资料
-
-- [1] [Karpathy — llm-wiki.md](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)（[karpathy-gist]）— 三层架构、Ingest/Query/Lint、index/log、Obsidian 与 qmd 建议；本文 §1–§3 的主来源。
-- [2] [LLM Wiki v2 — extending Karpathy's LLM Wiki pattern](https://gist.github.com/kanmadigital/2369c4f5ea410cb8f6a1647b40c0e2a1)（[llm-wiki-v2]）— 置信度、取代、图谱遍历、混合检索与记忆生命周期；支撑 §3.3。
-- [3] [yologdev/karpathy-llm-wiki](https://github.com/yologdev/karpathy-llm-wiki) — 开源 SCHEMA 与 ingest/query/lint 操作约定；支撑 §3.4 实践与 §4。
-- [4] [How I Built My Product YPOSER an LLM-Wiki](https://ai.plainenglish.io/how-i-built-my-product-yposer-an-llm-wiki-by-adopting-andrej-karpathys-idea-71986384914c)（[yposer-article]）— 产品化目录结构、frontmatter、Open Questions 写回；支撑 §3.4 第 2 条实践。
+- [[rag]] — 查询时检索 vs Wiki 编译式沉淀
+- [[context-engineering]] — Wiki 页如何进入 Agent context
+- [[agent-context-stack]] — Schema 与 Rules 分工
+- [Karpathy — llm-wiki.md（Gist）][karpathy-gist] — 模式原文
+- [LLM Wiki v2（Gist）][llm-wiki-v2] — 置信度、图谱、混合检索扩展
+- [yologdev/karpathy-llm-wiki](https://github.com/yologdev/karpathy-llm-wiki) — 开源 SCHEMA 示例
+- [AI Builder Club — Karpathy's LLM Wiki](https://www.aibuilderclub.com/blog/karpathy-llm-wiki) — 英文入门
+- [qmd](https://github.com/tobi/qmd) — 本地混合检索后端
+- [YPOSER 产品实践][yposer-article] — Open Questions 写回 Wiki
 
 [karpathy-gist]: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 [llm-wiki-v2]: https://gist.github.com/kanmadigital/2369c4f5ea410cb8f6a1647b40c0e2a1

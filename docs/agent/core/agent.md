@@ -179,4 +179,4 @@ while not done and step < max_steps:
 - [[harness-engineering]] — 搭系统让模型长期可靠地干活
 - [[agent-context-stack]] — Skill / Memory / RAG / Rules 分工
 - [[memory]] — Agent 记忆机制的完整设计
-- [[resources/building-effective-agents]] — Anthropic 官方 Agent 设计指南
+- [[building-effective-agents]] — Anthropic 官方 Agent 设计指南

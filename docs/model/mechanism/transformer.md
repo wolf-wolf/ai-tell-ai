@@ -1,7 +1,7 @@
 ---
 tags: [principle]
 aliases: [Transformer, 变换器]
-related: ["[[principle-attention]]", "[[llm]]", "[[token-prediction]]"]
+related: ["[[attention]]", "[[llm]]", "[[token-prediction]]"]
 stability: permanent
 layer: model
 updated: 2026-05-25
@@ -9,15 +9,20 @@ updated: 2026-05-25
 
 # Transformer（变换器架构）
 
-## ⚡ 30 秒速览
+> [!tip] 核心本质
+> Transformer 用 Self-Attention 让序列中每个 token 直接关注所有其他 token，以并行训练替代 RNN 的逐步传话，从根本上缓解长距离依赖衰减。若没有这一架构，现代 LLM 无法在 GPU 上规模化预训练，也谈不上今天的 context 长度与涌现能力。
 
-Transformer 是 2017 年提出的神经网络架构，核心是 Self-Attention——让序列中每个 token 都能直接关注所有其他 token。
-它替代了 RNN 的顺序处理方式，实现训练并行化，彻底解决了长距离依赖问题，成为所有现代 LLM 的基础。
-记住：Transformer 的革命是用「所有人同时互看」替代了「一个人依次传话」。
+## 生命周期与演进
 
----
+**当前定位**：几乎所有主流 LLM 的骨干；Decoder-only、Encoder-Decoder 变体并存，但核心是 Attention + FFN 块堆叠。
 
-## 🧠 深入理解
+**预期寿命**：长期主导；层内细节（RoPE、GQA、MoE）持续演化。
+
+**近期演进**：效率优化（FlashAttention、量化）、混合专家、与 SSM 的混合架构实验。
+
+**终极威胁**：若新架构在同等算力下稳定超越，Transformer 可能像 RNN 一样退居历史——尚无定论。
+
+## 核心原理
 
 ### 背景：RNN 的两个死穴
 
@@ -94,7 +99,7 @@ Self-Attention 的直觉：**序列中的每个 token，都能直接「看到」
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 **直觉感受 Self-Attention 的作用：**
 
@@ -128,7 +133,7 @@ GPT-4 这样的模型有 ~96 层这样的 Block 堆叠。
 
 ---
 
-## ⚠️ 常见误区
+## 常见误区
 
 - **误区 1：Transformer = GPT = ChatGPT。** Transformer 是架构，GPT 是基于它的预训练模型系列，ChatGPT 是再经过 RLHF 对齐后的对话产品。三个层次不同。
 
@@ -138,26 +143,12 @@ GPT-4 这样的模型有 ~96 层这样的 Block 堆叠。
 
 - **误区 4：Encoder-Decoder 比 Decoder-only 更强（因为有双向理解）。** 在现代 LLM 规模下，实验证明 Decoder-only 的性能不逊于 Encoder-Decoder，且架构更简洁。
 
----
+## 进一步阅读
 
-## 💬 我的理解
-
-> 在我理解 Transformer 之前，总觉得神经网络是个黑盒魔法。理解 Self-Attention 之后发现它的核心思路其实很直觉：给每个词一个机会「参考」所有其他词来更新自己的含义。这和人类读句子时会根据上下文理解词义的方式很像。
-> 和 token prediction 的衔接：Transformer 是执行「预测下一个 token」这个任务的引擎。理解了 Transformer 的架构，才能理解为什么这个引擎能从简单的预测任务中涌现出如此复杂的能力。
-
----
-
-## 🔗 关联概念
-
-- [[principle-attention]] — Self-Attention 机制的详细展开，Transformer 的核心组件
-- [[llm]] — Transformer 架构的最大应用，大语言模型
-- [[token-prediction]] — Transformer 执行的训练任务，两者结合产生了 LLM
-- [[context-window]] — Transformer 的 Self-Attention 覆盖范围就是 context 窗口
-
----
-
-## 📚 延伸阅读
-
-- Vaswani et al. 2017, "Attention Is All You Need" — Transformer 原始论文
-- Jay Alammar, "The Illustrated Transformer" — 最清晰的图解 Transformer 教程（强烈推荐）
-- Andrej Karpathy, "Let's build GPT from scratch" — 从零实现 GPT，深入理解架构细节
+- [[attention]] — Self-Attention 机制详解
+- [[llm]] — Transformer 的最大应用
+- [[token-prediction]] — Transformer 执行的训练任务
+- [[context-window]] — Self-Attention 覆盖范围即 context 窗口
+- Vaswani et al. 2017, "Attention Is All You Need" — 原始论文
+- Jay Alammar, "The Illustrated Transformer" — 图解教程
+- Andrej Karpathy, "Let's build GPT from scratch" — 从零实现 GPT

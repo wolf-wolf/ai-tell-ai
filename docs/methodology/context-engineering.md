@@ -20,16 +20,20 @@ updated: 2026-05-26
 ---
 # Context Engineering（上下文工程）
 
-> [!tip] 想一想
-> **模型"不够聪明"，还是它根本没看到解题需要的信息？**
->
-> *很多时候是后者——模型的 context window 里没有你以为它知道的东西。*
->
-> Context Engineering 研究的是：怎么管理模型在每次调用时能看到什么，让它有足够的、正确的信息来完成任务。
+> [!tip] 核心本质
+> Context Engineering 管理的是每次调用时 context window 里「该有什么」——模型只能处理它看到的内容，缺关键事实会幻觉，塞满无关信息会稀释注意力。若没有对 What/How/When 的裁剪与注入策略，再好的 prompt 也是在错误的信息集上优化措辞。
 
----
+## 生命周期与演进
 
-## 🧠 深入理解
+**当前定位**：三代范式中游（Prompt → Context → Harness），RAG、记忆、Skill 渐进披露都归此域。
+
+**预期寿命**：长期；随 context window 变长，「全塞进去」的诱惑变大，筛选与检索反而更关键。
+
+**近期演进**：长上下文 + 推理模型改变「检索 vs 塞满」权衡；多模态与工具结果并入 context 编排成为标配。
+
+**终极威胁**：端到端 Agent 自动管理 context 后，人工编排退居调试与审计层；但检索质量仍是瓶颈。
+
+## 核心原理
 
 ### 问题出在哪
 
@@ -94,7 +98,7 @@ Context Engineering 是从"写好 prompt"到"管理整个信息流"的升级。�
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 一个客服 Agent 回答用户问题，不同的 context 管理策略：
 
@@ -108,7 +112,7 @@ Context Engineering 是从"写好 prompt"到"管理整个信息流"的升级。�
 
 ---
 
-## ⚠️ 坑与误区
+## 常见误区
 
 最常见的误区是"context 越多越好"——把能找到的信息全塞进去，觉得信息量大模型就会更聪明。实际上超长 context 里噪声也多，模型对关键信息的注意力会被稀释，有时候反而不如精简的 context。
 
@@ -118,15 +122,7 @@ RAG 不是银弹。检索质量决定 RAG 效果——如果检索到的片段�
 
 [[skill]] 的 Discovery → Activation → Execution 是 Context Engineering 在**程序性知识**上的落地：用少量元数据路由，按需载入正文与 scripts，避免一次性塞满窗口。CE 管通用裁剪策略；Skill 管 SOP 分层写法（见 [[skill-engineering]]）。
 
----
-
-## 💬 我的理解
-
-> 写下你自己读完之后的感受——哪里让你"咔"了一下，哪里还没想清楚，和你已知的什么东西连上了。
-
----
-
-## 📖 进一步阅读
+## 进一步阅读
 
 - [[prompt-engineering]] — 在管理 context 之前，先把指令写清楚
 - [[harness-engineering]] — 当 context 需要动态管理、多轮维护，就需要系统层面的支撑

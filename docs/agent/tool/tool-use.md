@@ -86,7 +86,7 @@ parameters:
 
 三个要素缺一不可：**做什么**（功能边界）、**何时用**（触发条件）、**何时不用**（避免误路由）。参数描述中补充取值约束和示例，可进一步减少参数幻觉。
 
-函数 schema 的完整设计规范见 [[function-calling]]；工具描述的官方最佳实践见 [[resources/writing-tools-for-agents]]。
+函数 schema 的完整设计规范见 [[function-calling]]；工具描述的官方最佳实践见 [[writing-tools-for-agents]]。
 
 ## 工具结果与 Context 代价
 
@@ -101,5 +101,5 @@ parameters:
 - [[tool-mcp]] — MCP 标准：跨系统、跨宿主的工具互操作协议
 - [[tool-self-learning]] — Agent 如何自学使用/创造工具（LATM、Toolformer、Voyager）
 - [[reAct]] — 推理与工具调用交替的 Agent 执行模式
-- [[resources/writing-tools-for-agents]] — Anthropic 官方「如何写好工具描述」
-- [[resources/mcp-code-execution]] — MCP 工具协议与代码执行实践
+- [[writing-tools-for-agents]] — Anthropic 官方「如何写好工具描述」
+- [[mcp-code-execution]] — MCP 工具协议与代码执行实践

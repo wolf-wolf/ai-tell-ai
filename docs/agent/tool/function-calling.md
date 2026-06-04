@@ -18,16 +18,20 @@ updated: 2026-05-26
 
 # Function Calling（函数调用）
 
-> [!tip] 想一想
-> **你让模型"查一下今天天气"，它怎么真正调用天气 API，而不是编一个答案？**
->
-> *模型本身不能发 HTTP 请求——它只能输出文本。所以需要一种机制：模型输出"我要调用这个函数、传这些参数"，由外部系统去真正执行。*
->
-> Function Calling 是模型和外部工具之间的标准化协议——模型说"调什么、怎么调"，Runtime 负责真正执行。
+> [!tip] 核心本质
+> Function Calling 是模型与外部工具之间的结构化协议——模型输出「调哪个函数、传什么参数」的 JSON，Runtime 负责真正执行并回传结果。模型本身不能发 HTTP 请求；若没有这层标准接口，Tool Use 只能依赖脆弱的正则解析，多工具场景下几乎无法稳定落地。
 
----
+## 生命周期与演进
 
-## 🧠 深入理解
+**当前定位**：Tool Use / Agent 循环的底层实现；OpenAI、Anthropic 等 API 的标配能力。
+
+**预期寿命**：长期；schema 形态与并行调用语义会随厂商迭代。
+
+**近期演进**：与 MCP 工具描述规范对齐；多函数并行、流式 tool result 成为默认。
+
+**终极威胁**：统一 Agent 协议吞没厂商差异后，Function Calling 退为传输层细节；但 schema 设计与 Runtime 校验仍属工程核心。
+
+## 核心原理
 
 ### 没有 Function Calling，Tool Use 会怎样
 
@@ -103,7 +107,7 @@ Function Calling 做不到的：执行函数本身（那是 Runtime 的事）、
 
 ---
 
-## 💡 示例
+## 实践与应用
 
 用户问"帮我订明天北京到上海最便宜的机票"，系统定义了两个函数：`search_flights` 和 `book_ticket`。
 
@@ -118,7 +122,7 @@ Function Calling 做不到的：执行函数本身（那是 Runtime 的事）、
 
 ---
 
-## ⚠️ 坑与误区
+## 常见误区
 
 Function Calling 和 Tool Use 不是同一层的概念。Tool Use 是设计理念（给模型接工具），Function Calling 是实现机制（怎么接）。理解这个区别，才能判断什么时候该关注 schema 设计，什么时候该关注 Agent 架构。
 
@@ -131,15 +135,7 @@ Function Calling 和 Tool Use 不是同一层的概念。Tool Use 是设计理�
 | **并行调用顺序依赖** | 并行调用了有依赖关系的函数 | 设计函数时明确哪些可以并行、哪些必须串行 |
 | **无限调用循环** | 模型反复调用同一函数 | 设置 max_steps；检测重复调用模式 |
 
----
-
-## 💬 我的理解
-
-> 写下你自己读完之后的感受——哪里让你"咔"了一下，哪里还没想清楚，和你已知的什么东西连上了。
-
----
-
-## 📖 进一步阅读
+## 进一步阅读
 
 - [[tool-use|Tool Use]] — Function Calling 是 Tool Use 的底层实现，两篇要对照看：一个讲设计理念，一个讲实现机制
 - [[agent|Agent]] — Function Calling 是 Agent 里工具调用的核心机制，理解它才能真正理解 Agent 循环是怎么转的
