@@ -1,0 +1,29 @@
+/*
+ * ai-tell-ai — 正文阅读排版（字间距 + 行高）
+ * 安装：bash tools/obsidian-reading-snippet/install.sh
+ */
+
+body {
+  --ai-body-letter-spacing: 0.03em;
+  --ai-body-line-height: 1.72;
+}
+
+/* 阅读模式 */
+.markdown-preview-view,
+.markdown-rendered {
+  letter-spacing: var(--ai-body-letter-spacing);
+  line-height: var(--ai-body-line-height);
+}
+
+/* Live Preview 正文行 */
+.markdown-source-view.mod-cm6 .cm-content {
+  letter-spacing: var(--ai-body-letter-spacing);
+  line-height: var(--ai-body-line-height) !important;
+}
+
+/* 行内代码、代码块保持等宽字距，避免被正文拉松 */
+.markdown-preview-view :is(pre, code),
+.markdown-rendered :is(pre, code),
+.markdown-source-view.mod-cm6 :is(pre, code, .cm-inline-code) {
+  letter-spacing: normal;
+}

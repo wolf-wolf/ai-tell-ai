@@ -1,0 +1,27 @@
+/*
+ * ai-tell-ai — 正文加粗样式（阅读模式 + Live Preview）
+ * 与 ai-inline-code 区分：加粗 = 纯字重强调（无底色、无下划线）；行内代码 = 等宽 + accent + 底框
+ * 安装：bash tools/obsidian-bold-snippet/install.sh
+ */
+
+body {
+  --ai-bold-weight: 700;
+  --ai-bold-color: var(--text-normal);
+  /* 中文字体缺粗体时，极淡描边补强可读性，不产生色块或线条 */
+  --ai-bold-shadow: 0.35px 0 0 currentColor, -0.35px 0 0 currentColor;
+}
+
+/* 阅读模式：正文段落内的 strong，排除标题与代码块 */
+.markdown-preview-view :is(p, li, td, blockquote) strong,
+.markdown-rendered :is(p, li, td, blockquote) strong {
+  font-weight: var(--ai-bold-weight);
+  color: var(--ai-bold-color);
+  text-shadow: var(--ai-bold-shadow);
+}
+
+/* Live Preview：加粗主体（不含 ** 格式符） */
+.markdown-source-view.mod-cm6 span.cm-strong:not(.cm-formatting) {
+  font-weight: var(--ai-bold-weight);
+  color: var(--ai-bold-color);
+  text-shadow: var(--ai-bold-shadow);
+}

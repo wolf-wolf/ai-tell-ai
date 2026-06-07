@@ -1,6 +1,6 @@
 # AI Inline Code Snippet
 
-优化 Obsidian **行内代码**（`` `like this` ``）在阅读模式与 Live Preview 下的展示：略小字号、accent 字色、浅底 + 细边框，并减少光标移入时的样式跳动。
+优化 Obsidian **行内代码**（`` `like this` ``）在阅读模式与 Live Preview 下的展示：略小字号、muted 字色、浅底、无边框、**斜体**——低调技术标记，不与正文加粗争抢视线。代码块（` ``` `）不受影响。
 
 不影响 fenced code block（` ``` `）与 Mermaid 块。
 
@@ -30,10 +30,12 @@ VAULT=/path/to/your/vault bash tools/obsidian-inline-code-snippet/install.sh
 
 | 变量 | 默认 | 作用 |
 | --- | --- | --- |
-| `--ai-inline-code-size` | `0.88em` | 相对正文字号 |
-| `--ai-inline-code-fg` | `var(--text-accent)` | 字色 |
-| `--ai-inline-code-bg` | `var(--background-modifier-hover)` | 背景 |
-| `--ai-inline-code-radius` | `4px` | 圆角 |
+| `--ai-inline-code-size` | `0.86em` | 相对正文字号 |
+| `--ai-inline-code-fg` | `var(--text-muted)` | 字色 |
+| `--ai-inline-code-bg` | `var(--background-modifier-form-field)` | 背景 |
+| `--ai-inline-code-border` | `transparent` | 边框 |
+| `--ai-inline-code-style` | `italic` | 字形（`normal` 可关斜体） |
+| `--ai-inline-code-radius` | `3px` | 圆角 |
 
 保存后 Obsidian 通常会自动热重载；若无变化，`Cmd+P` → **Reload app without saving**。
 

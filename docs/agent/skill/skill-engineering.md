@@ -396,9 +396,9 @@ def _apply_edit_with_report(skill, edit):
 
 - **一致**：仍强调紧凑 Skill、工具轨迹、可验证改进——与 Grounding、脚本闭环同一逻辑。
 - **补充**：人工难系统覆盖的长尾失败模式，可用 batch 轨迹批量暴露；论文报告多 benchmark 上相对固定手写 Skill 约有 **+15%～25%** 绝对准确率提升（视任务与模型而定）。
-- **局限**：需要**任务数据、评分与 harness 适配器**；产出是一份 `best_skill.md`，部署后仍要按本文 §6 在目标宿主验 Discovery/Activation；**不能**代替 Librarian 治 Library Drift。
+- **局限**：需要**任务数据、评分与 harness 适配器**；产出是一份 `best_skill.md`，部署后仍要按本文 [[#6. 在目标宿主验收|§6]] 在目标宿主验 Discovery/Activation；**不能**代替 Librarian 治 Library Drift。
 
-实践上可视为：§1–§5 手写初稿 → 离线 SkillOpt 训练 → §6 宿主验收 → 纳入 [[skill-governance]] 发布流程。
+实践上可视为：[[#1. 定边界（Discovery 层）|§1]]–[[#5. 加固契约（Activation 层）|§5]] 手写初稿 → 离线 SkillOpt 训练 → [[#6. 在目标宿主验收|§6]] 宿主验收 → 纳入 [[skill-governance]] 发布流程。
 
 ## 与相邻机制的分工（避免写错层）
 

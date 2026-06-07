@@ -1,0 +1,32 @@
+/*
+ * ai-tell-ai — 表格字号（阅读模式 + Live Preview）
+ * 安装：bash tools/obsidian-table-snippet/install.sh
+ */
+
+body {
+  /* 相对正文字号小一号；Obsidian 默认正文约 16px 时 ≈ 14px */
+  --ai-table-size: 0.875em;
+}
+
+/* 阅读模式 */
+.markdown-preview-view table,
+.markdown-rendered table {
+  font-size: var(--ai-table-size);
+}
+
+.markdown-preview-view table th,
+.markdown-preview-view table td,
+.markdown-rendered table th,
+.markdown-rendered table td {
+  font-size: inherit;
+}
+
+/* Live Preview：CM6 表格 widget */
+.markdown-source-view.mod-cm6 .cm-table-widget table {
+  font-size: var(--ai-table-size);
+}
+
+.markdown-source-view.mod-cm6 .cm-table-widget th,
+.markdown-source-view.mod-cm6 .cm-table-widget td {
+  font-size: inherit;
+}

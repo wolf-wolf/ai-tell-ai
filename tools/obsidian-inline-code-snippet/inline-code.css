@@ -1,16 +1,18 @@
 /*
  * ai-tell-ai — 行内代码样式（阅读模式 + Live Preview）
+ * 低调技术标记：muted 字色、浅底、无边框；色彩高亮弱于正文加粗
  * 安装：bash tools/obsidian-inline-code-snippet/install.sh
  */
 
 body {
-  --ai-inline-code-size: 0.88em;
-  --ai-inline-code-pad-y: 0.12em;
-  --ai-inline-code-pad-x: 0.42em;
-  --ai-inline-code-radius: 4px;
-  --ai-inline-code-bg: var(--background-modifier-hover);
-  --ai-inline-code-fg: var(--text-accent);
-  --ai-inline-code-border: var(--background-modifier-border);
+  --ai-inline-code-size: 0.86em;
+  --ai-inline-code-pad-y: 0.05em;
+  --ai-inline-code-pad-x: 0.22em;
+  --ai-inline-code-radius: 3px;
+  --ai-inline-code-bg: var(--background-modifier-form-field);
+  --ai-inline-code-fg: var(--text-muted);
+  --ai-inline-code-border: transparent;
+  --ai-inline-code-style: italic;
 }
 
 /* 阅读模式：仅行内 code，排除 fenced code block */
@@ -19,6 +21,7 @@ body {
   font-family: var(--font-monospace);
   font-size: var(--ai-inline-code-size);
   font-weight: var(--font-normal);
+  font-style: var(--ai-inline-code-style);
   line-height: 1.35;
   color: var(--ai-inline-code-fg);
   background-color: var(--ai-inline-code-bg);
@@ -34,6 +37,7 @@ body {
   font-family: var(--font-monospace);
   font-size: var(--ai-inline-code-size);
   font-weight: var(--font-normal);
+  font-style: var(--ai-inline-code-style);
   color: var(--ai-inline-code-fg);
   background-color: var(--ai-inline-code-bg);
   padding: var(--ai-inline-code-pad-y) var(--ai-inline-code-pad-x);
