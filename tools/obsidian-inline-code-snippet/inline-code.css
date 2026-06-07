@@ -1,0 +1,82 @@
+/*
+ * ai-tell-ai — 行内代码样式（阅读模式 + Live Preview）
+ * 安装：bash tools/obsidian-inline-code-snippet/install.sh
+ */
+
+body {
+  --ai-inline-code-size: 0.88em;
+  --ai-inline-code-pad-y: 0.12em;
+  --ai-inline-code-pad-x: 0.42em;
+  --ai-inline-code-radius: 4px;
+  --ai-inline-code-bg: var(--background-modifier-hover);
+  --ai-inline-code-fg: var(--text-accent);
+  --ai-inline-code-border: var(--background-modifier-border);
+}
+
+/* 阅读模式：仅行内 code，排除 fenced code block */
+.markdown-preview-view :not(pre) > code,
+.markdown-rendered :not(pre) > code {
+  font-family: var(--font-monospace);
+  font-size: var(--ai-inline-code-size);
+  font-weight: var(--font-normal);
+  line-height: 1.35;
+  color: var(--ai-inline-code-fg);
+  background-color: var(--ai-inline-code-bg);
+  padding: var(--ai-inline-code-pad-y) var(--ai-inline-code-pad-x);
+  border-radius: var(--ai-inline-code-radius);
+  border: 1px solid var(--ai-inline-code-border);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Live Preview：行内 code 主体 */
+.markdown-source-view.mod-cm6 span.cm-inline-code:not(.cm-formatting) {
+  font-family: var(--font-monospace);
+  font-size: var(--ai-inline-code-size);
+  font-weight: var(--font-normal);
+  color: var(--ai-inline-code-fg);
+  background-color: var(--ai-inline-code-bg);
+  padding: var(--ai-inline-code-pad-y) var(--ai-inline-code-pad-x);
+  border-radius: var(--ai-inline-code-radius);
+  border: 1px solid var(--ai-inline-code-border);
+}
+
+/*
+ * Live Preview 会把反引号拆成多个 span；光标移入时避免边框/圆角错位
+ */
+.markdown-source-view.mod-cm6 span.cm-formatting-code.cm-inline-code {
+  color: var(--ai-inline-code-fg);
+  background-color: var(--ai-inline-code-bg);
+  border: 1px solid var(--ai-inline-code-border);
+  border-right: none;
+  padding: var(--ai-inline-code-pad-y) 0 var(--ai-inline-code-pad-y)
+    var(--ai-inline-code-pad-x);
+  border-radius: var(--ai-inline-code-radius) 0 0 var(--ai-inline-code-radius);
+}
+
+.markdown-source-view.mod-cm6
+  span.cm-formatting-code.cm-inline-code
+  + span.cm-inline-code:not(.cm-formatting) {
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.markdown-source-view.mod-cm6
+  span.cm-inline-code:not(.cm-formatting)
+  + span.cm-formatting-code.cm-inline-code {
+  border-left: none;
+  padding-left: 0;
+  padding-right: var(--ai-inline-code-pad-x);
+  border-radius: 0 var(--ai-inline-code-radius) var(--ai-inline-code-radius) 0;
+}
+
+/* 单行内仅一对反引号、光标不在其上时的兜底 */
+.markdown-source-view.mod-cm6
+  span.cm-inline-code.cm-formatting-code:only-of-type {
+  border-right: 1px solid var(--ai-inline-code-border);
+  padding-right: var(--ai-inline-code-pad-x);
+  border-radius: var(--ai-inline-code-radius);
+}

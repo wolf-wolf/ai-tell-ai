@@ -29,7 +29,7 @@ docs/
     context/        上下文管理（agent-context-stack：Soul / Rules / AGENTS.md / Commands 分工）
     skill/          Skill 生态（skill, skill-engineering, skill-governance, skill-loading-library, skill-scripts, claude-code-skill-selection）
     tool/           工具体系（tool-use, function-calling, tool-mcp, tool-self-learning, cursor-hooks）
-    retrieval/      检索与知识（rag, retrieval-pipeline, query-transformation, knowledge-fusion, conflict-resolution, fts5）
+    retrieval/      检索与知识（rag, retrieval-pipeline, query-transformation, knowledge-extraction, knowledge-fusion, conflict-resolution, fts5）
 
   latest/           前沿产品与框架（… openclaw, claude-code, memx, mem0 — 演化快、版本敏感）
 ```

@@ -5,6 +5,7 @@ prerequisites:
   - "[[agent]]"
   - "[[skill]]"
 related:
+  - "[[hermes-agent-memory]]"
   - "[[skill-loading-library]]"
   - "[[skill-engineering]]"
   - "[[tool-mcp]]"
@@ -89,7 +90,7 @@ flowchart TB
 | **Skills** | 可复用 SOP：命令、验证步骤、坑点（[[skill]] 程序性记忆） | 任务匹配 description 时 Activation |
 | **Session search** | 过去对话与工作的 [[fts5\|FTS5]] 检索 + LLM 摘要 | 用户提「上次我们怎么做的」 |
 
-这与 [[agent-context-stack]] 分工一致：Memory 存易变个体事实，Skill 存稳定流程；Hermes 把两者都产品化，并加 **Honcho dialectic user modeling**（用户画像随会话加深）。
+这与 [[agent-context-stack]] 分工一致：Memory 存易变个体事实，Skill 存稳定流程；Hermes 把两者都产品化，并加 **Honcho dialectic user modeling**（用户画像随会话加深）。实现细节（提取、融合、FTS5 检索、Curator）见专文 [[hermes-agent-memory]]。
 
 ### Skill：Discovery 与 Activation
 
@@ -199,6 +200,6 @@ Hermes 支持 **context files**（含 `AGENTS.md` 等） shaping 每次对话，
 ## 进一步阅读
 
 - 官方：[hermes-agent.nousresearch.com/docs](https://hermes-agent.nousresearch.com/docs/)（Quickstart、Skills、Memory、MCP、Architecture）
-- 本仓库：[[skill-loading-library]]、[[skill]]、[[memory]]、[[agentmemory]]、[[tool-mcp]]、[[agent]]、POC [README](../../poc/README.md)
+- 本仓库：[[hermes-agent-memory]]（记忆实现深潜）、[[skill-loading-library]]、[[skill]]、[[memory]]、[[agentmemory]]、[[tool-mcp]]、[[agent]]、POC [README](../../poc/README.md)
 - 对比：[[openclaw]]（多通道个人助手 + ClawHub）、[[agent-zero]]（OS 级沙箱）、[[claude-code-skill-selection]]（Claude listing 预算）
 - 生态：[agentskills.io Skills Hub](https://agentskills.io)、[Nous Portal](https://portal.nousresearch.com)

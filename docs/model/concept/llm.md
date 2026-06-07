@@ -9,6 +9,7 @@ related:
   - "[[rag]]"
   - "[[memory]]"
   - "[[llm-generation-traps]]"
+  - "[[inductive-bias]]"
 stability: permanent
 layer: model
 updated: 2026-05-31

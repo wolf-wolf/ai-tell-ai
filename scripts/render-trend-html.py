@@ -929,6 +929,27 @@ def parse_meta_block(lines: list[str], start: int) -> tuple[str, int]:
     return f'<div class="meta">{chips}</div>', i
 
 
+def _list_continuation_ahead(lines: list[str], start: int) -> bool:
+    """Blank line inside a list may separate paragraphs of the same <li>."""
+    j = start
+    while j < len(lines) and not lines[j].strip():
+        j += 1
+    if j >= len(lines):
+        return False
+    next_line = lines[j]
+    if re.match(r"^[-*] ", next_line.strip()):
+        return False
+    return next_line.startswith(("  ", "\t"))
+
+
+def _append_list_continuation(out: list[str], text: str) -> None:
+    block = f"<p>{inline_format(text)}</p>"
+    if out and out[-1].endswith("</li>"):
+        out[-1] = out[-1][: -len("</li>")] + block + "</li>"
+    else:
+        out.append(f"<li>{block}</li>")
+
+
 def md_to_html(md: str) -> str:
     lines = md.splitlines()
     out: list[str] = []
@@ -939,6 +960,9 @@ def md_to_html(md: str) -> str:
         stripped = lines[i].strip()
 
         if not stripped:
+            if in_list and _list_continuation_ahead(lines, i + 1):
+                i += 1
+                continue
             if in_list:
                 out.append("</ul>")
                 in_list = False
@@ -1009,6 +1033,11 @@ def md_to_html(md: str) -> str:
                 out.append("<ul>")
                 in_list = True
             out.append(f"<li>{inline_format(stripped[2:])}</li>")
+            i += 1
+            continue
+
+        if in_list and (lines[i].startswith(("  ", "\t")) or not stripped):
+            _append_list_continuation(out, stripped)
             i += 1
             continue
 
@@ -1085,9 +1114,16 @@ def _aux_link_label(url: str) -> str:
     return shorten_url_label(url)
 
 
+def _normalize_deep_prose_html(text: str) -> str:
+    """列表项内多段 <p> → 双换行，供 _render_deep_prose 分段。"""
+    text = re.sub(r"</p>\s*<p>", "\n\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"</?p>", "", text, flags=re.IGNORECASE)
+    return text.strip()
+
+
 def _render_deep_prose(text: str) -> str:
     """深读正文：Markdown 字符串 → 段落/列表，无字段标签。"""
-    text = text.strip()
+    text = _normalize_deep_prose_html(text.strip())
     if not text:
         return ""
     parts: list[str] = []
@@ -1195,11 +1231,13 @@ def transform_judgment_section(section_html: str) -> str:
 
 
 def transform_deep_section(section_html: str) -> str:
-    orphan_paras = [
-        re.sub(r"<[^>]+>", "", p).strip()
-        for p in re.findall(r"<p>(.*?)</p>", section_html, flags=re.DOTALL)
-        if p.strip()
+    orphan_blocks = [
+        (block, re.sub(r"<[^>]+>", "", inner).strip())
+        for block, inner in re.findall(r"(<p>(.*?)</p>)", section_html, flags=re.DOTALL)
+        if inner.strip()
     ]
+    orphan_paras = [plain for _, plain in orphan_blocks]
+    consumed_blocks: list[str] = []
 
     def convert_list(match: re.Match) -> str:
         pairs = _collect_labeled_list_pairs(match.group(1))
@@ -1224,10 +1262,16 @@ def transform_deep_section(section_html: str) -> str:
         aux_html = f'<span class="deep-aux">{"".join(aux_parts)}</span>' if aux_parts else ""
 
         prose = data.get("正文", "").strip() or _legacy_deep_prose(data)
+        prose_plain = re.sub(r"<[^>]+>", " ", prose)
+        prose_plain = re.sub(r"\s+", " ", prose_plain).strip()
         if orphan_paras:
-            main_plain = re.sub(r"<[^>]+>", "", prose).strip()
-            extras = [p for p in orphan_paras if p and p not in main_plain]
+            extras = [
+                p for p in orphan_paras if p and p not in prose_plain and prose_plain not in p
+            ]
             if extras:
+                for block, plain in orphan_blocks:
+                    if plain in extras:
+                        consumed_blocks.append(block)
                 prose = (prose + "\n\n" + "\n\n".join(extras)).strip() if prose else "\n\n".join(extras)
 
         body_parts: list[str] = []
@@ -1245,7 +1289,18 @@ def transform_deep_section(section_html: str) -> str:
             "</article>"
         )
 
-    return re.sub(r"<ul>(.*?)</ul>", convert_list, section_html, count=1, flags=re.DOTALL)
+    result = re.sub(r"<ul>(.*?)</ul>", convert_list, section_html, count=1, flags=re.DOTALL)
+    for block in consumed_blocks:
+        result = result.replace(block, "", 1)
+    # Legacy md: trailing <ul> with only 知识库节点 after orphan paragraphs
+    result = re.sub(
+        r"</article>\s*<ul>\s*<li><strong>知识库节点</strong>[：:].*?</li>\s*</ul>",
+        "</article>",
+        result,
+        count=1,
+        flags=re.DOTALL,
+    )
+    return result
 
 
 def split_bigtech_columns(content: str) -> str:

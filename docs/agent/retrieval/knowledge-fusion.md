@@ -10,6 +10,7 @@ prerequisites:
   - "[[embedding]]"
   - "[[llm]]"
 related:
+  - "[[knowledge-extraction]]"
   - "[[rag]]"
   - "[[memory]]"
   - "[[embedding]]"
@@ -42,6 +43,8 @@ updated: 2026-06-04
 单一来源很少覆盖真实问题。知识分散在：不同格式（文本、表格、图像）、不同存储（结构化 / 非结构化）、不同时间版本、不同机构维护的图谱。
 
 核心问题：**在保持一致性的前提下，让模型能利用多个异构源头的知识**。
+
+入库前须由 [[knowledge-extraction|知识提取]] 产出带溯源的候选记录；融合不负责从 raw 散文里「猜事实」，只对已提交的候选做对齐与更新。
 
 ## 三个层面：在哪里融合
 
@@ -165,6 +168,7 @@ Truth Discovery 实现碎片化；LLM 流水线（如 STORM）越来越多承担
 
 ## 进一步阅读
 
+- [[knowledge-extraction]] — 入库前候选与 handoff 契约
 - [[rag]] — 推理层最常见实现；本篇覆盖更广的三层融合
 - [[conflict-resolution]] — 存储层冲突消解专文（Truth Discovery、写回契约）
 - [[rrf]] — 多路检索并榜（BM25 + 向量等）

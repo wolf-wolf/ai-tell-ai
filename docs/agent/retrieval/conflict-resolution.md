@@ -9,6 +9,7 @@ aliases:
 prerequisites:
   - "[[knowledge-fusion]]"
 related:
+  - "[[knowledge-extraction]]"
   - "[[knowledge-fusion]]"
   - "[[rag]]"
   - "[[embedding]]"
@@ -166,6 +167,7 @@ Step 5：人工 → A 引用官方财报，B 为估算 → 选 A
 
 ## 进一步阅读
 
+- [[knowledge-extraction]] — 候选记录与溯源；消解针对已提交候选，不替代提取验收
 - [[knowledge-fusion]] — 冲突消解在融合 pipeline 中的位置（实体对齐、推理层融合等）
 - [[rag]] — 消解后的知识如何进入检索与生成
 - [[embedding]] — KG 嵌入与语义一致性检验原理

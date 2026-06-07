@@ -2,13 +2,14 @@
 tags: [overview, workflow, knowledge-management]
 aliases: [LLM Wiki, Karpathy LLM Wiki]
 related:
+  - "[[knowledge-extraction]]"
   - "[[rag]]"
   - "[[context-engineering]]"
   - "[[agent-context-stack]]"
   - "[[obsidian]]"
 stability: mid
 layer: application
-updated: 2026-06-01
+updated: 2026-06-04
 ---
 
 # LLM Wiki：让知识像代码一样复利增长
@@ -38,7 +39,10 @@ updated: 2026-06-01
 - **三层结构**：不可变的**原始来源**、LLM 维护的 **Wiki 页面**、人机共演的 **Schema**（如 `CLAUDE.md` / `AGENTS.md`）。
 - **三个操作**：**Ingest**（摄入）、**Query**（问答）、**Lint**（健康检查）。
 - **复利**：好答案可**归档为新页面**；探索与阅读一样让知识库变厚。
-- **分工**：人负责策展来源与提问；LLM 负责摘要、交叉引用与簿记——Karpathy 的比喻是「Obsidian 是 IDE，LLM 是程序员，Wiki 是代码库」[karpathy-gist]。
+- **人机分工**：
+  - **人**：决定**纳入哪些资料**（选题、可信度、放入 `raw/`）、向 Wiki **提出什么问题**、在 Schema 与关键页上**抽检/定稿**（哪些结论可以写进 Wiki、哪些只留在对话里）。
+  - **LLM（Agent）**：读来源并写/改 Wiki 页、维护 `index.md` / `log.md`、跑 Ingest / Lint，在 Query 后把跨页综合**归档为新页面**。
+  - 比喻（Karpathy）：Obsidian 是 IDE，人是产品负责人，LLM 是程序员，Wiki 是代码库 [karpathy-gist]。
 
 ### 1.2 现有方案的局限
 
@@ -46,7 +50,7 @@ updated: 2026-06-01
 
 ### 1.3 编译而非检索
 
-LLM Wiki 的洞见是：**知识只编译一次，然后保持最新**，而不是每次查询重新推导（[详见][karpathy-gist]）。加入新来源时，LLM 不只建索引，而是**读入、抽取要点、更新实体页与主题摘要、标注新旧矛盾**，让交叉引用与综合结论已经写在 Wiki 里。Wiki 是**可复利增长的制品**（persistent, compounding artifact）：每多一篇来源、每多一次有深度的提问，体系都更厚一点。由此自然引出下一节的三层架构与三个操作。
+LLM Wiki 的洞见是：**知识只编译一次，然后保持最新**，而不是每次查询重新推导（[详见][karpathy-gist]）。加入新来源时，LLM 不只建索引，而是**读入、抽取要点、更新实体页与主题摘要、标注新旧矛盾**，并把**交叉引用与综合结论写进 Wiki 页面**——后续提问读的是这些预制结构，而不是每次从 raw 重新拼凑。Wiki 是**可复利增长的制品**（persistent, compounding artifact）：每多一篇来源、每多一次有深度的提问，体系都更厚一点。由此自然引出下一节的三层架构与三个操作。
 
 ### 架构与机制
 
@@ -58,7 +62,7 @@ Karpathy 将系统分为三层（[详见][karpathy-gist]）：
 
 | 层级 | 角色 | 谁维护 | 典型内容 |
 | --- | --- | --- | --- |
-| **Raw Sources** | 原始来源 | 人策展；**只读** | 论文、文章、会议记录、剪藏网页 |
+| **Raw Sources** | 原始来源 | **人选入并归档**；文件对 Agent **只读** | 论文、文章、会议记录、从网页剪存下来的 Markdown |
 | **Wiki** | 结构化知识 | **LLM 全权书写** | 实体页、概念页、对比、总览、综合论述 |
 | **Schema** | 规则与流程 | **人机共演** | 页面类型、摄入/问答/巡检工作流、命名与链接约定 |
 
@@ -71,17 +75,17 @@ Karpathy 将系统分为三层（[详见][karpathy-gist]）：
 ```mermaid
 flowchart LR
   subgraph sources [RawSources]
-    Raw["原始文档\n只读"]
+    Raw["原始文档<br />只读"]
   end
   subgraph wiki [Wiki]
-    Pages["Markdown 页面\n实体/概念/综合"]
-    Index["index.md\n目录"]
-    Log["log.md\n时间线"]
+    Pages["Markdown 页面<br />实体/概念/综合"]
+    Index["index.md<br />目录"]
+    Log["log.md<br />时间线"]
   end
-  Ingest["Ingest\n摄入"]
-  Query["Query\n问答"]
-  Lint["Lint\n巡检"]
-  User["人：策展与提问"]
+  Ingest["Ingest<br />摄入"]
+  Query["Query<br />问答"]
+  Lint["Lint<br />巡检"]
+  User["人：选源 / 提问 / 抽检"]
   Agent["LLM Agent"]
   Raw --> Ingest
   Ingest --> Pages
@@ -96,9 +100,9 @@ flowchart LR
   Lint --> Pages
 ```
 
-1. **Ingest（摄入）**：将新来源放入 `raw/`，由 Agent 阅读、写摘要页、更新索引，并**批量修订**相关实体/概念页（一篇来源常牵动十余页）。可逐篇人工把关，也可批量低监督——由 Schema 记录你的偏好。
+1. **Ingest（摄入）**：将新来源放入 `raw/`，由 Agent 阅读、写摘要页、更新索引，并**批量修订**相关实体/概念页（一篇来源常牵动十余页）。可逐篇人工把关，也可批量低监督——由 Schema 记录你的偏好。读 raw 后**要点如何变成可写进 Wiki 的断言**（摘录、候选记录、验收再写入）见 [[knowledge-extraction|知识提取]]，本篇不展开 IE 契约细节。
 2. **Query（问答）**：针对 **Wiki** 检索与综合（先读 `index.md` 定位页面，再深入阅读），而非每次扫原始 PDF。回答可呈现为 Markdown、对比表、幻灯（Marp）等；**有价值的回答应归档为新页面**，避免消失在聊天历史里。
-3. **Lint（巡检）**：定期让 Agent 审计：页面间矛盾、已被新证据取代的陈旧论断、无入链的孤儿页、被提及却缺专页的概念、可补的外部检索等。维护负担本是人类弃用 Wiki 的主因；交给 LLM 后，**簿记成本趋近于零**（[详见][karpathy-gist]）。
+3. **Lint（巡检）**：定期让 Agent 审计：页面间矛盾、已被新证据取代的陈旧论断、无入链的孤儿页、被提及却缺专页的概念、可补的外部检索等。维护负担本是人类弃用 Wiki 的主因；把 Lint 交给 Agent 后，**查矛盾、修链接、补缺页等例行维护主要由机器完成**，人只需抽检关键结论（[详见][karpathy-gist]）。
 
 导航上，`index.md` 偏**内容目录**（按类列出页面与一句话摘要），`log.md` 偏**时间线**（摄入/问答/巡检记录）。中等规模（约百篇来源、数百页面）时，仅靠索引往往够用；规模再大则需专用搜索（见下文）。
 
@@ -116,7 +120,7 @@ Karpathy 的参考组合（[详见][karpathy-gist]）：
 
 - **Agent**：Claude Code、Codex、OpenCode / Pi 等可编辑文件的 LLM Agent。
 - **阅读器**：Obsidian（图谱、wikilink、本地 Markdown）。
-- **剪藏**：Obsidian Web Clipper 将网页转为 Markdown 放入 `raw/`。
+- **网页剪存（Web Clipper）**：Obsidian Web Clipper 等浏览器扩展将网页转为 Markdown 存入 `raw/`。
 - **搜索（可选）**：[qmd](https://github.com/tobi/qmd) 等对 Wiki 做本地 **BM25 + 向量** 混合检索，提供 CLI 或 MCP。
 - **版本控制**：Wiki 即 Git 仓库，变更可追溯、可协作。
 
@@ -157,8 +161,6 @@ v2 是**模式延伸**，不否定 v1；小 Wiki 可从三层 + 三操作起步�
 
 4. **定期 Lint，并让人抽检**  
    每周或每批摄入后运行 Lint：矛盾、孤儿页、缺页概念。团队场景可对关键页保留人审再合并。依据：Lint 操作定义（[karpathy-gist]）；Synthadoc 等项目的对抗式审阅延伸（见延伸阅读）。
-
-> **辨析**：**LLM Wiki**（Karpathy 模式）≠ 本仓库产品名，也≠ 任意「用 LLM 写维基」的泛称；它特指 **raw / wiki / schema 三层 + ingest-query-lint + 复利制品** 这一套工作流。
 
 ## 进一步阅读
 

@@ -1667,10 +1667,10 @@ class CursorChatView extends ItemView {
     this.updateComposerChrome();
 
     while (this.sendQueue.length > 0) {
+      // cancelTurn 已清空取消时刻的排队项；此处只复位标志，保留取消后新入队的消息
       if (this._userCancelled) {
-        this.sendQueue.length = 0;
+        this._userCancelled = false;
         this.renderQueueDock();
-        break;
       }
       const job = this.sendQueue.shift();
       this.renderQueueDock();
@@ -1683,6 +1683,7 @@ class CursorChatView extends ItemView {
       await this.executeTurn(job);
     }
 
+    this._userCancelled = false;
     this._queueProcessing = false;
     this.isSending = false;
     this.streamingAssistant = false;
@@ -1690,9 +1691,7 @@ class CursorChatView extends ItemView {
     this.updateComposerChrome();
     this.markToolsCompleted();
     this.scheduleToolRender();
-    if (!this._userCancelled) {
-      this.setStatus("就绪");
-    }
+    this.setStatus("就绪");
   }
 
   async executeTurn(job) {

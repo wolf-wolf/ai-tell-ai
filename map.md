@@ -20,6 +20,7 @@ updated: 2026-06-03
 |------|------|
 | [[STRUCTURE]] | `docs/` 目录决策树、wikilink 规范、新建目录阈值 |
 | [[writing-rules]] | 单篇知识节点的标准结构与 frontmatter |
+| [[article-scoring]] | 知识节点评审与六维打分（light / multi-perspective full） |
 | [[AI 趋势洞察]] | `trends/` 日报 SOP；每日 `trends/YYYY-MM-DD/index.md` + `index.html` |
 | [[速览索引]] | 尚无独立 wiki 节点的模式文（`docs/topic-overviews/map.md`） |
 | `scripts/generate-trends.sh` | 趋势日报生成脚本（见 trends README） |
@@ -75,6 +76,7 @@ AI 系统的三层是因果链，不是分类：
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[llm\|LLM]] | permanent | 大语言模型是什么、能做什么、不能做什么 |
+| [[inductive-bias\|Inductive Bias]] | permanent | 学习为何必须「偏心」泛化；架构/目标与 No Free Lunch |
 | [[context-window\|Context Window]] | permanent | 模型的工作内存，理解它才能理解所有上限 |
 | [[embedding\|Embedding]] | long | 文本怎么变成向量，语义相似的底层原理 |
 | [[dense-vector\|稠密向量]] | long | 固定维连续表示；Dense 召回的形态，与稀疏/BM25 互补 |
@@ -94,12 +96,12 @@ AI 系统的三层是因果链，不是分类：
 
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
-| [[causal-chain\|因果链]] | long | 把「为什么」问到底的分析框架，设计和调试 AI 系统的认识论基础 |
-| [[causal-llm-integration\|因果推理集成路线]] | mid | 内部训练（公理式/SCM-GRPO）与外部系统（Causal RAG/CIVeX）两条路线的原理与选型 |
+| [[causal-chain\|因果链]] | long | 因果分析习惯（三层链、消融）+ 可选 LLM 集成路线（改模型 / 改系统） |
 | [[instruction-design\|指令设计]] | long | 一切输入都是 token——如何让意图在 attention 竞争中赢 |
 | [[instruction-linguistics\|指令语言学]] | mid | 人机语言交互的研究地图：措辞、register、示例与证据边界 |
 | [[cross-lingual-instruction\|跨语言指令]] | mid | 中英文 prompt 差异：MaXIFE、register 拓扑与混合指令策略 |
 | [[prompt-engineering\|Prompt Engineering]] | mid | 怎么对模型说话，正在被 context engineering 部分替代 |
+| [[structured-json-output\|Structured JSON Output]] | mid | 约束解码、JSON Schema、API strict 与基准数据：稳定结构化输出 |
 | [[context-engineering\|Context Engineering]] | long | 管理模型能看到什么，比 prompt 更本质的问题 |
 | [[harness-engineering\|Harness Engineering]] | mid | 搭系统让模型长期可靠干活，框架层，演化快 |
 
@@ -172,6 +174,7 @@ AI 系统的三层是因果链，不是分类：
 | [[retrieval-pipeline\|检索全链路]] | mid | 粗排/精排/融合/Rerank 生产架构；算法细节见算法与度量 |
 | [[fts5\|FTS5 全文检索]] | long | SQLite 内置倒排+BM25；本地会话/笔记关键词检索，Hermes session search 底座 |
 | [[query-transformation\|Query Transformation]] | mid | 跨越用户提问与知识库的语义鸿沟，高级 RAG 必经之路 |
+| [[knowledge-extraction\|Knowledge Extraction]] | long | 从异构原文析出带溯源的候选事实，融合的入库前契约 |
 | [[knowledge-fusion\|Knowledge Fusion]] | long | 多源异构知识整合，RAG 之上的更完整框架 |
 | [[conflict-resolution\|Conflict Resolution]] | long | 多源冲突消解，Truth Discovery 与可信度推断 |
 
@@ -215,6 +218,7 @@ AI 系统的三层是因果链，不是分类：
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[hermes-agent\|Hermes Agent]] | short | Nous 自托管 Agent：CLI/Gateway、三层记忆、Skill 闭环；POC 用 `hermes chat` |
+| [[hermes-agent-memory\|Hermes Agent 记忆系统]] | short | Hermes 记忆深潜：Curated Memory、后台 Review、FTS5 会话检索、Curator/GEPA |
 | [[langgraph\|LangGraph]] | mid | 有状态图编排 Agent 与控制流（CRAG、检查点） |
 | [[agentmemory\|AgentMemory]] | short | MCP 持久记忆层，混合检索与多宿主（含 Hermes） |
 | [[agent-zero\|Agent Zero]] | short | Docker 内 Linux Agent 工作台（桌面/浏览器/A0 CLI） |
@@ -299,8 +303,8 @@ AI 系统的三层是因果链，不是分类：
 **Agent 上下文资产分工**
 → [[context-window\|Context Window]] → [[agent-context-stack\|Context Stack]] → skill / rag / memory / rules / soul
 
-**知识融合与多源冲突**
-→ [[knowledge-fusion\|Knowledge Fusion]] → [[conflict-resolution\|Conflict Resolution]] → [[knowledge-fusion-tools\|工具清单]]
+**知识入库、融合与多源冲突**
+→ [[knowledge-extraction\|Knowledge Extraction]] → [[knowledge-fusion\|Knowledge Fusion]] → [[conflict-resolution\|Conflict Resolution]] → [[knowledge-fusion-tools\|工具清单]]
 
 **LLM Wiki / 三层文档工作流**
 → [[llm-wiki-overview\|LLM Wiki 模式]]

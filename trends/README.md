@@ -3,7 +3,7 @@ tags: [trends, index]
 aliases:
   - AI 趋势洞察
   - trends
-updated: 2026-06-03
+updated: 2026-06-05
 ---
 
 # AI 趋势日报（trends/）
@@ -128,6 +128,8 @@ chmod +x scripts/generate-trends.sh scripts/install-trends-schedule.sh
 
 | 日期 | 文件 | 跟进 |
 |------|------|------|
+| 2026-06-05 | [[2026-06-05]] | headroom +3142；hermes-agent +1913；6/15 Claude 双桶计费；Self-Reflective APIs 深读 |
+| 2026-06-04 | [[2026-06-04]] | headroom 日增 3530；AgentClaw/SwarmClaw；SaliMory 深读；Anthropic S-1 |
 | 2026-06-03 | [[2026-06-03]] | Mirage VFS + agent-governance；Glasswing 扩伙伴；深读 JAMEL |
 | 2026-06-02 | [[2026-06-02]] | OS 级 Agent 运行时（WAR、OpenShell、Vera）；观察 odysseus 增速与 Agent Store 政策 |
 | 2026-06-01 | [[2026-06-01]] | Harness /interface-first 共振（Life-Harness、revfactory/harness）；观察 Managed Agents 与 agent-governance-toolkit |

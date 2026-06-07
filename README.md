@@ -31,19 +31,21 @@
 
 ## Obsidian 插件（可选）
 
-仓库自带两个社区插件，装一次即可在本 Vault 使用：
+仓库自带社区插件，装一次即可在本 Vault 使用：
 
 ```bash
 bash tools/obsidian-read-tracker/install.sh
 bash tools/obsidian-cursor-chat/install.sh
+bash tools/obsidian-mermaid-preview/install.sh
 ```
 
-然后在 Obsidian：**设置 → 社区插件** → 关闭限制模式 → 分别启用 **AI Read Tracker**、**AI Cursor Chat**。
+然后在 Obsidian：**设置 → 社区插件** → 关闭限制模式 → 启用对应插件。
 
 | 插件 | 怎么用 |
 |------|--------|
 | **AI Read Tracker** | 左侧书本图标或 `Cmd+P` →「打开全库阅读统计」：热力图、阅读雷达、笔记列表；状态栏可看当前笔记打开次数 |
 | **AI Cursor Chat** | 侧栏与 Cursor Agent 对话，工作区即当前 Vault；可把选区或当前笔记带入上下文（需本机 [Cursor CLI](https://cursor.com/docs/cli) 且已 `agent login`） |
+| **AI Mermaid Preview** | 阅读/预览模式下 Mermaid 更清晰：主题跟随、可调字号、全屏缩放；见 `tools/obsidian-mermaid-preview/README.md` |
 
 改插件代码后重新执行对应 `install.sh`，再 `Cmd+P` →「重新加载本插件」。细节见 `tools/*/README.md`。
 
@@ -51,8 +53,8 @@ bash tools/obsidian-cursor-chat/install.sh
 
 ## 写新节点
 
-1. 复制 [templates/template-knowledge-node.md](templates/template-knowledge-node.md)  
-2. 按 [writing-rules.md](writing-rules.md) 写 frontmatter 与章节  
+1. 复制 [templates/template-knowledge-node.md](templates/template-knowledge-node.md)（或用 Cursor skill 模板 [`.cursor/skills/ai-tell-ai-knowledge-doc/templates/knowledge-article.md`](.cursor/skills/ai-tell-ai-knowledge-doc/templates/knowledge-article.md)）  
+2. 按 [writing-rules.md](writing-rules.md) 写 frontmatter 与章节；在 Cursor 中可调用 skill **ai-tell-ai-knowledge-doc** 代写/扩写  
 3. 在 `related` 和正文里连到已有节点，保存后在 Graph view 确认已入网  
 
 ---

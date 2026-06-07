@@ -121,3 +121,11 @@ updated: YYYY-MM-DD
 - 更新 `map.md` 的索引条目与描述。
 - 不保留纯为兼容旧名的 aliases，除非有具体的 Obsidian 搜索需求。
 
+---
+
+## Agent 写作 skill
+
+在 Cursor 中写/改 `docs/` 知识节点时，可显式调用项目 skill **ai-tell-ai-knowledge-doc**（`.cursor/skills/ai-tell-ai-knowledge-doc/`）。它将本文的结构约束与 `tech-topic-overview-doc` 的成文能力（因果密度、编号小节、Mermaid、延伸阅读溯源）合并；细则见该目录下的 `reference.md` 与 `templates/knowledge-article.md`。
+
+评审与打分见根目录 `article-scoring.md`（G/Q + `done` 契约 + §2.5 执行契约 + §5.4 外链验真）。迭代打磨用 Cursor skill **article-scoring-evolve**（`.cursor/skills/article-scoring-evolve/`）：默认全流程（合规→突破），四席 Task 分离、每轮落盘 `_meta/article-reviews/`；子 agent 限流/失败时 `run_status=incomplete`，**不得**假装成功。
+

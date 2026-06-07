@@ -25,14 +25,14 @@ updated: 2026-05-31
 
 ## 六类资产
 
-| 类型 | 知识形态 | 加载方式 | 典型载体 | 回答的问题 |
-| --- | --- | --- | --- | --- |
-| **Soul** | 身份、角色、价值观 | 系统 prompt 常驻 | persona 文档、system prompt | 「我是谁、我的行事原则是什么」 |
-| **底线（Rules）** | 全局约束、项目约定 | Rules / AGENTS.md 常驻 | `.cursor/rules`、`AGENTS.md` | 「永远必须 / 禁止什么」 |
-| **陈述性** | 事实、文档 | [[rag]] 检索 | 向量库 chunk | 「是什么 / 文档怎么写」 |
-| **程序性** | SOP、流程 | Skill Loading → Activation → Execution | `SKILL.md` | 「这类任务怎么做」 |
-| **Episodic** | 偏好、历史、进度 | [[memory]] | 外部 store / 摘要 | 「用户是谁 / 上次做到哪」 |
-| **实时** | 外部系统状态 | [[tool-mcp]] / Tool Use | MCP、API | 「此刻 DB / 工单里是什么」 |
+| 类型            | 知识形态      | 加载方式                                   | 典型载体                        | 回答的问题            |
+| ------------- | --------- | -------------------------------------- | --------------------------- | ---------------- |
+| **Soul**      | 身份、角色、价值观 | 系统 prompt 常驻                           | persona 文档、system prompt    | 「我是谁、我的行事原则是什么」  |
+| **底线（Rules）** | 全局约束、项目约定 | Rules / AGENTS.md 常驻                   | `.cursor/rules`、`AGENTS.md` | 「永远必须 / 禁止什么」    |
+| **陈述性**       | 事实、文档     | [[rag]] 检索                             | 向量库 chunk                   | 「是什么 / 文档怎么写」    |
+| **程序性**       | SOP、流程    | Skill Loading → Activation → Execution | `SKILL.md`                  | 「这类任务怎么做」        |
+| **Episodic**  | 偏好、历史、进度  | [[memory]]                             | 外部 store / 摘要               | 「用户是谁 / 上次做到哪」   |
+| **实时**        | 外部系统状态    | [[tool-mcp]] / Tool Use                | MCP、API                     | 「此刻 DB / 工单里是什么」 |
 
 ```mermaid
 flowchart TB

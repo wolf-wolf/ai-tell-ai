@@ -1,0 +1,213 @@
+/* AI Mermaid Preview — reading / live preview */
+
+.amm-host {
+  position: relative;
+  margin: 1em 0;
+  padding: var(--amm-pad, 16px);
+  border-radius: 10px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.amm-host.amm-fit-width .amm-stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.amm-host .amm-stage {
+  min-height: 2rem;
+}
+
+.amm-host .amm-mermaid-inner,
+.amm-host .amm-graph {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+.amm-host .amm-mermaid-inner svg,
+.amm-host .amm-graph svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 防止 Obsidian 全局样式冲掉 flowchart 连线 stroke */
+.amm-host svg path.flowchart-link,
+.amm-host svg g.edgePaths path,
+.amm-host svg g.edgePath path {
+  stroke: var(--amm-edge-color, var(--text-muted)) !important;
+  fill: none !important;
+}
+
+.amm-host svg marker path,
+.amm-host svg marker polygon {
+  fill: var(--amm-edge-color, var(--text-muted)) !important;
+  stroke: var(--amm-edge-color, var(--text-muted)) !important;
+}
+
+.amm-host svg g.node rect,
+.amm-host svg g.node polygon,
+.amm-host svg g.node circle,
+.amm-host svg g.node path.label-container,
+.amm-lightbox-inner svg g.node rect,
+.amm-lightbox-inner svg g.node polygon,
+.amm-lightbox-inner svg g.node circle,
+.amm-lightbox-inner svg g.node path.label-container {
+  fill: var(--amm-node-fill, var(--background-primary)) !important;
+  stroke: var(--amm-node-border, var(--text-muted)) !important;
+  stroke-width: 2px !important;
+}
+
+.amm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.amm-host:hover .amm-toolbar,
+.amm-host:focus-within .amm-toolbar {
+  opacity: 1;
+}
+
+.amm-toolbar button {
+  font-size: 11px;
+  line-height: 1.2;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.amm-toolbar button:hover {
+  color: var(--text-normal);
+  border-color: var(--interactive-accent);
+}
+
+.amm-error {
+  color: var(--text-error, #e5534b);
+  font-size: 13px;
+  white-space: pre-wrap;
+  font-family: var(--font-monospace);
+}
+
+.amm-fallback-code {
+  font-size: 12px;
+  overflow-x: auto;
+  margin: 0;
+}
+
+/* Lightbox */
+
+.amm-lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.amm-lightbox-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+.amm-lightbox-header button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.amm-lightbox-header button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.amm-lightbox-stage {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.amm-lightbox-stage.is-panning {
+  cursor: grabbing;
+}
+
+.amm-lightbox-viewport {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amm-lightbox-inner {
+  transform-origin: center center;
+  flex-shrink: 0;
+  background: var(--background-secondary, #f0f2f5);
+  border: 1px solid var(--background-modifier-border, #d8dee4);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+  will-change: transform;
+}
+
+.theme-dark .amm-lightbox-inner {
+  background: var(--background-secondary, #262626);
+  border-color: var(--background-modifier-border, #4a4a4a);
+}
+
+.amm-lightbox-inner svg {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: auto;
+  background: transparent;
+  border-radius: 4px;
+}
+
+/* Print */
+
+@media print {
+  .amm-toolbar {
+    display: none !important;
+  }
+  .amm-host {
+    border: none;
+    padding: 0;
+    background: transparent;
+  }
+}
