@@ -1637,19 +1637,33 @@ class CursorChatView extends ItemView {
       contextSummary: contextSummary.length ? contextSummary : undefined,
     };
 
-    this.sendQueue.push({
+    const job = {
       userText,
       contextSnapshot,
       contextSummary,
       userMsg,
-    });
+      _uiPromoted: false,
+    };
+    this.sendQueue.push(job);
     this.contextBlocks = [];
     this.clearComposerEditor();
     this.renderQueueDock();
+
+    const isFirstInLine = !this._queueProcessing && this.sendQueue.length === 1;
+    if (isFirstInLine) {
+      job._uiPromoted = true;
+      this.promoteJobToChat(job.userMsg);
+      this._userCancelled = false;
+      this.isSending = true;
+      this.streamingAssistant = false;
+      this.showThinkingPlaceholder("正在准备…");
+      this.setStatus("准备中…");
+    } else if (this._queueProcessing) {
+      this.setStatus(`已加入队列（${this.sendQueue.length} 条等待）`);
+    }
     this.updateComposerChrome();
 
     if (this._queueProcessing) {
-      this.setStatus(`已加入队列（${this.sendQueue.length} 条等待）`);
       return;
     }
 
@@ -1676,7 +1690,11 @@ class CursorChatView extends ItemView {
       this.renderQueueDock();
       this.updateComposerChrome();
       const remaining = this.sendQueue.length;
-      this.promoteJobToChat(job);
+      if (!job._uiPromoted) {
+        this.promoteJobToChat(job.userMsg);
+        this.showThinkingPlaceholder("正在准备…");
+        this.setStatus("准备中…");
+      }
       if (remaining > 0) {
         this.setStatus(`回复中 · 队列剩余 ${remaining}`);
       }
@@ -1701,19 +1719,25 @@ class CursorChatView extends ItemView {
     this.streamingAssistant = false;
     this.updateComposerChrome();
 
-    this.showThinkingPlaceholder("正在准备…");
-    this.setStatus("准备中…");
+    if (!this.pendingThinking) {
+      this.showThinkingPlaceholder("正在准备…");
+      this.setStatus("准备中…");
+    }
+
+    await yieldToUi();
 
     try {
       const agentPath = resolveAgentPath(this.plugin.settings);
-      if (!checkAgentCli(agentPath, true).ok) {
+      const cachedCli = checkAgentCli(agentPath, true);
+      if (!cachedCli.ok) {
         const fresh = checkAgentCli(agentPath, false);
         if (!fresh.ok) {
           throw new Error(fresh.msg || "Cursor Agent CLI 不可用");
         }
       }
 
-      this.showThinkingPlaceholder("Connecting to Agent…");
+      this.showThinkingPlaceholder("连接 Agent…");
+      this.setStatus("连接 Agent…");
       await this.plugin.ensureAcp(this);
       const acp = this.plugin.acp;
       if (!acp) throw new Error("ACP 未连接");
@@ -1722,10 +1746,9 @@ class CursorChatView extends ItemView {
       if (!vaultRoot) throw new Error("无法获取 Vault 路径");
 
       if (!this.acpSessionId) {
-        this.showThinkingPlaceholder("Creating session…");
-        this.setStatus("Creating session…");
-        const { sessionId } = await acp.sessionNew(vaultRoot);
-        this.acpSessionId = sessionId;
+        this.showThinkingPlaceholder("创建会话…");
+        this.setStatus("创建会话…");
+        await this.plugin.ensureAcpSession(this);
       }
 
       const fullText = this.buildPromptText(
@@ -1734,7 +1757,7 @@ class CursorChatView extends ItemView {
         vaultRoot
       );
       this.clearThinkingPlaceholder();
-      this.setStatus("Running…");
+      this.setStatus("分析中…");
 
       await acp.sessionPrompt(this.acpSessionId, [
         { type: "text", text: fullText },
@@ -2353,10 +2376,21 @@ module.exports = class CursorChatPlugin extends Plugin {
   async prewarmAcp(view) {
     try {
       await this.ensureAcp(view);
+      await this.ensureAcpSession(view);
       if (view && !view.isSending) view.setStatus("就绪");
     } catch (_) {
       if (view && !view.isSending) view.setStatus("未连接 Agent");
     }
+  }
+
+  async ensureAcpSession(view) {
+    if (!view || view.acpSessionId) return;
+    const acp = this.acp;
+    if (!acp?.isRunning()) return;
+    const vaultRoot = getVaultOsPath(this.app);
+    if (!vaultRoot) return;
+    const { sessionId } = await acp.sessionNew(vaultRoot);
+    view.acpSessionId = sessionId;
   }
 
   async ensureAcp(view) {
@@ -2394,6 +2428,14 @@ module.exports = class CursorChatPlugin extends Plugin {
         trustWorkspace: !!this.settings.trustWorkspace,
         env: augmentPathEnv(),
       });
+
+      if (view) {
+        try {
+          await this.ensureAcpSession(view);
+        } catch (_) {
+          /* 首条消息发送时会重试 */
+        }
+      }
     });
   }
 };
