@@ -225,7 +225,7 @@ LlamaIndex Agents（[模块指南](https://docs.llamaindex.ai/en/stable/module_g
 | Workflow | 步骤固定的 DAG | 步骤写死后当 Agent 用，遇异常无法改道 |
 | Harness | 多轮如何跑、失败如何收 | 堆满工具与记忆层，把本该用 Workflow 的任务复杂化 |
 
-读表 takeaway：先对照「决定什么」列定层级——Agent 产品≠Runtime，Prompt/Context 管单轮，Workflow 管固定 DAG，Harness 管多轮收敛；误判多发生在把低层问题用高层能力硬顶。
+读表 takeaway：先对照「决定什么」列定层级——Agent 产品≠Runtime，Prompt/Context 管单轮，Workflow 管固定 DAG，Harness 管多轮收敛；误判多发生在把低层问题强行上移到高层能力解决。
 
 「模型越强，Harness 越不重要」：[[agent]] 已述——Reasoning 模型（如 o3 / Claude 3.7+）改善的是链内单步规划，但 LLM 仍无状态，循环、工具执行、权限边界无法内化；Harness 可更薄，却不会消失（与 [[agent]]「坑与误区」、Anthropic「agents 仍需 stopping conditions 与 sandbox 测试」[^anthropic-stop] 一致）。
 

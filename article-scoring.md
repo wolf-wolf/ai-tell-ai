@@ -246,13 +246,13 @@ _meta/article-reviews/<slug>-r<round>.json
       "type": "weak_principle_outline",
       "location": "## 核心原理",
       "issue": "扫标题无法看出问题→机制→设计抉择的论证线",
-      "fix": "重排 ### 顺序并补节首路标（本节回答什么问题）"
+      "fix": "重排 ### 顺序并补节首直入（现象/机制，非「本节讲…」目录复述）"
     }
   ],
   "minors": [],
   "majors_open": 1,
   "action": "continue",
-  "next_fixes": ["重排 ## 核心原理 下 ### 层次并补节首路标"],
+  "next_fixes": ["重排 ## 核心原理 下 ### 层次并补节首直入句"],
   "score_notes": {
     "Q2": "格式合规但原理篇大纲扫不出论证线 → 封顶 2"
   },
@@ -342,7 +342,7 @@ _meta/article-reviews/<slug>-r<round>.json
 **pass**（同时满足）：
 
 1. **标题树可扫**：只读 `##` / `###` 标题，能猜出论证顺序（问题/鸿沟 → 是什么 → 关系/边界 → 机制或设计抉择 → 典型实现/应用），而非名词随机排列
-2. **原理节有内在弧线**：每个关键 `###` 至少满足其一——节首 **1–2 句路标**（本节回答什么问题）；或节内顺序为 **现象/问题 → 原因/机制 → 后果/设计含义**
+2. **原理节有内在弧线**：每个关键 `###` 至少满足其一——节首 **1–2 句直入**（现象/矛盾/机制，**禁止**「本节讲…」复述标题，见 `writing-rules.md`）；或节内顺序为 **现象/问题 → 原因/机制 → 后果/设计含义**
 3. **粒度合理**：单 `###` 下 prose 过长（约 **>400 字** 且无下级标题）须拆分；禁止把多个独立子主题塞进同一 `###` 仅用 bullet 区分
 
 **fail 例**：标题只有「概述」「细节」「其他」；原理节先讲实现再讲定义；扫标题看不出「为什么需要 Harness」落在哪一节。
@@ -465,7 +465,7 @@ _meta/article-reviews/<slug>-r<round>.json
 | type | 触发 | fix 方向 |
 | --- | --- | --- |
 | `unconditioned_causality` | §5.1 fail | 为因果句补条件/范围/反例 |
-| `weak_principle_outline` | §5.3.A fail | 重排 ###、补节首路标、按问题→机制→抉择组织 |
+| `weak_principle_outline` | §5.3.A fail | 重排 ###、补节首直入、按问题→机制→抉择组织 |
 | `weak_visual_integration` | §5.3.B fail | 补图题、图前引入、图后结论；拆表或降负荷 |
 | `format_without_mechanism` | §5.2 fail | 补机制 prose，非加表 |
 | `unverified_external_claim` | §5.4 fail | WebFetch 或删/降级断言；补 verification_log |

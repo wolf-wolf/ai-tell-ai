@@ -78,6 +78,7 @@ AI 系统的三层是因果链，不是分类：
 | [[llm\|LLM]] | permanent | 大语言模型是什么、能做什么、不能做什么 |
 | [[inductive-bias\|Inductive Bias]] | permanent | 学习为何必须「偏心」泛化；架构/目标与 No Free Lunch |
 | [[context-window\|Context Window]] | permanent | 模型的工作内存，理解它才能理解所有上限 |
+| [[prefix-cache\|Prefix Cache]] | mid | 跨请求复用 prompt 前缀 KV，降延迟与输入成本 |
 | [[embedding\|Embedding]] | long | 文本怎么变成向量，语义相似的底层原理 |
 | [[dense-vector\|稠密向量]] | long | 固定维连续表示；Dense 召回的形态，与稀疏/BM25 互补 |
 | [[bi-encoder\|Bi-Encoder（双塔）]] | long | 可预计算的 query/doc 双编码；粗排用 cos 等相似度 + ANN |
@@ -228,6 +229,7 @@ AI 系统的三层是因果链，不是分类：
 | [[claude-managed-agents\|Claude Managed Agents]] | short | Anthropic 托管 Agent API（Agent/Environment/Session/Events） |
 | [[memgpt\|MemGPT / Letta]] | mid | OS 式分页记忆研究 + Letta 有状态 Agent 平台 |
 | [[mem0\|Mem0]] | mid | 可插拔记忆 API（add/search，Cloud 或 OSS） |
+| [[honcho\|Honcho]] | short | 推理优先 peer 记忆（representation、Dreaming，托管或自托管） |
 
 ---
 
@@ -310,7 +312,7 @@ AI 系统的三层是因果链，不是分类：
 → [[llm-wiki-overview\|LLM Wiki 模式]]
 
 **我想了解 Hermes / LangGraph / AgentMemory / … 等具体产品**
-→ `docs/latest/`：[[hermes-agent\|Hermes]] / [[langgraph\|LangGraph]] / [[agentmemory\|AgentMemory]] / [[agent-zero\|Agent Zero]] / [[openclaw\|OpenClaw]] / [[claude-code\|Claude Code]] / [[memx\|memX]] / [[claude-managed-agents\|Managed Agents]] / [[memgpt\|MemGPT·Letta]] / [[mem0\|Mem0]]
+→ `docs/latest/`：[[hermes-agent\|Hermes]] / [[langgraph\|LangGraph]] / [[agentmemory\|AgentMemory]] / [[agent-zero\|Agent Zero]] / [[openclaw\|OpenClaw]] / [[claude-code\|Claude Code]] / [[memx\|memX]] / [[claude-managed-agents\|Managed Agents]] / [[memgpt\|MemGPT·Letta]] / [[mem0\|Mem0]] / [[honcho\|Honcho]]
 
 **每天看 AI 动态**
 → [[AI 趋势洞察]] → 当日 `trends/YYYY-MM-DD/index.html`

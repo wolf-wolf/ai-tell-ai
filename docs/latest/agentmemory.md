@@ -14,6 +14,7 @@ related:
   - "[[memx]]"
   - "[[memgpt]]"
   - "[[mem0]]"
+  - "[[honcho]]"
 stability: short
 layer: application
 updated: 2026-05-31

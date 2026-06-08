@@ -211,6 +211,7 @@ progress = memory.read("competitive_analysis")
 - [[agentmemory]] — AgentMemory 产品：MCP 持久记忆层、自动 Hook 与混合检索（`latest/`）
 - [[memgpt]] — MemGPT/Letta：OS 式分页记忆与 Letta 有状态 Runtime（`latest/`）
 - [[mem0]] — Mem0 可插拔记忆层（`latest/`）
+- [[honcho]] — Honcho 推理优先 peer 表征记忆（`latest/`）
 - [[skill-loading-library]] — Skill 库演化与 Memory 治理的类比（Library Drift）
 - [MemGPT: Towards LLMs as Operating Systems (2023)](https://arxiv.org/abs/2310.08560) — 操作系统式分页内存引入 LLM Memory；working memory + archival memory 分层的原型
 - [Cognitive Architectures for Language Agents / CoALA (2023)](https://arxiv.org/abs/2309.02427) — 系统定义 in-context / external / parametric 三类记忆；是目前最清晰的 Memory 分类框架

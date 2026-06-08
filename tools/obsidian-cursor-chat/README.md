@@ -2,7 +2,7 @@
 
 在 Obsidian **侧栏**与 **Cursor Agent CLI**（`agent acp`）对话，工作区为当前 Vault。支持手动把**选区**或**当前笔记**加入上下文后再发送，便于边阅读边改知识库。
 
-与 [`../obsidian-read-tracker/`](../obsidian-read-tracker/)（AI Read Tracker）**分离**：阅读统计不由本插件负责。
+与 [`../obsidian-read-tracker/`](../obsidian-read-tracker/)（AI Read Tracker）联动：本插件负责**按笔记归档提问**；阅读进度加权由 Read Tracker 计算。
 
 ## 前置条件
 
@@ -40,8 +40,9 @@ bash tools/obsidian-cursor-chat/install.sh
 3. **加入整篇笔记**：**⌘⇧L** / **Ctrl+Shift+L**，或右键 → **将当前笔记加入 Cursor Chat**
 4. 侧栏会自动打开并显示上下文预览；不需要的块可点 **×** 删除
 5. 输入问题并发送（Enter 发送，Shift+Enter 换行）；改文件时会弹出权限确认
+6. **本篇历史**（v0.4.0）：侧栏显示当前笔记的提问次数与 Q/A 列表；成功回答后自动归档，并通知 Read Tracker 更新提问数
 
-**不会**默认附带当前笔记；只有手动加入的上下文会随下一次发送带上。若 **⌘L** 冲突，在 **设置 → 快捷键** 中搜索「Cursor Chat」改绑。
+**不会**默认附带当前笔记；只有手动加入的上下文会随下一次发送带上。归档路径优先取上下文中的「笔记 · path」，否则取当前前台打开的 `.md`。若 **⌘L** 冲突，在 **设置 → 快捷键** 中搜索「Cursor Chat」改绑。
 
 ## 设置
 
@@ -72,6 +73,10 @@ tools/obsidian-cursor-chat/
 ```
 
 ACP 实现参考社区 [obsidian-cursor-plugin](https://github.com/jspada200/obsidian-cursor-plugin)；协议见 [Cursor CLI ACP](https://cursor.com/docs/cli/acp)。
+
+## 版本说明
+
+- **v0.4.0**：按笔记路径归档 `fileQA`（提问数 + Q/A 列表）、侧栏「本篇历史」、通知 Read Tracker 更新 `questionCount`
 
 ## 验收对照（MVP）
 

@@ -1,7 +1,7 @@
 ---
 tags: [concept]
 aliases: [上下文窗口, context length]
-related: ["[[agent]]", "[[llm]]", "[[rag]]", "[[context-engineering]]"]
+related: ["[[agent]]", "[[llm]]", "[[rag]]", "[[context-engineering]]", "[[prefix-cache]]"]
 stability: permanent
 layer: model
 updated: 2026-05-25
@@ -131,5 +131,6 @@ if current_tokens > max_tokens * 0.8:  # 超过 80% 警戒线
 - [[agent]] — Agent 每次循环都在读写 context
 - [[rag]] — 放不下大量文档时的主流方案
 - [[context-engineering]] — 系统性管理 context 内容与结构
+- [[prefix-cache]] — 稳定前缀复用 prefill KV，降多轮 Agent 成本
 - [Lost in the Middle (2023)](https://arxiv.org/abs/2307.03172) — 中间位置注意力下降
 - [Anthropic: Context Window Best Practices](https://docs.anthropic.com/claude/docs/context-windows) — 官方指南

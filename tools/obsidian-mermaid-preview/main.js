@@ -56,16 +56,33 @@ function resolveNodeBorderColor() {
   return readCssVar("--text-muted", dark ? "#9aa3ad" : "#5c6370");
 }
 
+function resolveClusterFillColor() {
+  const dark = isDarkMode();
+  return readCssVar(
+    "--background-modifier-form-field",
+    dark ? "#2a2a2a" : "#f3f5f7"
+  );
+}
+
+function resolveClusterBorderColor() {
+  return readCssVar(
+    "--background-modifier-border",
+    isDarkMode() ? "#3d444d" : "#d8dee4"
+  );
+}
+
+function resolveTextColor() {
+  const dark = isDarkMode();
+  return readCssVar("--text-normal", dark ? "#dcddde" : "#2e3338");
+}
+
 function buildThemeVariables(settings) {
   const dark = isDarkMode();
-  const text = readCssVar("--text-normal", dark ? "#dcddde" : "#2e3338");
+  const text = resolveTextColor();
   const bg = readCssVar("--background-primary", dark ? "#1e1e1e" : "#ffffff");
-  const accent = readCssVar("--interactive-accent", dark ? "#7c6af2" : "#6e59a5");
-  const border = readCssVar(
-    "--background-modifier-border",
-    dark ? "#3d444d" : "#d8dee4"
-  );
+  const border = resolveClusterBorderColor();
   const edge = resolveEdgeStrokeColor();
+  const clusterFill = resolveClusterFillColor();
   return {
     darkMode: dark,
     fontSize: `${settings.fontSize}px`,
@@ -76,12 +93,13 @@ function buildThemeVariables(settings) {
     lineColor: edge,
     defaultLinkColor: edge,
     arrowheadColor: edge,
-    secondaryColor: dark ? "#21262d" : "#eaeef2",
-    tertiaryColor: dark ? "#161b22" : "#f6f8fa",
+    secondaryColor: clusterFill,
+    tertiaryColor: resolveNodeFillColor(),
     background: bg,
     mainBkg: resolveNodeFillColor(),
     nodeBorder: resolveNodeBorderColor(),
-    clusterBkg: dark ? "#21262d" : "#f6f8fa",
+    clusterBkg: clusterFill,
+    clusterBorder: border,
     titleColor: text,
     edgeLabelBackground: bg,
     noteBkgColor: dark ? "#3d444d" : "#fff8c5",
@@ -241,10 +259,18 @@ function fixSvgEdges(svg, settings) {
   });
 }
 
-/** 保证节点框在浅色底（尤其灯箱）上仍可见 */
-function fixSvgNodes(svg) {
-  const fill = resolveNodeFillColor();
-  const border = resolveNodeBorderColor();
+/** 统一修正节点、子图与标签，保证明暗主题下对比度一致 */
+function fixSvgShapes(svg) {
+  const nodeFill = resolveNodeFillColor();
+  const nodeBorder = resolveNodeBorderColor();
+  const clusterFill = resolveClusterFillColor();
+  const clusterBorder = resolveClusterBorderColor();
+  const text = resolveTextColor();
+  const labelBg = readCssVar(
+    "--background-primary",
+    isDarkMode() ? "#1e1e1e" : "#ffffff"
+  );
+
   const nodeShapeSelectors = [
     "g.node rect",
     "g.node polygon",
@@ -256,19 +282,55 @@ function fixSvgNodes(svg) {
   nodeShapeSelectors.forEach((sel) => {
     svg.querySelectorAll(sel).forEach((shape) => {
       if (shape.closest("g.edgePaths, g.edgePath, g.edgeLabel")) return;
-      shape.setAttribute("fill", fill);
-      shape.setAttribute("stroke", border);
+      shape.setAttribute("fill", nodeFill);
+      shape.setAttribute("stroke", nodeBorder);
       shape.setAttribute("stroke-width", "2");
-      shape.style.fill = fill;
-      shape.style.stroke = border;
+      shape.style.fill = nodeFill;
+      shape.style.stroke = nodeBorder;
       shape.style.strokeWidth = "2px";
     });
   });
-  svg.querySelectorAll("g.cluster rect").forEach((shape) => {
-    shape.setAttribute("stroke", border);
-    shape.setAttribute("stroke-width", "1.75");
-    shape.style.stroke = border;
-    shape.style.strokeWidth = "1.75px";
+
+  ["g.cluster rect", "g.subgraph rect", "g.subgraphs rect"].forEach((sel) => {
+    svg.querySelectorAll(sel).forEach((shape) => {
+      shape.setAttribute("fill", clusterFill);
+      shape.setAttribute("stroke", clusterBorder);
+      shape.setAttribute("stroke-width", "1.75");
+      shape.style.fill = clusterFill;
+      shape.style.stroke = clusterBorder;
+      shape.style.strokeWidth = "1.75px";
+    });
+  });
+
+  svg
+    .querySelectorAll(
+      "g.cluster text, g.subgraph text, .cluster-label text, .subgraph-label text"
+    )
+    .forEach((label) => {
+      label.setAttribute("fill", text);
+      label.style.fill = text;
+    });
+
+  svg.querySelectorAll("g.edgeLabel rect").forEach((shape) => {
+    shape.setAttribute("fill", labelBg);
+    shape.style.fill = labelBg;
+  });
+
+  svg.querySelectorAll("g.edgeLabel text, g.edgeLabel span").forEach((label) => {
+    label.setAttribute("fill", text);
+    label.style.fill = text;
+    label.style.color = text;
+  });
+
+  svg.querySelectorAll("g.node text, g.nodeLabel text, .nodeLabel text").forEach(
+    (label) => {
+      label.setAttribute("fill", text);
+      label.style.fill = text;
+    }
+  );
+
+  svg.querySelectorAll("foreignObject div").forEach((label) => {
+    label.style.color = text;
   });
 }
 
@@ -277,6 +339,9 @@ function applyDiagramCssVars(rootEl) {
   rootEl.style.setProperty("--amm-edge-color", resolveEdgeStrokeColor());
   rootEl.style.setProperty("--amm-node-fill", resolveNodeFillColor());
   rootEl.style.setProperty("--amm-node-border", resolveNodeBorderColor());
+  rootEl.style.setProperty("--amm-cluster-fill", resolveClusterFillColor());
+  rootEl.style.setProperty("--amm-cluster-border", resolveClusterBorderColor());
+  rootEl.style.setProperty("--amm-text-color", resolveTextColor());
 }
 
 /** 裁掉 Mermaid SVG 多余留白，避免预览里图缩成一小块 */
@@ -336,7 +401,7 @@ function scheduleTrimSvgViewport(svg, opts) {
 
 function polishSvgDiagram(svg, settings, opts) {
   fixSvgEdges(svg, settings);
-  fixSvgNodes(svg);
+  fixSvgShapes(svg);
   scheduleTrimSvgViewport(svg, opts);
 }
 
@@ -360,6 +425,8 @@ class AmmLightbox {
     this.close();
 
     const root = document.body.createDiv({ cls: "amm-lightbox" });
+    if (isDarkMode()) root.addClass("amm-lightbox--dark");
+    else root.addClass("amm-lightbox--light");
     this.rootEl = root;
 
     const header = root.createDiv({ cls: "amm-lightbox-header" });
@@ -375,7 +442,9 @@ class AmmLightbox {
 
     const stage = root.createDiv({ cls: "amm-lightbox-stage" });
     const viewport = stage.createDiv({ cls: "amm-lightbox-viewport" });
-    const inner = viewport.createDiv({ cls: "amm-lightbox-inner" });
+    const inner = viewport.createDiv({
+      cls: "amm-lightbox-inner amm-diagram-surface",
+    });
     const clone = this.svgEl.cloneNode(true);
     inner.appendChild(clone);
     applyDiagramCssVars(inner);
@@ -546,7 +615,7 @@ function attachToolbar(host, plugin, source) {
 
 async function buildMermaidHost(host, source, plugin) {
   domEmpty(host);
-  host.classList.add("amm-host");
+  host.classList.add("amm-host", "amm-diagram-surface");
   if (plugin.settings.fitWidth) host.classList.add("amm-fit-width");
   host.style.setProperty("--amm-pad", `${plugin.settings.padding}px`);
   host.dataset.ammSourceB64 = encodeSource(source);
@@ -794,7 +863,7 @@ module.exports = class MermaidPreviewPlugin extends Plugin {
         "";
 
       const wrapper = document.createElement("div");
-      wrapper.className = "amm-host amm-host--wrapped";
+      wrapper.className = "amm-host amm-host--wrapped amm-diagram-surface";
       if (this.settings.fitWidth) wrapper.classList.add("amm-fit-width");
       wrapper.style.setProperty("--amm-pad", `${this.settings.padding}px`);
       if (source) wrapper.dataset.ammSourceB64 = encodeSource(source);

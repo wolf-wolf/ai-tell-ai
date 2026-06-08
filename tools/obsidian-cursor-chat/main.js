@@ -10,6 +10,7 @@ const {
   Menu,
   MarkdownRenderer,
   setIcon,
+  TFile,
 } = require("obsidian");
 const { execFileSync, spawn } = require("child_process");
 const readline = require("readline");
@@ -478,7 +479,73 @@ const DEFAULT_SETTINGS = {
   maxContextChars: 32000,
   showToolCalls: false,
   captureModLHotkey: true,
+  maxQAHistoryPerFile: 40,
+  maxAnswerChars: 8000,
 };
+
+const READ_TRACKER_PLUGIN_ID = "ai-read-tracker";
+
+function noteBasename(filePath) {
+  if (!filePath) return "";
+  const i = filePath.lastIndexOf("/");
+  return i >= 0 ? filePath.slice(i + 1) : filePath;
+}
+
+function truncateText(text, maxLen) {
+  const s = String(text || "").trim();
+  if (!maxLen || s.length <= maxLen) return s;
+  return `${s.slice(0, maxLen)}…`;
+}
+
+function resolvePathFromContextBlocks(blocks) {
+  if (!blocks?.length) return null;
+  for (const b of blocks) {
+    if (b.kind === "note" && typeof b.label === "string") {
+      const prefix = "笔记 · ";
+      if (b.label.startsWith(prefix)) return b.label.slice(prefix.length);
+    }
+  }
+  return null;
+}
+
+function isUserMessageVisible(msg) {
+  if (!msg) return false;
+  if (msg.role !== "user") return true;
+  const hasText = String(msg.content || "").trim().length > 0;
+  const hasCtx = (msg.contextSummary?.length || 0) > 0;
+  return hasText || hasCtx;
+}
+
+function resolveQuestionNotePath(app, contextSnapshot, plugin, chatView) {
+  const fromCtx = resolvePathFromContextBlocks(contextSnapshot);
+  if (fromCtx) return fromCtx;
+  const fromActive = getActiveMarkdownView(app)?.file?.path;
+  if (fromActive) return fromActive;
+  const view = chatView || plugin?.getActiveChatView?.();
+  if (view?.pinnedNotePath) return view.pinnedNotePath;
+  return plugin?.lastMarkdownPath || null;
+}
+
+function extractLatestAssistantAnswer(messages) {
+  if (!messages?.length) return "";
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const m = messages[i];
+    if (m.role === "assistant" && String(m.content || "").trim()) {
+      return m.content;
+    }
+  }
+  return "";
+}
+
+/** 侧栏「本篇历史」用：Chat 获焦时前台可能已不是 Markdown，回退到最近阅读的笔记 */
+function resolveDisplayNotePath(app, plugin, chatView) {
+  const fromCtx = resolvePathFromContextBlocks(chatView?.contextBlocks);
+  if (fromCtx) return fromCtx;
+  const fromActive = getActiveMarkdownView(app)?.file?.path;
+  if (fromActive) return fromActive;
+  if (chatView?.pinnedNotePath) return chatView.pinnedNotePath;
+  return plugin?.lastMarkdownPath || null;
+}
 
 const CLI_CACHE_TTL_MS = 120000;
 let cliStatusCache = { path: "", ok: false, msg: "", at: 0 };
@@ -747,30 +814,69 @@ class PermissionModal extends Modal {
     super(app);
     this.summary = summary;
     this.onChoose = onChoose;
+    this._resolved = false;
+    this._blockBgClick = null;
+  }
+
+  finish(choice) {
+    if (this._resolved) return;
+    this._resolved = true;
+    this.onChoose(choice);
+    this.close();
   }
 
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
+    contentEl.addClass("acc-perm-modal");
+    this.modalEl?.addClass?.("acc-perm-modal-shell");
+
+    const bg = this.containerEl?.querySelector(".modal-bg");
+    if (bg) {
+      this._blockBgClick = (e) => {
+        e.stopImmediatePropagation();
+      };
+      bg.addEventListener("click", this._blockBgClick, { capture: true });
+    }
+
+    this.scope.register([], "Escape", () => {
+      this.finish("reject-once");
+      return false;
+    });
+
+    if (typeof this.setCloseCallback === "function") {
+      this.setCloseCallback(() => {
+        if (!this._resolved) this.finish("reject-once");
+      });
+    }
+
     contentEl.createEl("h3", { text: "Agent 权限确认" });
+    contentEl.createEl("p", {
+      cls: "acc-perm-hint",
+      text: "Agent 需要你的许可才能继续。请明确选择一项——点击空白处不会关闭。",
+    });
     contentEl.createEl("pre", {
       cls: "acc-perm-pre",
       text: this.summary,
     });
     const row = contentEl.createDiv({ cls: "acc-perm-buttons" });
-    const finish = (choice) => {
-      this.onChoose(choice);
-      this.close();
-    };
-    row.createEl("button", { text: "允许一次" }).onclick = () =>
-      finish("allow-once");
-    row.createEl("button", { text: "始终允许" }).onclick = () =>
-      finish("allow-always");
-    row.createEl("button", { text: "拒绝" }).onclick = () =>
-      finish("reject-once");
+    row
+      .createEl("button", { cls: "mod-cta", text: "允许一次" })
+      .addEventListener("click", () => this.finish("allow-once"));
+    row
+      .createEl("button", { text: "始终允许" })
+      .addEventListener("click", () => this.finish("allow-always"));
+    row
+      .createEl("button", { cls: "mod-warning", text: "拒绝" })
+      .addEventListener("click", () => this.finish("reject-once"));
   }
 
   onClose() {
+    const bg = this.containerEl?.querySelector(".modal-bg");
+    if (bg && this._blockBgClick) {
+      bg.removeEventListener("click", this._blockBgClick, { capture: true });
+    }
+    this._blockBgClick = null;
     this.contentEl.empty();
   }
 }
@@ -795,6 +901,11 @@ class CursorChatView extends ItemView {
     this.pendingThinking = false;
     this.renderMdTimer = null;
     this.renderToolTimer = null;
+    this.showFileHistory = false;
+    this.fileContextEl = null;
+    this.fileHistoryEl = null;
+    /** 侧栏获焦后仍显示「本篇历史」 */
+    this.pinnedNotePath = null;
   }
 
   getViewType() {
@@ -817,6 +928,8 @@ class CursorChatView extends ItemView {
     const header = root.createDiv({ cls: "acc-header" });
     header.createSpan({ cls: "acc-title", text: "Cursor Agent" });
     this.statusEl = header.createSpan({ cls: "acc-status" });
+
+    this.fileContextEl = root.createDiv({ cls: "acc-file-context is-hidden" });
 
     const main = root.createDiv({ cls: "acc-main" });
     this.messagesEl = main.createDiv({ cls: "acc-messages" });
@@ -850,6 +963,7 @@ class CursorChatView extends ItemView {
     this.inputEl.addEventListener("input", () => this.onComposerInput());
     this.inputEl.addEventListener("keydown", (e) => this.onComposerKeydown(e));
     this.inputEl.addEventListener("paste", (e) => this.onComposerPaste(e));
+    this.inputEl.addEventListener("focus", () => this.renderFileContextBar());
     this.bindComposerIme(this.inputEl);
 
     const actions = composerRow.createDiv({ cls: "acc-composer-actions" });
@@ -872,11 +986,86 @@ class CursorChatView extends ItemView {
     setIcon(this.sendBtn, "arrow-up");
     this.sendBtn.addEventListener("click", () => void this.sendMessage());
 
+    this.messages = this.messages.filter(isUserMessageVisible);
     this.updateEditorEmptyState();
     this.renderMessages();
+    this.renderFileContextBar();
     this.setStatus(this.connectLabel || "就绪");
     this.plugin.setChatView(this);
     void this.plugin.prewarmAcp(this);
+  }
+
+  getActiveNotePath() {
+    return resolveDisplayNotePath(this.app, this.plugin, this);
+  }
+
+  renderFileContextBar() {
+    if (!this.fileContextEl) return;
+    const notePath = this.getActiveNotePath();
+    if (notePath) this.pinnedNotePath = notePath;
+    this.fileContextEl.empty();
+
+    if (!notePath) {
+      this.fileContextEl.addClass("is-hidden");
+      return;
+    }
+
+    this.fileContextEl.removeClass("is-hidden");
+    const qa = this.plugin.getFileQA(notePath);
+    const count = qa?.questionCount || 0;
+
+    const main = this.fileContextEl.createDiv({ cls: "acc-file-context-main" });
+    const name = main.createSpan({ cls: "acc-file-name", text: noteBasename(notePath) });
+    name.setAttribute("title", notePath);
+    main.createSpan({
+      cls: "acc-file-qcount",
+      text: `${count} 问`,
+    });
+
+    const toggle = main.createEl("button", {
+      cls: "acc-file-history-toggle",
+      text: this.showFileHistory ? "收起历史" : "本篇历史",
+    });
+    toggle.onclick = (e) => {
+      e.preventDefault();
+      this.showFileHistory = !this.showFileHistory;
+      this.renderFileContextBar();
+    };
+
+    if (!this.showFileHistory) return;
+
+    const items = qa?.items || [];
+    this.fileHistoryEl = this.fileContextEl.createDiv({ cls: "acc-file-history" });
+    if (!items.length) {
+      this.fileHistoryEl.createDiv({
+        cls: "acc-file-history-empty",
+        text: "本篇还没有提问记录。发送问题后会自动归档到这里。",
+      });
+      return;
+    }
+
+    const list = [...items].reverse().slice(0, 20);
+    for (const item of list) {
+      const row = this.fileHistoryEl.createDiv({ cls: "acc-file-history-item" });
+      row.createDiv({
+        cls: "acc-file-history-q",
+        text: truncateText(item.question, 120),
+      });
+      if (item.answerPreview || item.answer) {
+        row.createDiv({
+          cls: "acc-file-history-a",
+          text: truncateText(item.answerPreview || item.answer, 160),
+        });
+      }
+      const meta = row.createDiv({ cls: "acc-file-history-meta" });
+      meta.setText(new Date(item.ts).toLocaleString());
+    }
+    if (items.length > 20) {
+      this.fileHistoryEl.createDiv({
+        cls: "acc-file-history-more",
+        text: `仅显示最近 20 条，共 ${items.length} 条`,
+      });
+    }
   }
 
   async onClose() {
@@ -925,6 +1114,7 @@ class CursorChatView extends ItemView {
 
   renderUserMessage(bodyEl, content, msg) {
     const summary = msg?.contextSummary;
+    const text = String(content || "").trim();
     if (summary?.length) {
       const attachments = bodyEl.createDiv({ cls: "acc-user-attachments" });
       for (const item of summary) {
@@ -936,7 +1126,9 @@ class CursorChatView extends ItemView {
         chip.setText(item.label);
       }
     }
-    bodyEl.createDiv({ cls: "acc-user-text", text: content || "" });
+    if (text) {
+      bodyEl.createDiv({ cls: "acc-user-text", text });
+    }
   }
 
   renderToolCard(el, msg) {
@@ -1442,7 +1634,7 @@ class CursorChatView extends ItemView {
   }
 
   appendUserMessageToDom(msg) {
-    if (!this.messagesEl) return;
+    if (!this.messagesEl || !isUserMessageVisible(msg)) return;
     this.removeMessagesEmptyState();
     const row = this.messagesEl.createDiv({ cls: "acc-msg acc-msg-user" });
     const body = row.createDiv({ cls: "acc-msg-body" });
@@ -1495,6 +1687,8 @@ class CursorChatView extends ItemView {
     this.lastAssistantBodyEl = null;
 
     const visible = this.messages.filter((m) => {
+      if (!m) return false;
+      if (m.role === "user" && !isUserMessageVisible(m)) return false;
       if (m.role === "tool") return true;
       if (m.role !== "system") return true;
       if (this.plugin.settings.showToolCalls) return true;
@@ -1631,6 +1825,12 @@ class CursorChatView extends ItemView {
 
     const contextSnapshot = this.contextBlocks.slice();
     const contextSummary = summarizeContextForDisplay(contextSnapshot);
+    const notePath = resolveQuestionNotePath(
+      this.app,
+      contextSnapshot,
+      this.plugin,
+      this
+    );
     const userMsg = {
       role: "user",
       content: userText,
@@ -1641,9 +1841,17 @@ class CursorChatView extends ItemView {
       userText,
       contextSnapshot,
       contextSummary,
+      notePath,
       userMsg,
       _uiPromoted: false,
     };
+    if (!notePath) {
+      new Notice(
+        "未关联到笔记路径，本次提问不会记入「本篇历史」。请先打开目标笔记或 ⌘⇧L 加入当前笔记。",
+        6000
+      );
+    }
+
     this.sendQueue.push(job);
     this.contextBlocks = [];
     this.clearComposerEditor();
@@ -1670,9 +1878,11 @@ class CursorChatView extends ItemView {
     requestAnimationFrame(() => void this.processSendQueue());
   }
 
-  promoteJobToChat(job) {
-    this.messages.push(job.userMsg);
-    this.appendUserMessageToDom(job.userMsg);
+  promoteJobToChat(userMsg) {
+    if (!isUserMessageVisible(userMsg)) return;
+    this.messages.push(userMsg);
+    this.removeMessagesEmptyState();
+    this.scheduleMessagesRender();
   }
 
   async processSendQueue() {
@@ -1762,12 +1972,23 @@ class CursorChatView extends ItemView {
       await acp.sessionPrompt(this.acpSessionId, [
         { type: "text", text: fullText },
       ]);
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
       this.streamingAssistant = false;
       this.markToolsCompleted();
       this.clearThinkingPlaceholder();
       if (!this._userCancelled) {
         const q = this.sendQueue.length;
         this.setStatus(q > 0 ? `就绪 · 下一条排队中（${q}）` : "就绪");
+        const answer = extractLatestAssistantAnswer(this.messages);
+        if (job.notePath) {
+          this.plugin.recordTurnExchange(
+            job,
+            answer.trim() || "（本轮无文字回复，可能仅有工具调用）"
+          );
+          this.renderFileContextBar();
+        }
       }
     } catch (e) {
       if (!this._userCancelled) {
@@ -1936,7 +2157,7 @@ class CursorChatSettingTab extends PluginSettingTab {
     containerEl.createEl("p", {
       cls: "acc-settings-note",
       text:
-        "本插件与 AI Read Tracker 分离：阅读统计见 ai-read-tracker；此处仅负责 Obsidian 内 Cursor Agent 对话。",
+        "提问会按当前笔记归档到「本篇历史」，并同步问题数到 AI Read Tracker 用于阅读进度加权。",
     });
   }
 }
@@ -1946,6 +2167,8 @@ module.exports = class CursorChatPlugin extends Plugin {
     await this.loadSettings();
     this.acp = null;
     this.chatView = null;
+    /** Chat 侧栏获焦后仍用于「本篇历史」与提问归档 */
+    this.lastMarkdownPath = null;
     this.acpConnectQueue = Promise.resolve();
     /** 右键菜单打开前 DOM 选区常被清空，保留最近一次有效选区 */
     this.selectionSnapshot = { text: "", file: null, at: 0 };
@@ -2009,6 +2232,68 @@ module.exports = class CursorChatPlugin extends Plugin {
     );
 
     this.addSettingTab(new CursorChatSettingTab(this.app, this));
+
+    const refreshFileBar = (file) => {
+      if (file instanceof TFile && file.extension === "md") {
+        this.lastMarkdownPath = file.path;
+      }
+      const mv = getActiveMarkdownView(this.app);
+      if (mv?.file?.path) this.lastMarkdownPath = mv.file.path;
+      const view = this.getActiveChatView();
+      if (view) view.renderFileContextBar();
+    };
+    this.registerEvent(this.app.workspace.on("active-leaf-change", refreshFileBar));
+    this.registerEvent(this.app.workspace.on("file-open", refreshFileBar));
+    refreshFileBar();
+  }
+
+  ensureFileQA(notePath) {
+    if (!this.fileQA[notePath]) {
+      this.fileQA[notePath] = { questionCount: 0, items: [] };
+    }
+    if (!this.fileQA[notePath].items) this.fileQA[notePath].items = [];
+    return this.fileQA[notePath];
+  }
+
+  getFileQA(notePath) {
+    if (!notePath) return null;
+    return this.fileQA[notePath] || null;
+  }
+
+  recordTurnExchange(job, answerText) {
+    const notePath =
+      job.notePath ||
+      resolveQuestionNotePath(this.app, job.contextSnapshot, this);
+    if (!notePath) return;
+
+    const entry = this.ensureFileQA(notePath);
+    const maxAnswer = this.settings.maxAnswerChars || 8000;
+    const answer = truncateText(answerText, maxAnswer);
+    entry.questionCount = (entry.questionCount || 0) + 1;
+    entry.items.push({
+      id: uid(),
+      ts: Date.now(),
+      question: job.userText,
+      answer,
+      answerPreview: truncateText(answer, 280),
+      contextLabels: (job.contextSummary || []).map((x) => x.label).filter(Boolean),
+    });
+
+    const cap = this.settings.maxQAHistoryPerFile || 40;
+    while (entry.items.length > cap) entry.items.shift();
+
+    void this.savePluginData();
+    this.notifyReadTracker(notePath, entry);
+  }
+
+  notifyReadTracker(notePath, qaEntry) {
+    const rt = this.app.plugins.plugins[READ_TRACKER_PLUGIN_ID];
+    if (typeof rt?.recordQuestionForPath === "function") {
+      rt.recordQuestionForPath(notePath, {
+        questionCount: qaEntry.questionCount,
+        lastQuestionAt: qaEntry.items[qaEntry.items.length - 1]?.ts || Date.now(),
+      });
+    }
   }
 
   rememberSelection(snap) {
@@ -2180,15 +2465,25 @@ module.exports = class CursorChatPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign(
-      {},
-      DEFAULT_SETTINGS,
-      (await this.loadData()) || {}
-    );
+    const loaded = (await this.loadData()) || {};
+    if (loaded.settings) {
+      this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded.settings);
+      this.fileQA = loaded.fileQA || {};
+    } else {
+      this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
+      this.fileQA = {};
+    }
+  }
+
+  async savePluginData() {
+    await this.saveData({
+      settings: this.settings,
+      fileQA: this.fileQA || {},
+    });
   }
 
   async saveSettings() {
-    await this.saveData(this.settings);
+    await this.savePluginData();
   }
 
   async activateChatView(focusChat = true) {

@@ -41,6 +41,101 @@
   white-space: nowrap;
 }
 
+.acc-file-context {
+  flex-shrink: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-secondary);
+  padding: 6px 8px;
+  font-size: 0.78em;
+}
+
+.acc-file-context.is-hidden {
+  display: none;
+}
+
+.acc-file-context-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.acc-file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+.acc-file-qcount {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.acc-file-history-toggle {
+  flex-shrink: 0;
+  appearance: none;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-muted);
+  font-size: 0.92em;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.acc-file-history-toggle:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.acc-file-history {
+  margin-top: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.acc-file-history-empty,
+.acc-file-history-more {
+  color: var(--text-faint, var(--text-muted));
+  font-size: 0.92em;
+  line-height: 1.4;
+}
+
+.acc-file-history-item {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.acc-file-history-q {
+  font-weight: 500;
+  color: var(--text-normal);
+  line-height: 1.35;
+}
+
+.acc-file-history-a {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.94em;
+  line-height: 1.35;
+}
+
+.acc-file-history-meta {
+  margin-top: 4px;
+  font-size: 0.85em;
+  color: var(--text-faint, var(--text-muted));
+}
+
 .acc-messages {
   flex: 1;
   min-height: 0;
@@ -723,18 +818,34 @@
   background: rgba(var(--color-red-rgb, 255, 80, 80), 0.22) !important;
 }
 
+.acc-perm-modal-shell {
+  min-width: min(92vw, 480px);
+}
+
+.acc-perm-modal .acc-perm-hint {
+  margin: 0 0 10px;
+  font-size: 0.88em;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
 .acc-perm-pre {
   max-height: 280px;
   overflow: auto;
   font-size: 0.85em;
   white-space: pre-wrap;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
 }
 
 .acc-perm-buttons {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 12px;
+  margin-top: 14px;
+  justify-content: flex-end;
 }
 
 .acc-settings-note {

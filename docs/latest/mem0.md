@@ -13,6 +13,7 @@ related:
   - "[[agent-context-stack]]"
   - "[[claude-code]]"
   - "[[hermes-agent]]"
+  - "[[honcho]]"
 stability: mid
 layer: application
 updated: 2026-05-31

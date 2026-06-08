@@ -40,31 +40,52 @@
   overflow: visible;
 }
 
-/* 防止 Obsidian 全局样式冲掉 flowchart 连线 stroke */
-.amm-host svg path.flowchart-link,
-.amm-host svg g.edgePaths path,
-.amm-host svg g.edgePath path {
+/* 内联与灯箱共用：避免放大后配色/连线与子图样式漂移 */
+.amm-diagram-surface svg path.flowchart-link,
+.amm-diagram-surface svg g.edgePaths path,
+.amm-diagram-surface svg g.edgePath path {
   stroke: var(--amm-edge-color, var(--text-muted)) !important;
   fill: none !important;
 }
 
-.amm-host svg marker path,
-.amm-host svg marker polygon {
+.amm-diagram-surface svg marker path,
+.amm-diagram-surface svg marker polygon {
   fill: var(--amm-edge-color, var(--text-muted)) !important;
   stroke: var(--amm-edge-color, var(--text-muted)) !important;
 }
 
-.amm-host svg g.node rect,
-.amm-host svg g.node polygon,
-.amm-host svg g.node circle,
-.amm-host svg g.node path.label-container,
-.amm-lightbox-inner svg g.node rect,
-.amm-lightbox-inner svg g.node polygon,
-.amm-lightbox-inner svg g.node circle,
-.amm-lightbox-inner svg g.node path.label-container {
+.amm-diagram-surface svg g.node rect,
+.amm-diagram-surface svg g.node polygon,
+.amm-diagram-surface svg g.node circle,
+.amm-diagram-surface svg g.node path.label-container {
   fill: var(--amm-node-fill, var(--background-primary)) !important;
   stroke: var(--amm-node-border, var(--text-muted)) !important;
   stroke-width: 2px !important;
+}
+
+.amm-diagram-surface svg g.cluster rect,
+.amm-diagram-surface svg g.subgraph rect,
+.amm-diagram-surface svg g.subgraphs rect {
+  fill: var(--amm-cluster-fill, var(--background-modifier-form-field)) !important;
+  stroke: var(--amm-cluster-border, var(--background-modifier-border)) !important;
+  stroke-width: 1.75px !important;
+}
+
+.amm-diagram-surface svg g.cluster text,
+.amm-diagram-surface svg g.subgraph text,
+.amm-diagram-surface svg .cluster-label text,
+.amm-diagram-surface svg .subgraph-label text,
+.amm-diagram-surface svg g.node text,
+.amm-diagram-surface svg g.edgeLabel text {
+  fill: var(--amm-text-color, var(--text-normal)) !important;
+}
+
+.amm-diagram-surface svg g.edgeLabel rect {
+  fill: var(--background-primary) !important;
+}
+
+.amm-diagram-surface svg foreignObject div {
+  color: var(--amm-text-color, var(--text-normal)) !important;
 }
 
 .amm-toolbar {
@@ -121,8 +142,15 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
+}
+
+.amm-lightbox--dark {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.amm-lightbox--light {
+  background: rgba(15, 23, 42, 0.42);
 }
 
 .amm-lightbox-header {
@@ -136,14 +164,25 @@
 .amm-lightbox-header button {
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
   cursor: pointer;
   font-size: 13px;
 }
 
 .amm-lightbox-header button:hover {
+  border-color: var(--interactive-accent);
+  color: var(--text-normal);
+}
+
+.amm-lightbox--dark .amm-lightbox-header button {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.amm-lightbox--dark .amm-lightbox-header button:hover {
   background: rgba(255, 255, 255, 0.18);
 }
 
@@ -177,17 +216,16 @@
 .amm-lightbox-inner {
   transform-origin: center center;
   flex-shrink: 0;
-  background: var(--background-secondary, #f0f2f5);
-  border: 1px solid var(--background-modifier-border, #d8dee4);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.28);
   will-change: transform;
 }
 
-.theme-dark .amm-lightbox-inner {
-  background: var(--background-secondary, #262626);
-  border-color: var(--background-modifier-border, #4a4a4a);
+.amm-lightbox--dark .amm-lightbox-inner {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
 }
 
 .amm-lightbox-inner svg {
