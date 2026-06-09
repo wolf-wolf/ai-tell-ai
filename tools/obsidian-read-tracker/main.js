@@ -27,6 +27,7 @@ const DEFAULT_SETTINGS = {
   heatmapMetric: "active",
   topNotesMetric: "activeSec",
   readCoverageMin: 0.85,
+  showCompleteMarker: true,
   readTimeRatioMin: 0.5,
   deepTimeRatioMin: 0.75,
   deepMinActiveSec: 120,
@@ -163,7 +164,9 @@ function computeProgressScore(entry, estReadSec, settings) {
   const sumW = wCov + wTime + wQ + wRev || 1;
   const raw =
     (wCov * coverage + wTime * time + wQ * questions + wRev * revisit) / sumW;
-  return Math.round(Math.min(100, Math.max(0, raw * 100)));
+  let score = Math.round(Math.min(100, Math.max(0, raw * 100)));
+  if (entry.markedComplete) return 100;
+  return Math.min(score, 99);
 }
 
 function debounce(fn, ms) {
@@ -1023,6 +1026,9 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       if (this.activePath) this.saveScrollForPath(this.activePath);
     }, 400);
     this.debouncedSyncActive = debounce(() => this.syncActiveFile(), 50);
+    this.debouncedSyncFloatingMarker = debounce(() => {
+      this.syncFloatingMarker();
+    }, 120);
 
     this.registerView(VIEW_TYPE, (leaf) => new ReadTrackerDashboardView(leaf, this));
 
@@ -1034,6 +1040,11 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", () => {
         this.debouncedSyncActive();
+      })
+    );
+    this.registerEvent(
+      this.app.workspace.on("layout-change", () => {
+        this.debouncedSyncFloatingMarker();
       })
     );
 
@@ -1091,6 +1102,38 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       callback: () => this.clearCurrentStats(),
     });
 
+    this.addCommand({
+      id: "mark-complete",
+      name: "Read Tracker: 标记当前笔记已读完",
+      callback: () => {
+        const file = this.getActiveMarkdownFile();
+        if (!file) {
+          new Notice("当前没有打开的 Markdown 笔记");
+          return;
+        }
+        void this.markFileComplete(file.path);
+      },
+    });
+
+    this.addCommand({
+      id: "debug-complete-marker",
+      name: "Read Tracker: 诊断已读完标记",
+      callback: () => this.debugCompleteMarker(),
+    });
+
+    this.addCommand({
+      id: "unmark-complete",
+      name: "Read Tracker: 撤销当前笔记已读完",
+      callback: () => {
+        const file = this.getActiveMarkdownFile();
+        if (!file) {
+          new Notice("当前没有打开的 Markdown 笔记");
+          return;
+        }
+        void this.unmarkFileComplete(file.path);
+      },
+    });
+
     this.addSettingTab(new AiReadTrackerSettingTab(this.app, this));
 
     this.syncQuestionsFromChat();
@@ -1102,6 +1145,8 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     if (this.activePath) this.saveScrollForPath(this.activePath);
     void this.flushData();
     this.detachScrollListeners();
+    this.removeAllFloatingMarkers();
+    this.removeInlineCompleteMarkers();
     if (this.restoreTimer) clearTimeout(this.restoreTimer);
   }
 
@@ -1297,6 +1342,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
         this.saveScrollForPath(this.activePath);
         this.activePath = null;
       }
+      this.removeAllFloatingMarkers();
       this.updateStatusBar();
       return;
     }
@@ -1310,6 +1356,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     if (path === this.activePath) {
       this.attachScrollListeners();
       this.updateStatusBar();
+      this.syncFloatingMarker();
       return;
     }
 
@@ -1321,6 +1368,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     this.scheduleRestore(path);
     this.attachScrollListeners();
     this.updateStatusBar();
+    this.syncFloatingMarker();
   }
 
   computeSummary() {
@@ -1560,6 +1608,8 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       lastQuestionAt: entry.lastQuestionAt || 0,
       estReadSec,
       progressScore,
+      markedComplete: !!entry.markedComplete,
+      markedCompleteAt: entry.markedCompleteAt || 0,
       state,
     };
   }
@@ -1826,6 +1876,8 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
         lastEngagement: 0,
         questionCount: 0,
         lastQuestionAt: 0,
+        markedComplete: false,
+        markedCompleteAt: 0,
       };
     } else {
       const e = this.data.files[path];
@@ -1836,8 +1888,230 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       if (e.lastEngagement == null) e.lastEngagement = 0;
       if (e.questionCount == null) e.questionCount = 0;
       if (e.lastQuestionAt == null) e.lastQuestionAt = 0;
+      if (e.markedComplete == null) e.markedComplete = false;
+      if (e.markedCompleteAt == null) e.markedCompleteAt = 0;
     }
     return this.data.files[path];
+  }
+
+  async markFileComplete(path) {
+    if (!path || !this.matchesScope(path)) return;
+    const entry = this.getFileEntry(path);
+    entry.markedComplete = true;
+    entry.markedCompleteAt = Date.now();
+    await this.flushData();
+    this.refreshCompleteMarkerForPath(path);
+    new Notice("已标记读完");
+  }
+
+  async unmarkFileComplete(path) {
+    if (!path) return;
+    const entry = this.data.files[path];
+    if (!entry?.markedComplete) {
+      new Notice("该笔记尚未标记已读完");
+      return;
+    }
+    entry.markedComplete = false;
+    entry.markedCompleteAt = 0;
+    await this.flushData();
+    this.refreshCompleteMarkerForPath(path);
+    new Notice("已撤销读完标记");
+  }
+
+  refreshCompleteMarkerForPath(path) {
+    this.refreshDashboardViews();
+    this.removeInlineCompleteMarkers();
+    this.syncFloatingMarker();
+  }
+
+  refreshAllCompleteMarkers() {
+    this.refreshDashboardViews();
+    this.removeInlineCompleteMarkers();
+    this.syncFloatingMarker();
+  }
+
+  getFloatingMarkerAnchor(view) {
+    if (!view?.containerEl) return null;
+    const anchor =
+      view.containerEl.querySelector(".view-content") || view.containerEl;
+    if (anchor && getComputedStyle(anchor).position === "static") {
+      anchor.style.position = "relative";
+    }
+    return anchor;
+  }
+
+  isReadingLikeView(view) {
+    if (!(view instanceof MarkdownView)) return false;
+    if (typeof view.getMode === "function" && view.getMode() === "source") {
+      return false;
+    }
+    return !!this.getMarkdownPreviewRoot(view);
+  }
+
+  debugCompleteMarker() {
+    const file = this.getActiveMarkdownFile();
+    if (!file) {
+      new Notice("当前没有打开的 Markdown 笔记");
+      return;
+    }
+    const path = file.path;
+    const view = this.getMarkdownView();
+    const mode = typeof view?.getMode === "function" ? view.getMode() : "?";
+    const anchor = view ? this.getFloatingMarkerAnchor(view) : null;
+    const floatEl = anchor?.querySelector(".art-read-fab");
+    const inlineCount = view?.containerEl?.querySelectorAll(
+      ".art-read-complete-footer"
+    ).length;
+    this.syncFloatingMarker();
+    new Notice(
+      [
+        `路径 ${path}`,
+        `模式 ${mode} · 范围 ${this.matchesScope(path) ? "✓" : "✗"}`,
+        `标记开关 ${this.data.settings.showCompleteMarker !== false ? "开" : "关"}`,
+        `悬浮栏 ${floatEl || anchor?.querySelector(".art-read-fab") ? "✓" : "✗"}`,
+        `文中残留 ${inlineCount || 0} 处`,
+      ].join("\n"),
+      8000
+    );
+  }
+
+  removeInlineCompleteMarkers() {
+    for (const leaf of this.app.workspace.getLeavesOfType("markdown")) {
+      const view = leaf.view;
+      view?.containerEl
+        ?.querySelectorAll(".art-read-complete-footer")
+        .forEach((el) => el.remove());
+    }
+  }
+
+  removeAllFloatingMarkers() {
+    for (const leaf of this.app.workspace.getLeavesOfType("markdown")) {
+      const view = leaf.view;
+      view?.containerEl
+        ?.querySelectorAll(".art-read-fab, .art-read-complete-float")
+        .forEach((el) => el.remove());
+    }
+  }
+
+  scrollActiveViewToTop() {
+    const view = this.getMarkdownView();
+    if (!view) return;
+
+    try {
+      if (view.currentMode?.applyScroll) {
+        this._programmaticScroll = true;
+        view.currentMode.applyScroll(0);
+        requestAnimationFrame(() => {
+          this._programmaticScroll = false;
+        });
+      } else {
+        const el = getMarkdownScrollContainer(view);
+        if (el?.scrollTo) {
+          el.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (el) {
+          el.scrollTop = 0;
+        }
+      }
+    } catch (_) {
+      const el = getMarkdownScrollContainer(view);
+      if (el) el.scrollTop = 0;
+    }
+
+    if (this.activePath) {
+      this.recordEngagement(this.activePath, true);
+    }
+  }
+
+  createFabIconButton(parent, icon, title) {
+    const btn = parent.createEl("button", {
+      cls: "art-read-fab-btn",
+      attr: { type: "button", "aria-label": title },
+    });
+    btn.setAttribute("title", title);
+    setIcon(btn.createSpan({ cls: "art-read-fab-icon" }), icon);
+    return btn;
+  }
+
+  syncFloatingMarker() {
+    this.removeInlineCompleteMarkers();
+    this.removeAllFloatingMarkers();
+
+    const view = this.getMarkdownView();
+    if (!view?.file || !this.isReadingLikeView(view)) return;
+
+    const path = view.file.path;
+    if (!path.endsWith(".md") || !this.matchesScope(path)) return;
+
+    const anchor = this.getFloatingMarkerAnchor(view);
+    if (!anchor) return;
+
+    const floatEl = anchor.createDiv({ cls: "art-read-fab" });
+    this.renderReadingFab(floatEl, path);
+  }
+
+  renderReadingFab(container, path) {
+    const topBtn = this.createFabIconButton(container, "arrow-up", "返回顶部");
+    topBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.scrollActiveViewToTop();
+    };
+
+    if (this.data.settings.showCompleteMarker === false) return;
+
+    const entry = this.data.files[path];
+    const marked = entry?.markedComplete;
+
+    if (marked) {
+      const done = container.createDiv({ cls: "art-read-fab-done" });
+      const row = done.createDiv({ cls: "art-read-fab-done-row" });
+      const iconWrap = row.createSpan({ cls: "art-read-fab-done-icon" });
+      setIcon(iconWrap, "check-circle");
+      row.createSpan({ cls: "art-read-fab-done-text", text: "已读完" });
+      const at = entry.markedCompleteAt;
+      if (at) {
+        done.createSpan({
+          cls: "art-read-fab-done-time",
+          text: formatTime(at),
+        });
+      }
+      const undo = done.createEl("button", {
+        cls: "art-read-fab-undo",
+        text: "撤销",
+        attr: { type: "button" },
+      });
+      undo.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void this.unmarkFileComplete(path);
+      };
+      return;
+    }
+
+    const markBtn = container.createEl("button", {
+      cls: "art-read-fab-mark",
+      attr: { type: "button" },
+    });
+    markBtn.setAttribute("title", "读完后点此标记，进度记为 100%");
+    const markIcon = markBtn.createSpan({ cls: "art-read-fab-mark-icon" });
+    setIcon(markIcon, "circle-check");
+    markBtn.createSpan({ cls: "art-read-fab-mark-text", text: "标记已读完" });
+    markBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.markFileComplete(path);
+    };
+  }
+
+  getMarkdownPreviewRoot(view) {
+    if (!view?.containerEl) return null;
+    const el = view.containerEl;
+    return (
+      el.querySelector(".markdown-reading-view") ||
+      el.querySelector(".markdown-preview-view") ||
+      el.querySelector(".markdown-rendered") ||
+      null
+    );
   }
 
   recordEngagement(path, fromScroll = false) {
@@ -2093,8 +2367,11 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     const entry = this.data.files[path] || this.getFileEntry(path);
     const row = this.enrichRow(path, entry);
     const s = this.computeSummary();
+    const doneLine = row.markedComplete
+      ? `\n已读完 ${formatTime(row.markedCompleteAt)}`
+      : "\n未标记已读完（进度最高 99%）";
     new Notice(
-      `进度 ${row.progressScore}% · ${row.state.label}\n有效 ${formatDuration(row.activeSec)} · 覆盖 ${formatCoverage(row.maxScrollRatio)} · 提问 ${row.questionCount || 0}\n打开 ${row.views} 次\n全库 触达 ${s.trackedFiles} / 待读 ${s.neverOpened} / 均进度 ${s.avgProgress}%`
+      `进度 ${row.progressScore}% · ${row.state.label}\n有效 ${formatDuration(row.activeSec)} · 覆盖 ${formatCoverage(row.maxScrollRatio)} · 提问 ${row.questionCount || 0}\n打开 ${row.views} 次${doneLine}\n全库 触达 ${s.trackedFiles} / 待读 ${s.neverOpened} / 均进度 ${s.avgProgress}%`
     );
   }
 
@@ -2254,6 +2531,17 @@ class AiReadTrackerSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
             this.plugin.refreshDashboardViews();
           })
+      );
+
+    new Setting(containerEl)
+      .setName("阅读视图：已读完悬浮按钮")
+      .setDesc("阅读/预览模式右下角悬浮栏：返回顶部 + 标记已读完；仅手动标记后进度才为 100%。")
+      .addToggle((toggle) =>
+        toggle.setValue(s.showCompleteMarker !== false).onChange(async (value) => {
+          s.showCompleteMarker = value;
+          await this.plugin.saveSettings();
+          this.plugin.refreshAllCompleteMarkers();
+        })
       );
 
     new Setting(containerEl)

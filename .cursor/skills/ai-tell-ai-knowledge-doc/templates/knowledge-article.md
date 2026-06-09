@@ -14,6 +14,8 @@ updated: YYYY-MM-DD
 
 [可选 1–2 段：读者契约——适合谁、读到哪可停。]
 
+[可选一行，实现深潜文：*检索说明：… 源码（观测 YYYY-MM-DD）…* — 见 reference.md]
+
 ## 生命周期与演进
 
 **当前定位**：…
@@ -52,6 +54,8 @@ flowchart LR
 
 ### 2.2 [子主题]
 
+[可选：实现深潜 — `### 2.2.1 … Prompt 契约`：常量深链 + 硬规则表 + Prompt 节选 blockquote + 「逻辑怎么读」表]
+
 [可选：**表 1：** …]
 
 | 列 A | 列 B |
@@ -64,9 +68,15 @@ flowchart LR
 
 - [[相关概念]] — 关系说明
 
-### 外部参考
+### 官方文档
 
-- [来源标题](https://…) — 支撑本文哪段 / 读者可得什么
+- [产品文档页](https://…) — 支撑本文哪段
+
+### 源码与 Prompt 原文
+
+<!-- 仅实现深潜文需要；纯概念文可删整节 -->
+- [src/module.py#L10-L120](https://github.com/org/repo/blob/main/src/module.py#L10-L120) — 机制 X 的实现
+- [PR #1234](https://github.com/org/repo/pull/1234) — 与生命周期「近期演进」呼应的变更
 
 ---
 

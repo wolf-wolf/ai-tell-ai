@@ -27,6 +27,7 @@ description: >-
 - 新建或重写 `docs/**/*.md` 知识节点
 - 把零散笔记升格为符合仓库规范的文章
 - 增补/扩写已有文章（遵守手术式修改）
+- **源码机制深潜**（读仓库、写执行路径/Prompt 契约）：**先** [task-doc-codebase-mechanism-deep-dive](../task-doc-codebase-mechanism-deep-dive/SKILL.md)，**再**本 skill 落盘；联动见 [references/codebase-deep-dive-bridge.md](references/codebase-deep-dive-bridge.md)
 - **不用**于：`trends/` 日报（用 `templates/template-trend-daily.md`）、纯代码、插件实现
 
 ## 文章节序（固定，不可颠倒）
@@ -91,7 +92,7 @@ updated: YYYY-MM-DD
 4. **过渡**：大节之间用机制/矛盾收尾上一节衔接下一节，避免「下文将讲…」式预告目录。
 5. **`###` 拆分**：一个 `##` 超过 ~400 字或多机制时，拆成 2–4 个 `###`；长节内可用 **`### N.M` 小数序号**（N 为父 `##` 在正文中的顺序，从 1 起计，**生命周期与演进、进一步阅读不参与编号**）。
 6. **强调节制**：每小节少量 `**关键术语**` / `*术语*`；标题不再套粗体。
-7. **诚实边界**：写明非目标、易混淆点、产品差异（不能「因产品而异」一笔带过）。
+7. **诚实边界**：写明非目标、易混淆点、产品差异（不能「因产品而异」一笔带过）；机制差异写事实，**禁止**正文专门划「与 [[兄弟文]] 的边界」（见 [writing-rules.md](../../../writing-rules.md)「正文不写库内文章边界」）。
 8. **子主题拆分**：工程实践、选型指南、对比深潜等**独立成文**，本篇只链过去（`## 进一步阅读`），不与原理混写。
 
 ### 图示与表格
@@ -105,6 +106,20 @@ updated: YYYY-MM-DD
 - 正文定量陈述、版本敏感产品名、论文名 → 在 **`## 进一步阅读`** 有可追溯条目。
 - 正文用 **reference link / 脚注 / [n]** 指向同一条目，避免同一 URL 维护两遍（规则见 [reference.md](reference.md)）。
 - `latest/`、`stability: short|mid` 文：正文关键事实旁标注**观测日期**；延伸阅读须含官方文档或仓库链接。
+
+### 源码分析与实现深潜（`latest/` / 产品实现文）
+
+**流程**：先执行 [task-doc-codebase-mechanism-deep-dive](../task-doc-codebase-mechanism-deep-dive/SKILL.md)（source map、≥3 文件深读、证据门控），再按本 skill 写成 Obsidian 知识节点。结构映射见 [codebase-deep-dive-bridge.md](references/codebase-deep-dive-bridge.md)；版式细则见 [reference.md — 源码分析与实现深潜](reference.md#源码分析与实现深潜写法)。
+
+落盘要点：
+
+1. **正文先讲机制与因果**；源码/Prompt 作**可核对证据**，不用大段代码替代理清。
+2. **关键断言旁给深链**：`[path#L34-L235](https://github.com/org/repo/blob/<ref>/path#L34-L235)`；常量名用 `` `SNAKE_CASE` ``。
+3. **复杂 Prompt** → `### N.M … Prompt 契约`：硬规则表 + 节选 +「逻辑怎么读」；完整原文进延伸阅读。
+4. **`## 进一步阅读`** → `### 源码与 Prompt 原文`（非 deep-dive 的 `## References`）。
+5. **检索说明** 写仓库、观测日期、版本量级；docs vs code 分歧须写明。
+
+范例：`docs/latest/hermes-agent-memory.md`。
 
 ## 新文放哪里
 
@@ -123,11 +138,12 @@ updated: YYYY-MM-DD
 ### A. 新建全文
 
 1. **检索**（默认）：版本敏感 / 产品 / 快变主题先 web search；稳定基础可跳过并加检索说明行。
-2. **定语言**：跟用户会话语言（中文请求 → 中文正文）。
-3. **定归属**：STRUCTURE 决策树 + 是否应拆独立子文。
-4. **列提纲**：固定节序 + 正文 `##` 标题 + 各节 `###` 计划。
-5. **起草**：按 [templates/knowledge-article.md](templates/knowledge-article.md)。
-6. **自检**（下方清单）→ 写入路径 → 聊天简短确认。
+2. **若源码深潜**：走 [task-doc-codebase-mechanism-deep-dive](../task-doc-codebase-mechanism-deep-dive/SKILL.md) 至 source map + 深读完成，再映射到 [bridge](references/codebase-deep-dive-bridge.md) 提纲。
+3. **定语言**：跟用户会话语言（中文请求 → 中文正文）。
+4. **定归属**：STRUCTURE 决策树 + 是否应拆独立子文。
+5. **列提纲**：固定节序 + 正文 `##` 标题 + 各节 `###` 计划。
+6. **起草**：按 [templates/knowledge-article.md](templates/knowledge-article.md)。
+7. **自检**（下方清单 + deep-dive [checklists](../task-doc-codebase-mechanism-deep-dive/references/checklists.md) 若适用）→ 写入路径 → 聊天简短确认（含 `source_map_evidence` 若深潜）。
 
 ### B. 增补 / 修订已有文
 
@@ -149,8 +165,11 @@ updated: YYYY-MM-DD
 - [ ] 核心本质无目录/meta 废话；生命周期四标签格式正确
 - [ ] wikilink 无路径前缀（`[[skill]]` 非 `[[agent/skill/skill]]`）
 - [ ] 子主题未塞进原理篇；进一步阅读有对应链接
+- [ ] 正文无「与 [[兄弟文]] 的边界/对照」式 meta；易混淆处只写机制差异
 - [ ] 版本敏感声明有日期；外链在进一步阅读可溯源
 - [ ] Mermaid 未超 ~20 节点；长 `##` 已拆 `###`
+- [ ] 若依赖源码：检索说明含仓库与观测日期；关键实现有 `#L` 深链；`### 源码与 Prompt 原文` 已列
+- [ ] Prompt 契约节为「表 + 节选 + 逻辑怎么读」，非整文件粘贴
 - [ ] frontmatter `updated` 与本次修订一致
 - [ ] 文件末尾无 skill 名、无「本文依 xxx 流程撰写」类 footer
 
@@ -172,4 +191,6 @@ updated: YYYY-MM-DD
 
 - 模板：[templates/knowledge-article.md](templates/knowledge-article.md)
 - 细则：[reference.md](reference.md)
+- 源码深潜联动：[references/codebase-deep-dive-bridge.md](references/codebase-deep-dive-bridge.md)
+- 源码深潜执行：[task-doc-codebase-mechanism-deep-dive](../task-doc-codebase-mechanism-deep-dive/SKILL.md)
 - 评分循环：[article-scoring-evolve](../article-scoring-evolve/SKILL.md)

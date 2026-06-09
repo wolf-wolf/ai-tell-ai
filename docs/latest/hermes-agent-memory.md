@@ -157,7 +157,7 @@ flowchart TB
 
 每次 `add` / `replace` 落盘前，还会检查新条目里有没有**危险句式**：例如「忽略上文指令、按下面做」这类**提示词注入**（injection），或诱导 Agent **往外带密钥、私聊内容**的写法（exfil）。记忆文件走**自己的**一套规则；Curator 整理 Skill、或 Skill 编辑时的安全检查是**另一套**，互不替代。
 
-这与 [[knowledge-fusion]] 里的实体对齐 + 真值发现也不同：内置层是短条目列表 + LLM 手工合并，没有 embedding 聚类或置信度图。
+内置层是短条目列表 + LLM 手工 `replace` 合并，没有 embedding 聚类、置信度图或自动真值消解。
 
 ### 2.4 为何持久层用全文注入，而非 RAG / 向量检索
 
@@ -202,14 +202,14 @@ Skill 记的是**怎么做一类任务**——调试步骤、格式偏好、工�
 **阶段 B — 辅助模型 Review**（`max_iterations=8`）
 
 - 空闲时用便宜 aux 模型 fork 短 Agent
-- 任务：按 prefix cluster 合并 umbrella、漂移 patch、冗余 archive；**须处理完整 Skill 包**（`references/` 等），禁止只抄 SKILL.md
+- 任务：按名称前缀把相近 Skill 归成大类、修正过时内容、归档冗余条目；**须处理完整 Skill 包**（`references/` 等），禁止只抄 SKILL.md
 - `hermes curator run --dry-run` 只出报告不改动
 
-这与 [[knowledge-fusion]] 的「推理前多源合并」同构的是：LLM 在工具约束下做库级合并，而非 RRF 或向量自动并条。
+Curator 在工具约束下由 LLM 做库级合并（patch + 归档），不走 RRF 或向量自动并条。
 
 #### 3.2.1 Curator 融合 Prompt 契约
 
-常量 `CURATOR_REVIEW_PROMPT`：[agent/curator.py#L357-L493](https://github.com/NousResearch/hermes-agent/blob/main/agent/curator.py#L357-L493)。定位是 **umbrella 级合并**——把数百个「一会话一 bug」窄 Skill 收成可发现的 class-level 库。
+常量 `CURATOR_REVIEW_PROMPT`：[agent/curator.py#L357-L493](https://github.com/NousResearch/hermes-agent/blob/main/agent/curator.py#L357-L493)。定位是 **按大类归并**——把数百个「一会话一 bug」的零碎 Skill 收成按任务类别整理、容易发现的 Skill 库。（Hermes 源码 prompt 里把这种总括 Skill 叫 *umbrella*，本文统一称 **大类 Skill**。）
 
 **硬规则摘要**：
 
@@ -221,7 +221,7 @@ Skill 记的是**怎么做一类任务**——调试步骤、格式偏好、工�
 | 按内容判 overlap，不看 `use_count=0` | |
 | 合并须处理 support 文件与相对链接 | 禁止只 flatten SKILL.md |
 
-**三种合并模式**：并入已有 umbrella（patch + archive sibling）→ 新建 umbrella → 降级为 support file 后 archive。结构化输出含 `consolidations` / `prunings` YAML，供下游 tooling 解析。
+**三种合并模式**：并入已有大类 Skill（patch 正文 + 归档被合并的兄弟 Skill）→ 新建一个大类 Skill → 降级为附属参考文件后归档。结构化输出含 `consolidations` / `prunings` YAML，供下游 tooling 解析。
 
 与后台 Review 的分工：Review 在会话内 patch/create；发现两 Skill 重叠只 note，**库级 merge 交给 Curator**。
 
@@ -233,45 +233,66 @@ Skill 记的是**怎么做一类任务**——调试步骤、格式偏好、工�
 
 内置持久记忆只承载跨会话短事实；「上周我们怎么做的」走**按需检索**。`session_search` 刻意不做默认 LLM 摘要或 embedding——Agent 应拿到历史消息原文自行归纳。
 
-源文件：[tools/session_search_tool.py](https://github.com/NousResearch/hermes-agent/blob/main/tools/session_search_tool.py)。存储：`~/.hermes/state.db`（SQLite WAL），`messages` + FTS5 虚表 `messages_fts`。详见 [[fts5]]。
+源文件：[tools/session_search_tool.py](https://github.com/NousResearch/hermes-agent/blob/main/tools/session_search_tool.py)。存储：`~/.hermes/state.db`（SQLite WAL），`messages` + FTS5 虚表 `messages_fts` 与 `messages_fts_trigram`。详见 [[fts5]]。
 
 ### 4.1 双索引与查询路由
 
-| 查询类型 | 引擎 | 排序 |
+`session_search` 搜的是 `messages` 里的历史对话。一种切词方式没法同时照顾好英文和中文，所以 Hermes 在**同一份消息**上维护**两张** FTS5 虚表——**双索引**：
+
+| 索引表 | 切词方式 | 擅长 |
 | --- | --- | --- |
-| 英文等 FTS5 默认分词 | `messages_fts` `MATCH` | BM25（`ORDER BY rank`） |
-| CJK ≥3 字符 | `messages_fts_trigram` | BM25 rank（PR #16651，替代早期 `LIKE` 全表扫） |
-| CJK 1–2 字符 | `LIKE` 回退 | 时间倒序 |
+| `messages_fts` | FTS5 默认（unicode61） | 英文等按词切分的文本 |
+| `messages_fts_trigram` | 连续三字一切（trigram） | 中文等无空格文本的子串匹配 |
 
-用户输入经 `SessionDB._sanitize_fts5_query()` 转义，防 FTS 语法注入。语义回忆走外部 Provider（如 Honcho `honcho_search`）或主模型读后推理，而非本工具向量路。
-
-### 4.2 Discovery 与 Scroll：先搜后展开
-
-工具从参数推断模式：有 `query` → **Discovery**；有 `session_id` + `around_message_id` → **Scroll**；无参 → 浏览最近会话。
-
-**Discovery**（`_discover()`）：BM25 检索 → 生成 `snippet` → 谱系去重（跳过当前活跃 session）→ 对每个命中取锚点 ±5 条消息 + 会话首末 bookend（各 3 条 user/assistant prose）→ 默认返回 3 个 session。零 LLM 调用。
-
-**Scroll**（`_scroll()`）：不再跑 FTS；围绕 `around_message_id` 取窗口（默认 ±5，上限 20），可分页向前/向后滚。拒绝在当前活跃 session lineage 内 scroll（消息已在 context）。
-
-**图 3：** Discovery / Scroll 调用链
+调用搜索时不必手动指定用哪张表；`SessionDB.search_messages()` 会根据 query 形态**自动分流**——**查询路由**。下图是分流规则（`LIKE` 是索引不够用时的兜底，一般不单独算作「第三套索引」）：
 
 ```mermaid
 flowchart TB
-  subgraph entry [session_search]
-    Q[query] --> DISC[Discovery]
-    SID[session_id + anchor] --> SCR[Scroll]
+  Q[用户 query] --> SAN["SessionDB._sanitize_fts5_query()<br/>转义，防 FTS 语法注入"]
+  SAN --> ROUTE{查询类型?}
+  ROUTE -->|英文等<br/>FTS5 默认分词| FTS["messages_fts MATCH<br/>BM25 相关性排序"]
+  ROUTE -->|CJK ≥3 字符| TRI["messages_fts_trigram<br/>BM25 rank"]
+  ROUTE -->|CJK 1–2 字符| LIKE["LIKE 回退<br/>时间倒序"]
+```
+
+CJK ≥3 字符路径见 [PR #16651](https://github.com/NousResearch/hermes-agent/pull/16651)，替代早期 CJK 查询的 `LIKE` 全表扫。
+
+**CJK** 是 **C**hinese（中文）、**J**apanese（日文）、**K**orean（韩文）的缩写；检索语境里泛指**不靠空格分词**的书写文本（主要是中文）。英文可按词切分后直接走 FTS5；中文若用默认分词，整句常被当成少量大块 token，搜「检索」未必能命中「会话检索」，所以 Hermes 对 **≥3 个汉字的查询**走 trigram（按连续三字切分）索引；**只有 1–2 个字**时 trigram 区分度不够，只能退化为 `LIKE` 模糊匹配并按时间排序。
+
+语义回忆走外部 Provider（如 Honcho `honcho_search`）或主模型读后推理，而非本工具向量路。
+
+### 4.2 Discovery 与 Scroll：先搜后展开
+
+`session_search` 是**一个工具、三种用法**。没有单独的 `mode` 开关；Hermes 根据**传了什么参数**自动选行为——**从参数推断模式**：
+
+| 传参 | 模式 | 在解决什么问题 |
+| --- | --- | --- |
+| `query` | **Discovery** | 不记得在哪次聊天说过，**按关键词跨会话搜索** |
+| `session_id` + `around_message_id` | **Scroll** | 已定位到某条消息，**把前后几句对话摊开读** |
+| 无 | **浏览** | 先看看**最近聊过什么** |
+
+典型流程是 **Discovery → Scroll**：先「大海捞针」，再围绕锚点「翻页读上下文」。
+
+```mermaid
+flowchart LR
+  D[Discovery<br/>传 query 搜关键词] -->|snippet 不够| S[Scroll<br/>传 session_id + 锚点展开]
+```
+
+**Discovery：跨会话搜索。** Agent 传入 `query`（如「部署 Vercel」）时，系统在所有历史会话里做全文检索（见 [[#4.1 双索引与查询路由|4.1]]），默认返回约 3 个相关会话。每条结果含：命中摘录（`snippet`）、锚点前后各 5 条消息、会话首尾各 3 条 prose——帮 Agent 判断「是不是这次」。**零 LLM 调用**，纯检索。实现（`_discover()`）：BM25 → `snippet` → 谱系去重（跳过当前活跃 session）→ 锚点视图 + bookend → 返回 JSON `mode=discover`。
+
+**Scroll：单会话内展开。** Discovery 结果里的 `match_message_id` 即 Scroll 的 `around_message_id`。若摘录不够，Agent 带上 `session_id` 与锚点再调一次：**不再跑 FTS**，只在该会话内取锚点前后窗口（默认 ±5，上限 20），可继续向前/向后滚。实现（`_scroll()`）：`get_messages_around()` → JSON `mode=scroll`。当前正在进行的会话不能 Scroll——那些消息已在 context。
+
+**图 3：** Discovery / Scroll 调用链（实现细节）
+
+```mermaid
+flowchart TB
+  subgraph entry [从参数推断模式]
+    Q[有 query] --> DISC[Discovery]
+    SID[session_id + around_message_id] --> SCR[Scroll]
+    NOP[无参] --> LIST[浏览最近会话]
   end
-  subgraph fts [SessionDB.search_messages]
-    SAN[转义 query]
-    SAN --> ROUTE{CJK?}
-    ROUTE --> FTS[FTS5 BM25]
-    ROUTE --> TRI[trigram BM25]
-    ROUTE --> LIKE[LIKE 回退]
-    FTS --> SNIP[snippet]
-    TRI --> SNIP
-    LIKE --> SNIP
-  end
-  DISC --> SAN
+  DISC --> SEARCH["SessionDB.search_messages<br/>全文检索 + BM25"]
+  SEARCH --> SNIP[snippet]
   SNIP --> DEDUP[谱系去重]
   DEDUP --> VIEW[锚点视图 ±5 + bookends]
   VIEW --> PKG[JSON mode=discover]
@@ -279,6 +300,8 @@ flowchart TB
   WIN --> PKG2[JSON mode=scroll]
   PKG -->|需更多上下文| SID
 ```
+
+检索如何按中英文分流见 [[#4.1 双索引与查询路由|4.1]]，本图只展示 Discovery / Scroll 主链路。
 
 **表 2：** Discovery 单条结果主要字段
 
@@ -297,9 +320,26 @@ flowchart TB
 
 ## 记忆如何从对话生长（提取与后台 Review）
 
-持久记忆与 Skill **不会自动**从对话里长出来——须主 Agent 识别信号即时写入，或由后台 Review 定期扫描。
+聊天记录写进 `state.db` 后，**不会自动**变成 `MEMORY.md` 里的常驻事实，也不会自动变成 Skill 库里的 SOP。Hermes 要有人（Agent）**主动识别信号并写入**，路径有两条：
 
-> **与 [[knowledge-extraction]] / [[knowledge-fusion]] 的边界**：本仓库那两篇描述 Wiki/RAG 流水线的「候选断言 → 实体对齐 → 冲突消解」；Hermes 内置 Review 不产出 JSON 候选包，而是在对话快照上由 LLM 直接调 `memory` / `skill_manage`，融合语义是条目级 `replace` 与 Skill `patch`。
+| 路径 | 什么时候写 | 谁写 |
+| --- | --- | --- |
+| **主 Agent 即时** | 用户说「记住」，或任务进行中识别到稳定事实 / 流程经验 | 主对话循环 |
+| **后台 Review** | 默认每 10 个用户轮扫描一次对话快照（PR #2235 后独立线程，不拖慢主回复） | `background_review.py` 派生的子 Agent |
+
+两条路径最终都调同一套工具：**稳定事实** → `memory`（必要时 `replace` 合并条目）；**这类任务怎么做** → `skill_manage`（优先 `patch` 已有大类 Skill）。Review 是在**只读对话快照**上跑一轮短 Agent，白名单只有 `memory` 与 `skill_manage`，**不**先产出 JSON 候选包再入库——和本库 [[knowledge-extraction]] / [[knowledge-fusion]] 描述的 Wiki/RAG 流水线（候选断言 → 实体对齐 → 冲突消解）是不同路线。
+
+```mermaid
+flowchart LR
+  CHAT[对话进行中] --> MAIN[主 Agent 即时写入]
+  CHAT --> BR[后台 Review 定期扫描]
+  MAIN --> MEM[memory → MEMORY.md / USER.md]
+  MAIN --> SK[skill_manage → Skill 库]
+  BR --> MEM
+  BR --> SK
+```
+
+细节见 [[#5.1 何时触发写入|5.1]]（触发条件）、[[#5.2 后台 Review 怎么工作|5.2]]（线程机制）、[[#5.3 后台 Review Prompt 契约|5.3]]（写入规则）。
 
 ### 5.1 何时触发写入
 
@@ -315,52 +355,162 @@ flowchart TB
 
 源文件：[agent/background_review.py](https://github.com/NousResearch/hermes-agent/blob/main/agent/background_review.py)
 
-- Fork 一个 `AIAgent`：继承父级 model、provider、auth、已缓存的 system prompt（与 [[prefix-cache]] 对齐）
-- `quiet_mode=True`，`skip_context_files=True`；禁用子 Agent 的 nudge（防递归）
-- `skip_memory=True` 对外部 provider：Review 只写内置 `MemoryStore`，避免 Review 元提示泄漏给 Honcho/Mem0
-- 工具白名单：非 memory/skill 工具运行时拒绝
-- 专用 prompt 作为 fork 后的 `user_message` 追加在对话快照之后；按触发类型三选一（下节）
+主 Agent 把回复交给用户之后，若本轮满足 Memory / Skill nudge 条件，`run_agent.py` 会 **`spawn_background_review_thread`**：在**独立守护线程**里 fork 一个短生命周期的子 Agent，专门扫一遍「刚才聊了什么、有没有值得沉淀的」。用户无感知、主 transcript 不变、主回复也不被拖慢。
+
+```mermaid
+flowchart LR
+  MAIN[主 Agent 完成回复] --> SNAP[冻结对话快照]
+  SNAP --> THREAD[守护线程 fork 子 Agent]
+  THREAD --> PROMPT[追加 Review 专用 prompt]
+  PROMPT --> TOOLS["仅 memory + skill_manage<br/>≤5 轮迭代"]
+  TOOLS --> DISK[写入 MEMORY.md / USER.md / Skill 库]
+```
+
+**子 Agent 从父 Agent「继承」什么、又刻意「隔离」什么**
+
+| 继承（对齐主会话） | 隔离（Review 专用约束） |
+| --- | --- |
+| 同一 model、provider、auth | `quiet_mode=True`：不往 CLI 打日志，用户看不见 Review 过程 |
+| 已缓存的 system prompt（利于 [[prefix-cache]] 前缀复用） | `skip_context_files=True`：不再加载工作区 `AGENTS.md` 等上下文文件 |
+| 父 Agent 的 `MemoryStore` 活状态（`memory` 写入立即落盘） | 禁用子 Agent 自己的 nudge：Review 里不能再 spawn Review，防递归 |
+| | `skip_memory=True`：**不**初始化外部 memory provider（Honcho / Mem0 等） |
+
+**`skip_memory=True` 容易误解，值得单独说清**：Review fork **不会**连上 Honcho、Mem0 等外部插件，避免 Review 的 harness 元提示经 `prefetch` / `sync` 泄漏进用户的第三方记忆库（[PR #27190](https://github.com/NousResearch/hermes-agent/commit/973f27e95631aaecbda5e32e3fa9e5d7f6a2e1d3)）。但内置 `MEMORY.md` / `USER.md` 的 **`MemoryStore` 会从父 Agent 重新绑定**，所以 Review 调 `memory(action="add")` 仍会正常写本地文件——只是**不写外部 provider**。
+
+**工具白名单**：子 Agent 运行时若调用 memory / skill 以外的工具，直接拒绝。Review 的任务是「从对话里提取并写入」，不是再跑一轮/bash/搜网页。
+
+**Prompt 怎么喂**：fork 后的 `user_message` = **只读对话快照** + **Review 专用指令**（Memory / Skill / Combined 三选一，见 [[#5.3 后台 Review Prompt 契约|5.3]]）。子 Agent 在快照后面读规则、扫信号、调工具；**不会**把 Review 指令或工具调用写回主会话 transcript。
+
+**失败与边界**：Review 线程内异常全部捕获，**不能**拖垮主会话；无值得保存的内容时 prompt 要求回复 `Nothing to save.` 并停止，避免空转。
 
 ### 5.3 后台 Review Prompt 契约
 
-Prompt 常量：[background_review.py#L34-L235](https://github.com/NousResearch/hermes-agent/blob/main/agent/background_review.py#L34-L235)（观测 2026-06-07）。
+三条 prompt 常量定义在 [agent/background_review.py](https://github.com/NousResearch/hermes-agent/blob/main/agent/background_review.py)（`_MEMORY_REVIEW_PROMPT` / `_SKILL_REVIEW_PROMPT` / `_COMBINED_REVIEW_PROMPT`）。fork 子 Agent 收到的是：**上文只读对话快照** + **下述指令之一**（观测 2026-06-07）。
 
-| 触发 | 常量 | 写入目标 |
+| 触发 | 选用 prompt | 允许调用的工具 |
 | --- | --- | --- |
-| 仅 Memory nudge | `_MEMORY_REVIEW_PROMPT` | `memory(target=…)` |
+| 仅 Memory nudge | `_MEMORY_REVIEW_PROMPT` | `memory` |
 | 仅 Skill nudge | `_SKILL_REVIEW_PROMPT` | `skill_manage` |
-| 两者同时 | `_COMBINED_REVIEW_PROMPT` | 上两者并行 |
+| 两者同轮 | `_COMBINED_REVIEW_PROMPT` | 上两者 |
 
 #### 5.3.1 Memory Review：声明性事实
 
-扫描用户是否暴露 persona、偏好、个人细节，或对 Agent 行为/工作方式的期望。有信号则 `memory` 写入；无则 `Nothing to save.` 并停止。
+**Prompt 原文（节选）**
 
-`target` 路由：`user` → `USER.md`（画像与沟通偏好），`memory`（默认）→ `MEMORY.md`（环境/任务事实）。当前 prompt 仍泛称「memory tool」，[PR #30220](https://github.com/NousResearch/hermes-agent/pull/30220) 计划把 USER/MEMORY 路由与「一事实一库、禁止跨库重复」写进 prompt。
+```text
+Review the conversation above and consider saving to memory if appropriate.
 
-触顶时须 `replace` 把多条观察压成更短条目。已知风险：Review fork 共享活状态，但 prompt 未必注入当前条目列表，存在基于旧快照覆盖的可能（[issue #9055](https://github.com/NousResearch/hermes-agent/issues/9055)）。
+Focus on:
+1. Has the user revealed things about themselves — their persona, desires, preferences, or personal details worth remembering?
+2. Has the user expressed expectations about how you should behave, their work style, or ways they want you to operate?
+
+If something stands out, save it using the memory tool. If nothing is worth saving, just say 'Nothing to save.' and stop.
+```
+
+**逻辑怎么读**
+
+| Prompt 在问什么 | 设计意图 |
+| --- | --- |
+| 用户画像、欲望、偏好、个人细节 | 写入 `USER.md` 类信息——「这个人是谁、怎么沟通」 |
+| 对 Agent 行为/工作方式的期望 | 若偏运营状态则进 `MEMORY.md`；若偏「做某类任务的方式」应走 Skill（见 5.3.2 分流） |
+| 有信号才 `memory`，否则 `Nothing to save.` | **保守写入**：Memory Review 默认可以什么都不做，和 Skill Review 的「Be ACTIVE」形成对比 |
+
+**Prompt 没写、但工具层有的规则**：`memory` 工具支持 `target=user|memory`，分别落 `USER.md` / `MEMORY.md`；当前 Review prompt 仍泛称「memory tool」，未显式教模型分流。[PR #30220](https://github.com/NousResearch/hermes-agent/pull/30220) 计划把路由与「一事实一库、禁止跨库重复」写进 prompt。触顶时工具层要求用 `replace` 合并条目。
+
+**已知风险**：Review fork 共享父 Agent 活状态，但 prompt 未必注入当前条目列表，存在基于旧认知覆盖的可能（[issue #9055](https://github.com/NousResearch/hermes-agent/issues/9055)）。
 
 #### 5.3.2 Skill Review：程序性经验
 
-Hermes **经验提取写 Skill 的主 prompt**（比 Memory prompt 长得多）。核心约定：
+Skill Review prompt 比 Memory 长一个数量级——它是 Hermes **经验提取的主契约**。下面按「目标形态 → 何时动 → 怎么动 → 边界」拆原文。
 
-**库形态**：class-level umbrella Skill——丰富 `SKILL.md` + `references/`（及可选 `templates/`、`scripts/`），而非「一会话一 Skill」。
+**① 库形态与行动偏置**
 
-**行动偏置**：「Be ACTIVE — most sessions produce at least one skill update」；与 Memory Review 允许频繁 `Nothing to save.` 不对称（社区 [issue #27645](https://github.com/NousResearch/hermes-agent/issues/27645) 讨论是否改为信号驱动）。
+```text
+Be ACTIVE — most sessions produce at least one skill update, even if small. A pass that does nothing is a missed learning opportunity, not a neutral outcome.
 
-**有信号时的四步优先级**（择最早可行）：
+Target shape of the library: CLASS-LEVEL skills, each with a rich SKILL.md and a `references/` directory … Not a long flat list of narrow one-session-one-skill entries.
+```
 
-1. Patch **本会话已加载**的 Skill
-2. Patch **已有 umbrella**（`skills_list` + `skill_view` 定位）
-3. `write_file` 加 support 文件，`SKILL.md` 留指针
-4. `create` 新 class-level umbrella（命名禁止 PR 号、错误串等会话 artifact）
+**逻辑**：先定「库应该长什么样」（大类 Skill + 附属文件），再要求**大多数会话至少 patch 一次**——空跑被视为漏学，不是中性结果。社区 [issue #27645](https://github.com/NousResearch/hermes-agent/issues/27645) 讨论是否改回信号驱动。
 
-**Memory vs Skill 分流（硬性）**：Memory =「用户是谁 + 当前运营状态」；Skill =「这类任务怎么做（含用户偏好嵌入）」。用户抱怨「你总是先解释再答」→ 必须 patch 对应任务类 Skill，不能只 `memory`。
+**② 什么算「有信号」**
 
-**保护边界**：禁止 edit bundled / Hub-installed；环境缺依赖等只 capture **FIX** 进 setup 类 Skill，不 capture  transient error 或一次性任务叙事。发现两 Skill 重叠只 note，merge 交给 Curator。
+```text
+Signals to look for (any one of these warrants action):
+• User corrected your style, tone, format … 'stop doing X' … are FIRST-CLASS skill signals, not just memory signals.
+• User corrected your workflow, approach, or sequence of steps.
+• Non-trivial technique, fix, workaround, debugging path … emerged.
+• A skill that got loaded … turned out to be wrong, missing a step, or outdated. Patch it NOW.
+```
 
-#### 5.3.3 Combined Review
+**逻辑**：用户抱怨语气/格式/步骤，或会话里踩坑找到正路、或已加载 Skill 过时——**任一即 warrant action**。尤其把「别啰嗦、别这样排版」标成 **Skill 信号而非 Memory 信号**，避免偏好只进 `USER.md` 却不在任务 SOP 里生效。
 
-Memory nudge 与 Skill nudge 同轮触发：上半 Memory，下半 Skills（压缩版四步 ladder）。两维都有信号则都 act；genuinely 都没有才 `Nothing to save.` — 但勿把 null 当默认。
+**③ 四步优先级（有信号时择最早可行）**
+
+```text
+1. UPDATE A CURRENTLY-LOADED SKILL … PATCH that one first.
+2. UPDATE AN EXISTING UMBRELLA (via skills_list + skill_view).
+3. ADD A SUPPORT FILE … `references/` / `templates/` / `scripts/` … pointer in SKILL.md.
+4. CREATE A NEW CLASS-LEVEL UMBRELLA … name MUST NOT be a PR number, error string … session artifact.
+```
+
+**逻辑**：尽量**改已有**而非**新建**——先本会话在用的，再库里有的大类 Skill，再只加 support 文件，最后才 `create`。第 4 步命名约束防止「fix-pr-1234-today」类一次性 Skill 污染库。
+
+**④ Memory vs Skill 硬性分流**
+
+```text
+Memory captures 'who the user is and what the current situation and state of your operations are'; skills capture 'how to do this class of task for this user'. When they complain about how you handled a task, the skill that governs that task needs to carry the lesson.
+```
+
+**逻辑**：用户画像/运营状态 → `memory`；「这类任务今后怎么做（含嵌入的偏好）」→ **patch 对应 Skill**。例：「你总是先解释再答」必须写进相关任务类 Skill，不能只 `memory`。
+
+**⑤ 保护边界与禁止捕获**
+
+```text
+Protected skills (DO NOT edit these): Bundled … Hub-installed …
+
+Do NOT capture: Environment-dependent failures … Negative claims about tools ('browser tools do not work') … Session-specific transient errors … One-off task narratives.
+
+If a tool failed because of setup state, capture the FIX … never 'this tool does not work' as a standalone constraint.
+```
+
+**逻辑**：bundled / Hub Skill 不可 edit（pinned 可 patch 内容，Curator 才不能 archive）。**环境缺依赖、工具偶发失败、一次性任务**不应固化成 Skill——否则会 months 后仍自我引用过时约束。setup 类问题只 capture **FIX**（安装命令、配置步骤），不 capture「某工具永远不可用」。
+
+**⑥ 重叠 Skill 的处理**
+
+```text
+If you notice two existing skills that overlap, note it in your reply — the background curator handles consolidation at scale.
+```
+
+**逻辑**：Review 只 **note**，库级 merge 交给 [[#3.2 Curator：Skill 库的规模化合并与剪枝|Curator]]。
+
+#### 5.3.3 Combined Review：同轮双维扫描
+
+Memory nudge 与 Skill nudge 同轮触发时用 `_COMBINED_REVIEW_PROMPT`——本质是 Memory 段 + 压缩版 Skill 段拼在一起。
+
+**Prompt 原文（节选）**
+
+```text
+Review the conversation above and update two things:
+
+**Memory**: who the user is. Did the user reveal persona, desires, preferences … Save facts about the user and durable preferences with the memory tool.
+
+**Skills**: how to do this class of task. Be ACTIVE — most sessions produce at least one skill update.
+
+… [Skill 四步 ladder 与保护边界，同 5.3.2 压缩版] …
+
+Act on whichever of the two dimensions has real signal. If genuinely nothing stands out on either, say 'Nothing to save.' and stop — but don't reach for that conclusion as a default.
+```
+
+**逻辑怎么读**
+
+| 维度 | 问什么 | 默认倾向 |
+| --- | --- | --- |
+| Memory | 用户是谁、有何 durable 偏好 | 有信号才写；无则跳过 |
+| Skills | 这类任务今后怎么做 | Be ACTIVE；Skill 段仍倾向至少一次更新 |
+| 收尾 | 两维 genuinely 都没有才 `Nothing to save.` | **勿把 null 当默认**——Combined 比纯 Memory 更 push Skill 侧行动 |
+
+完整 prompt 原文见 [background_review.py#L34-L235](https://github.com/NousResearch/hermes-agent/blob/main/agent/background_review.py#L34-L235)。
 
 ## 外部 Memory Provider：叠加层
 
@@ -434,7 +584,7 @@ hermes curator restore foo   # 从 .archive 恢复
 - [[hermes-agent]] — Hermes 全貌与本文定位
 - [[memory]]、[[skill]] — 通用记忆三分法与程序性 SOP
 - [[fts5]]、[[bm25]] — 会话搜索底层索引与排序
-- [[knowledge-fusion]]、[[knowledge-extraction]] — 与 Hermes 内置融合/提取的边界对照
+- [[knowledge-fusion]]、[[knowledge-extraction]] — Wiki/RAG 流水线的通用融合与提取抽象
 - [[agentmemory]]、[[honcho]]、[[skill-loading-library]] — 跨宿主 MCP、外部 provider 与 Skill 发现机制
 
 ### 官方文档
