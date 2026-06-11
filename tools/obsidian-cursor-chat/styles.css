@@ -71,6 +71,33 @@
   color: var(--text-accent);
 }
 
+.acc-vault-link {
+  color: var(--text-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--interactive-accent-rgb, 100, 140, 255), 0.4);
+  text-underline-offset: 2px;
+}
+
+.acc-vault-link:hover {
+  color: var(--interactive-accent);
+  text-decoration-color: var(--interactive-accent);
+}
+
+.acc-msg-assistant .acc-md-rendered code.acc-vault-link {
+  color: var(--text-accent);
+  background: rgba(var(--interactive-accent-rgb, 100, 140, 255), 0.1);
+  cursor: pointer;
+}
+
+.acc-tool-line.acc-vault-link {
+  text-decoration: none;
+}
+
+.acc-tool-line.acc-vault-link:hover {
+  color: var(--interactive-accent);
+}
+
 .acc-file-qcount {
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;

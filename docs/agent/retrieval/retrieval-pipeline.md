@@ -1,7 +1,7 @@
 ---
 tags: [technique]
 aliases: [检索全链路, retrieval pipeline, 粗排精排, 混合检索, rerank]
-related: ["[[rag]]", "[[embedding]]", "[[cross-encoder]]", "[[query-transformation]]", "[[rrf]]", "[[bm25]]", "[[ann]]", "[[cosine-similarity]]", "[[context-engineering]]"]
+related: ["[[rag]]", "[[embedding]]", "[[cross-encoder]]", "[[query-transformation]]", "[[rrf]]", "[[bm25]]", "[[ann]]", "[[cosine-similarity]]", "[[context-engineering]]", "[[recall-at-k]]"]
 prerequisites: ["[[rag]]", "[[embedding]]"]
 stability: mid
 layer: application
@@ -318,7 +318,7 @@ API Gateway
 
 | 指标 | 公式 | 衡量什么 |
 | --- | --- | --- |
-| **Recall@K** | 相关文档命中数 / 全部相关文档数 | 粗排阶段：有没有把对的捞出来 |
+| **Recall@K** | 相关文档命中数 / 全部相关文档数 | 粗排阶段：有没有把对的捞出来（详见 [[recall-at-k]]） |
 | **Precision@K** | Top-K 中相关文档数 / K | 精排阶段：捞出来的对不对 |
 | **NDCG@K** | 考虑排名位置的 DCG 归一化 | 综合召回+排名质量 |
 | **MRR** | 第一个相关文档排名的倒数均值 | 第一名命中率 |
@@ -329,6 +329,7 @@ API Gateway
 
 ## 进一步阅读
 
+- [[recall-at-k]] — Recall@K / Recall@5 定义、手算示例、与 Precision/NDCG 分工
 - [[rag]] — RAG 整体框架概述与适用场景判断
 - [[rrf]] — 多路排名融合（RRF）专文：公式、k、加权与常见误区
 - [[query-transformation]] — Query 预处理的各种技术（HyDE、多查询、子查询）

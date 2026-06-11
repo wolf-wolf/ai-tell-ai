@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 趋势日报 — 2026-06-10</title>
+<style>
+:root {
+  --bg: #f8f9fa;
+  --paper: #f5f4f1;
+  --rule: #d4d2cb;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #d4d2cb;
+  --accent: #ff6b3d;
+  --link: #2563eb;
+  --dir-fg: #9a3412;
+  --dir-bg: #fff2e8;
+  --sel-fg: #1e40af;
+  --sel-bg: #eff6ff;
+  --tool-fg: #065f46;
+  --tool-bg: #ecfdf5;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "Inter", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 0.8125rem;
+  background: #e2e0db;
+  color: var(--text);
+  line-height: 1.58;
+  margin: 0;
+}
+.page-header {
+  padding: 0.7rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.8rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--rule);
+  background: #fafaf8;
+}
+.ph-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+.ph-date {
+  color: #374151;
+  font-size: 0.8rem;
+}
+.ph-meta {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  column-gap: 0;
+  row-gap: 0;
+  align-items: stretch;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
+  background: var(--paper);
+}
+.wrap > * {
+  grid-column: 1 / -1;
+}
+.section-github-growth { grid-column: 1 / 3; }
+.section-github-novel { grid-column: 3 / 5; }
+.section-papers { grid-column: 5 / 7; }
+.section-huggingface { grid-column: 1 / 3; }
+.section-bigtech-en { grid-column: 3 / 5; }
+.section-bigtech-zh { grid-column: 5 / 7; }
+.section-judgment { grid-column: 1 / 3; }
+.section-deep { grid-column: 3 / 7; }
+h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  padding: 0 0 0.32rem;
+  border-bottom: 1px solid var(--rule);
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
+.section-title {
+  flex: 0 1 auto;
+}
+.section-intro {
+  flex: 1 1 auto;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: #6b7280;
+  line-height: 1.4;
+}
+.section-intro::before {
+  content: "·";
+  margin-right: 0.35rem;
+  color: #9ca3af;
+}
+h3 {
+  font-size: 1.03rem;
+  margin: 0.8rem 0 0.45rem;
+  color: #374151;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
+  font-size: 0.74rem;
+  color: #4b5563;
+  margin: 0;
+  padding: 0.55rem 0.95rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.meta .meta-item {
+  padding: 0.08rem 0.32rem;
+  border-bottom: none;
+}
+hr {
+  display: none;
+}
+.section-block {
+  min-width: 0;
+  border-radius: 0;
+  padding: 0.65rem 0.95rem 0.75rem;
+  margin: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.section-papers,
+.section-bigtech-zh,
+.section-deep,
+.wrap > .section-block:not(.section-github-growth):not(.section-github-novel):not(.section-papers):not(.section-huggingface):not(.section-bigtech-en):not(.section-bigtech-zh):not(.section-judgment):not(.section-deep) {
+  border-right: none;
+}
+p { margin: 0.45rem 0; font-size: 0.78rem; }
+ul {
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+  font-size: 0.78rem;
+}
+li { margin: 0.22rem 0; }
+.section-judgment p,
+.section-judgment li {
+  font-size: 0.76rem;
+  line-height: 1.52;
+  margin: 0.28rem 0;
+}
+.judgment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.judgment-prose {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.62;
+  color: #1f2937;
+}
+.section-judgment ul {
+  margin: 0.25rem 0;
+}
+
+.signal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0.35rem 0 0;
+  border-top: none;
+}
+.signal-card {
+  padding: 0.5rem 0;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+}
+.signal-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.signal-head-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  margin-bottom: 0.2rem;
+}
+.signal-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+}
+.signal-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.signal-title a:hover {
+  color: var(--link);
+}
+.signal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  color: #4b5563;
+  line-height: 1.48;
+}
+.signal-chip {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px;
+  padding: 0.1rem 0.38rem;
+}
+.confidence-low-chip {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+.chip-label {
+  color: #6b7280;
+  font-weight: 600;
+  margin-right: 0.15em;
+}
+.confidence-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+}
+.confidence-high {
+  color: #065f46;
+  background: #ecfdf5;
+}
+.confidence-low {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+.signal-body {
+  font-size: 0.75rem;
+  margin: 0.15rem 0 0.22rem;
+}
+.signal-body .kv-row {
+  margin: 0.18rem 0;
+}
+.signal-plain {
+  margin: 0;
+  line-height: 1.65;
+  color: #1f2937;
+}
+.signal-lead {
+  margin: 0 0 0.2rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.45;
+}
+.signal-prose {
+  margin: 0.2rem 0 0;
+  line-height: 1.58;
+  color: #1f2937;
+}
+.signal-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  color: #1f2937;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+.signal-prose-list li {
+  margin: 0.14rem 0;
+}
+.insight-action {
+  margin: 0.35rem 0 0;
+  padding: 0.28rem 0 0.28rem 0.45rem;
+  border-left: 2px solid #93c5fd;
+  font-size: 0.75rem;
+  line-height: 1.52;
+  color: #1e3a5f;
+}
+.insight-list {
+  margin: 0.15rem 0 0.2rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.insight-list li {
+  margin: 0.12rem 0;
+  line-height: 1.5;
+}
+.kv-row {
+  margin: 0.18rem 0;
+  line-height: 1.52;
+  font-size: 0.75rem;
+  color: #1f2937;
+}
+.field-label {
+  font-weight: 700;
+  color: #111827;
+}
+.field-label::after {
+  content: "：";
+  font-weight: 700;
+}
+.field-head {
+  margin: 0.22rem 0 0.1rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.35;
+}
+.field-head::after {
+  content: "：";
+}
+
+.badge-dir,
+.badge-sel,
+.badge-tool {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.08rem 0.52rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.badge-dir { color: var(--dir-fg); background: var(--dir-bg); border-color: #fed7aa; }
+.badge-sel { color: var(--sel-fg); background: var(--sel-bg); border-color: #bfdbfe; }
+.badge-tool { color: var(--tool-fg); background: var(--tool-bg); border-color: #bbf7d0; }
+
+.wikilink {
+  color: #b45309;
+  border-bottom: 1px dashed #f59e0b;
+}
+
+.deep-article {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.52;
+}
+.deep-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.45rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.32rem;
+  border-bottom: 1px solid var(--rule);
+}
+.deep-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.4;
+  flex: 1 1 12rem;
+}
+.deep-title a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+}
+.deep-title a:hover {
+  color: var(--link);
+}
+.deep-aux {
+  font-size: 0.68rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.deep-aux-link {
+  color: var(--link);
+  text-decoration: none;
+  margin-left: 0.35rem;
+}
+.deep-aux-link:hover {
+  text-decoration: underline;
+}
+.deep-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+.deep-prose {
+  margin: 0;
+  color: #1f2937;
+  line-height: 1.62;
+  font-size: 0.78rem;
+}
+.deep-prose-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.05rem;
+  list-style: disc;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: #374151;
+}
+.deep-prose-list li {
+  margin: 0.14rem 0;
+}
+.deep-foot {
+  margin: 0.2rem 0 0;
+  padding-top: 0.28rem;
+  border-top: 1px dashed var(--rule);
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.footer {
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  background: #fafaf8;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 900px) {
+  .wrap {
+    display: block;
+  }
+  .section-block {
+    border-right: none;
+  }
+}
+@media (max-width: 760px) {
+  .page-header { padding: 0.72rem 0.6rem; }
+  .wrap { padding: 0 0 1.5rem; }
+  .meta { padding: 0.55rem 0.75rem; }
+  .section-block { padding: 0.55rem 0.7rem 0.65rem; }
+}
+</style>
+</head>
+<body>
+<header class="page-header"><span class="ph-title">AI 趋势日报</span><span class="ph-date">2026-06-10</span><span class="ph-meta">观测窗口 · 约 15–25 分钟 · 信号分级阅读</span></header>
+<div class="wrap">
+<div class="meta"><span class="meta-item"><strong>Star 说明</strong>：总 star 经 GitHub REST API 核对；日/周增量来自 Trending「Built by」字段。</span></div>
+<hr>
+<section class="section-block section-judgment"><h2 id="judgment"><span class="section-title">今日关键判断</span><span class="section-intro">今日主线</span></h2><div class="judgment-body"><p class="judgment-prose">今日最大变量是 <strong>Apple Siri AI 官方发布</strong>（2026-06-10）：OS 级 personal context + onscreen awareness + cross-app action 把 consumer agent 从「聊天框」推到系统 orchestrator，与 GitHub 上 last30days-skill / headroom / hermes-agent 的 developer harness 堆叠形成「终端内置 agent vs 可组合 skill 栈」双线并进。Apple 同日开源 <code>coreai-models</code> 进一步表明端侧 Foundation Models 正在工具化。</p><p class="judgment-prose">GitHub 增速叙事延续 6/9：<strong>last30days-skill 连续日榜 #1</strong>（日 +3,191），<strong>headroom 周增升至 +15,060</strong>，skill 包 + Context 压缩 + 持久 runtime 的三层 harness 共振未衰减。新颖侧 <strong>guard-skills</strong>（516★，4 日）提示 skill 生态进入「质量门禁」阶段，与 agent 供应链安全讨论同频。</p><p class="judgment-prose">政策与产业侧，<strong>工信部/国资委万台级具身落地专项行动</strong>（6/10 澎湃）与原力灵机×Atomix、千寻 Spirit v1.6 等中文信号，把 Physical AI 从 demo 推向量化商用目标；HF 上 Cosmos 3 仍在 Trending。论文侧 Perplexity 生产实证（-87% 任务时间）与 Apple 长会话 Siri 形成产品—研究互证。</p><p class="judgment-prose">对 Agent 栈的实操含义：终端 OS agent（Siri AI）会抬高用户对「跨 app 自主执行」的预期，developer harness 需为 <strong>20+ 分钟 loop</strong> 设计 checkpoint；同时 skill 分发（last30days-skill）与 Context 入口（headroom）仍是短期 ROI 最高的可插拔层；具身/Physical AI 若相关，应跟踪 6/15 原力灵机分拣系统发布与政策场景清单。</p></div></section><section class="section-block section-deep"><h2 id="deep-dive"><span class="section-title">深读 1 条</span><span class="section-intro">一条深读</span></h2>
+<article class="deep-article"><header class="deep-head"><h3 class="deep-title"><a href="https://github.com/apple/coreai-models" target="_blank" rel="noopener">Apple Siri AI（Apple Newsroom 2026-06-10）</a><span class="deep-aux"><a class="deep-aux-link" href="https://www.apple.com/newsroom/2026/06/apple-introduces-siri-ai-a-profoundly-more-capable-and-personal-assistant/" target="_blank" rel="noopener">www.apple.com/newsroom</a><a class="deep-aux-link" href="https://www.apple.com/newsroom/2026/06/due-to-dma-siri-ai-delayed-in-eu-for-ios-27-and-ipados-27/" target="_blank" rel="noopener">www.apple.com/newsroom</a></span></h3></header><div class="deep-body"><p class="deep-prose">Apple 将 Siri 从语音助手升级为 &lt;strong&gt;Siri AI&lt;/strong&gt;：基于 next-gen Apple Foundation Models，在 device + Private Cloud Compute 上运行，强调 personal context（跨 Messages/Photos/Mail 等找信息）、onscreen awareness（回答屏幕内容相关问题）、broad world knowledge（联网问答）。交互入口扩展：Dynamic Island 下滑、Spotlight 集成、系统级 context menu、Vision Pro 3D 可视化；并发布 &lt;strong&gt;专用 Siri app&lt;/strong&gt;，通过 iCloud 私有同步跨设备对话历史。</p><p class="deep-prose">工程含义：Siri AI 使用 system orchestrator 调用 Spotlight index 与 App Toolbox（on-device），第三方 app 可通过 Spotlight 集成获得 personal context；Writing Tools 与 Visual Intelligence 扩至 iPad/Mac/Vision Pro，意味着 &lt;strong&gt;multimodal + cross-app action&lt;/strong&gt; 成为 OS 一等公民。局限：EU 因 DMA 暂不在 iOS/iPadOS/watchOS 提供；中国因监管要求暂不可用；公测仅 English 起步。</p><p class="deep-prose">对 Agent 栈：若你的产品是第三方 coding/research agent，Siri AI 不会直接替代 developer harness，但会改变用户对「agent 应能跨 app 办事」的 baseline；可对照其 checkpoint/隐私架构（Private Cloud Compute 不存 personal data）设计长会话 human-in-the-loop。与 Perplexity Computer 26 分钟 median 自主执行、GitHub skill 栈形成 consumer vs pro 双轨。</p><p class="deep-prose">Apple 将 Siri 从语音助手升级为 Siri AI：基于 next-gen Apple Foundation Models，在 device + Private Cloud Compute 上运行，强调 personal context（跨 Messages/Photos/Mail 等找信息）、onscreen awareness（回答屏幕内容相关问题）、broad world knowledge（联网问答）。交互入口扩展：Dynamic Island 下滑、Spotlight 集成、系统级 context menu、Vision Pro 3D 可视化；并发布 专用 Siri app，通过 iCloud 私有同步跨设备对话历史。</p><p class="deep-foot">待建 &lt;code&gt;os-native-agent-runtime&lt;/code&gt;（可选）</p></div></article>
+</section><section class="section-block section-github-growth"><h2 id="github-growth"><span class="section-title">GitHub 动态增长</span><span class="section-intro">看增速，非总 Star</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/mvanhorn/last30days-skill" target="_blank" rel="noopener">mvanhorn/last30days-skill</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> GitHub Trending Daily #1；+3,191 stars today；+9,307 stars this week；API 总 star 37,410<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">研究skill连续夺日榜</p><p class="signal-prose">last30days-skill 仍是 Claude Code / Agent Skills 兼容的研究 skill：跨 Reddit、X、YouTube、HN、Polymarket 等做 30 天窗口检索并 synthesize。2026-06-10 日榜 #1、日增 +3,191、周增 +9,307，较 6/9 总 star 34,613 再涨约 +2.8k，说明 skill 包叙事仍在加速而非一日游。</p><ul class="signal-prose-list"><li>最近 push 2026-06-10</li><li>与 Agent-Reach（读网）、headroom（Context 压缩）形成 harness 三层分工</li></ul><p class="insight-action">把一条重复性调研任务拆成 last30days-skill 与裸 web_search 对照，记录 synthesize 质量与总 token</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/chopratejas/headroom" target="_blank" rel="noopener">chopratejas/headroom</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> GitHub Trending Weekly +15,060 stars this week；API 总 star 20,608<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Context压缩周增破1.5万</p><p class="signal-prose">headroom 在 tool output、日志、文件与 RAG chunk 进入 LLM 前做压缩，README 宣称 60–95% token 节省，交付 library、proxy 与 MCP server 三形态。周榜 +15,060 较 6/9 的 +14,266 继续抬升，总 star 从 18,940 升至 20,608（约 +8.8%）。</p><ul class="signal-prose-list"><li>最近 push 2026-06-10</li><li>Context 入口带宽管理仍是本周 Agent 垂直最高增速主轴之一</li></ul><p class="insight-action">在 RAG 链路上游接 headroom MCP，对照 bare chunk 的召回率与 tool call 解析错误率</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Panniantong/Agent-Reach" target="_blank" rel="noopener">Panniantong/Agent-Reach</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Weekly Trending +4,361 stars this week；API 总 star 25,588<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">读网skill周增4361</p><p class="signal-prose">Agent-Reach 通过 bird CLI、yt-dlp、gh CLI、Jina Reader、Exa/MCP 等上游工具组合，让 agent 读 Twitter/X、Reddit、YouTube、GitHub、Bilibili、小红书等，以 SKILL.md 暴露给 Claude Code / Cursor 等 host。周增 +4,361、总 star 25,588，架构 bet 仍是薄协调层而非自研 scraper。</p><ul class="signal-prose-list"><li>与 last30days-skill 功能带重叠，竞争在「薄协调层 + SKILL.md」形态</li><li>最近 push 仍停留在 2026-05-18，增速来自社区安装而非代码 churn</li></ul><p class="insight-action">在现有 Claude Code 项目试装 Agent-Reach skill，记录跨平台读取成功率与上游 CLI 依赖维护成本</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener">NousResearch/hermes-agent</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Weekly Trending +11,915 stars this week；API 总 star 188,856；最近 push 2026-06-10<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">持久runtime周增近1.2万</p><p class="signal-prose">hermes-agent 定位「随使用成长的 agent」：跨 session 记忆、skill 自动生成、多终端 gateway 与 Skills Hub。尽管总 star 已近 19 万，GitHub Trending 本周 +11,915 仍属可核实增速；最近 push 2026-06-10 表明 runtime 仍在活跃迭代。</p><ul class="signal-prose-list"><li>纳入依据是 Trending 周增速字段，非总量排名</li><li>与 ECC（周 +9,025）、impeccable 等同属 harness 分层爆发</li></ul><p class="insight-action">选一条重复性 chore 跑 1 周 hermes-agent，记录 skill 文档数量与同类任务 token/步数是否下降</p></div></article></div>
+<p><strong>数据源</strong>：GitHub Trending（today/weekly）；Star 经 API 核对。</p>
+</section><section class="section-block section-github-novel"><h2 id="github-novel"><span class="section-title">GitHub 新颖探索</span><span class="section-intro">&lt; 5k ★ 或新发布，含社区讨论</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/amElnagdy/guard-skills" target="_blank" rel="noopener">amElnagdy/guard-skills</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 516（2026-06-10）；创建于 2026-06-06<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">agent输出质量门禁skill</p><p class="signal-prose">guard-skills 为 coding agent 提供 Guard skills：quality gates 专门捕获 AI 生成代码、测试与文档中的典型失败模式。创建于 2026-06-06，近 4 日获 516 star，指向 skill 生态从「扩能力」转向「加护栏」的第二波需求。</p><ul class="signal-prose-list"><li>与 OpenClaw ClawHub 供应链风险、re_gent 行为审计叙事同频</li><li>尚无 HN 讨论链，社区验证仍在早期</li></ul><p class="insight-action">在一条会生成测试+文档的 Claude Code 任务上挂载 guard-skills，统计 gate 拦截率与误杀率</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/apple/coreai-models" target="_blank" rel="noopener">apple/coreai-models</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 352（2026-06-10）；创建于 2026-06-08<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Apple端侧模型导出栈</p><p class="signal-prose">Apple 同日发布 Siri AI 之际开源 coreai-models：提供 model export recipes、Python primitives 与 Swift runtime utilities，面向 on-device AI。创建于 2026-06-08，352 star，是 Apple Intelligence 开发者栈从闭源 demo 走向可复现工具链的信号。</p><ul class="signal-prose-list"><li>与 Siri AI 的 on-device Foundation Models + Private Cloud Compute 架构配套</li><li>竞争点不在 cloud API，而在 iOS/macOS 生态内的 agent 宿主能力</li></ul><p class="insight-action">若有 Apple Developer 账号，读 export recipe 文档评估自有小模型能否走 Core ML 部署路径</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Parcle-AI/parcle-memory" target="_blank" rel="noopener">Parcle-AI/parcle-memory</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 359（2026-06-10）；创建于 2026-06-06</span></div></header><div class="signal-body"><p class="signal-lead">agent记忆层新仓</p><p class="signal-prose">parcle-memory 是 Parcle-AI 近 7 日新建的 agent memory 项目，359 star。README 细节仍少，但命名与增速表明社区在 headroom（压缩）之外仍持续探索 memory 子栈——与 supermemory（周 +1,982）、Mem0 等形成竞争带。</p><ul class="signal-prose-list"><li>置信度「中」因 README 与 benchmark 尚不完整</li><li>待观察是否与 MCP / skill 形态集成</li></ul><p class="insight-action">Star 跟踪 README 更新，待 API 文档齐全后再做 PoC</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://github.com/Andyyyy64/whichllm" target="_blank" rel="noopener">Andyyyy64/whichllm</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> ★ 4,108（2026-06-10）；Daily Trending +633<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">本地LLM按真benchmark选型</p><p class="signal-prose">whichllm 用 recency-aware benchmark 而非参数量，帮开发者在本地硬件上找到「真能跑且表现最好」的 LLM，一条命令出排名。日增 +633 进入 Trending，反映本地 agent loop 选型痛点——Qwen3.6、Gemma 4、Holo3.1 等同台竞技时缺统一对照工具。</p><ul class="signal-prose-list"><li>与 Nex-N2、Qwen3.6-35B-A3B 等 Agentic Coding 权重发布形成互补</li><li>非 agent harness，属 Model 层选型辅助</li></ul><p class="insight-action">在本机跑 whichllm 默认 benchmark，对照当前 agent 栈所用模型的排名与体感延迟</p></div></article></div>
+</section><section class="section-block section-papers"><h2 id="papers"><span class="section-title">论文速览</span><span class="section-intro">arxiv 近 1–3 日</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.07489" target="_blank" rel="noopener">How AI Agents Reshape Knowledge Work: Autonomy, Efficiency, and Scope</a></strong></div></header><div class="signal-body"><p class="signal-lead">Perplexity生产级agent实证</p><p class="signal-prose">Perplexity / HBS 合作论文基于真实生产流量：Computer agent median 自主执行 26 分钟 vs Search 33 秒；matched pairing 下任务完成时间 269→36 分钟（-87%），per-query 不满率 -55%。agent 扩展任务边界——跨职业查询 +9pp、更高阶认知与 composite tasks 增多。</p><ul class="signal-prose-list"><li>arXiv 提交 2026-06-05；6/10 仍为 fresh</li><li>与 Apple Siri AI 长会话 OS agent 叙事相互印证</li></ul><p class="insight-action">若 harness 仍按短会话设计 tool budget，用该文 median 26min 重新校准 checkpoint 与 human-in-the-loop 节奏</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.05296" target="_blank" rel="noopener">Agentic Monte Carlo: Test-Time RL for Black-Box LLM Agents</a></strong></div></header><div class="signal-body"><p class="signal-lead">SMC黑盒agent test-time RL</p><p class="signal-prose">Layer 6 Labs 将 KL-regularized RL 视为 Bayesian inference，用 Sequential Monte Carlo 从黑盒 LLM prior 采样最优轨迹。AgentGym WebShop：AMC score 0.625 vs ReAct 0.159（Llama-3.2-11B value model）；scale test-time compute 后可超过 GRPO。ICML 2026 accepted。</p><ul class="signal-prose-list"><li>cs.LG + cs.AI；arXiv 2026-06-03</li><li>面向无法微调权重的黑盒 agent 栈</li></ul><p class="insight-action">在 WebShop 子集复现 AMC vs ReAct baseline，确认 value model 选择对 score 的敏感度</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.07513" target="_blank" rel="noopener">Agentopia: Long-Term Life Simulation and Learning in Agent Societies</a></strong></div></header><div class="signal-body"><p class="signal-lead">10模拟年agent社会训练</p><p class="signal-prose">Fudan / JHU 等提出 Agentopia：100 agents 在 10 模拟年中自主社交生活，周循环 Plan → Contact → Activity → Review；用 rejection sampling 训练底层 LLM。CoSER Test 上 life reward training +15.6%。</p><ul class="signal-prose-list"><li>cs.CL；arXiv 2026-06-05</li><li>产出训练数据而非在线 RAG 检索</li></ul><p class="insight-action">读 build_rft_data.py 轨迹筛选逻辑，评估是否可迁移到自有 multi-agent 仿真 pipeline</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://arxiv.org/abs/2606.06447" target="_blank" rel="noopener">Latent Reasoning with Normalizing Flows (NF-CoT)</a></strong></div></header><div class="signal-body"><p class="signal-lead">Meta参与连续thought推理</p><p class="signal-prose">UPenn、UC San Diego、Meta 等提出 NF-CoT：用 TARFlow-style normalizing flow 在 LLM backbone 内建模连续 thought，保留 KV-cache 与 tractable likelihood。MBPP/HumanEval/LiveCodeBench v6 上 pass rate 优于 explicit-CoT，且降低中间推理 token 成本。</p><ul class="signal-prose-list"><li>cs.CL + cs.LG；arXiv 2026-06-04</li><li>项目页 <a href="https://nf-cot.vercel.app" target="_blank" rel="noopener">https://nf-cot.vercel.app</a></li></ul><p class="insight-action">对照 NF-CoT 与 explicit-CoT 在同一 coding benchmark 上的 token/正确率 Pareto 曲线</p></div></article></div>
+</section><section class="section-block section-huggingface"><h2 id="huggingface"><span class="section-title">HuggingFace 动态</span></h2>
+<div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/Qwen/Qwen3.6-35B-A3B" target="_blank" rel="noopener">Qwen/Qwen3.6-35B-A3B</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Trending 榜前列；~5.81M downloads；2,048 likes；Apache 2.0<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Agentic Coding MoE仍领跑</p><p class="signal-prose">Qwen3.6-35B-A3B 仍是 HF Trending 榜 Agentic Coding 权重代表：35B total / ~3B active MoE，SWE-bench Verified 73.4%、Terminal-Bench 2.0 51.5%。下载量维持 ~5.81M，与 gemma-4-31b-it 竞争本地 agent loop 槽位。</p><ul class="signal-prose-list"><li>Apache 2.0 可商用</li><li>与 GitHub whichllm 本地选型工具形成「权重发布 + 硬件匹配」组合</li></ul><p class="insight-action">在同一 harness 下对照 Qwen3.6-35B-A3B 与 gemma-4-31b-it 的 function call JSON 合规率</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/blog/nvidia/cosmos-3-for-physical-ai" target="_blank" rel="noopener">NVIDIA Cosmos 3</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Blog 2026-06-01；Cosmos3-Nano 16B / Super 64B；Trending 持续<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Physical AI omni权重</p><p class="signal-prose">Cosmos 3 用单一 MoT 架构统一世界生成、物理推理与动作生成。Nano（16B）与 Super（64B）两档仍在 Trending，面向机器人仿真、自动驾驶与 warehouse safety。与工信部万台级具身落地政策、原力灵机 Picking 叙事形成「模型—场景—政策」三线共振。</p><ul class="signal-prose-list"><li>集成 Diffusers Cosmos3OmniPipeline</li><li>与 Holo3.1 GUI agent 分属 Physical AI vs digital GUI 两条线</li></ul><p class="insight-action">若做机器人/AV 合成数据，先读 Cosmos3-Nano model card 算力门槛再决定是否接 Diffusers pipeline</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/google/gemma-4-31b-it" target="_blank" rel="noopener">google/gemma-4-31b-it</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Trending；Image-Text-to-Text 31B；Updated ~1 day ago；~124k downloads<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Gemma4多模态占Trending</p><p class="signal-prose">Gemma 4 31B instruct 变体在 HF Trending 维持高位，Updated ~1 day ago，124k downloads。Google I/O 2026 承诺的 Gemma 4 高效 open 模型族正在占据本地/edge agent 的多模态槽位，与 Qwen3.6 纯文本 Agentic Coding 形成差异化。</p><ul class="signal-prose-list"><li>与 Apple Siri AI Visual Intelligence 扩面同周出现</li><li>许可与商用条款需读 model card</li></ul><p class="insight-action">若有 vision+tool 混合 agent，对照 gemma-4-31b-it 与 Qwen3.6-35B-A3B 在同 harness 下的 GUI 任务成功率</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://huggingface.co/blog/Hcompany/holo31" target="_blank" rel="noopener">HCompany Holo3.1</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> Blog 2026-06-02；0.8B–35B-A3B 四尺寸；FP8/Q4/NVFP4 量化<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">GUI agent量化checkpoint</p><p class="signal-prose">Holo3.1 面向 browser / desktop / mobile GUI 自动化，AndroidWorld 上 35B-A3B 从 67% → 79.3%。首次发布 FP8、Q4 GGUF、NVFP4 量化 checkpoint，NVFP4 在 DGX Spark 上 token 吞吐为 FP8 的 1.41×。</p><ul class="signal-prose-list"><li>新增 function-calling 协议</li><li>可替换通用 VLM + 脚本化控制路线</li></ul><p class="insight-action">在 OSWorld 子集试 Holo3.1-4B Q4 GGUF 本地部署，对照云 API 的每步 GUI 动作延迟</p></div></article></div>
+</section><section class="section-block section-bigtech-en"><h2 id="bigtech-en"><span class="section-title">英文大厂</span><span class="section-intro">海外大厂产品与模型发布</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.apple.com/newsroom/2026/06/apple-introduces-siri-ai-a-profoundly-more-capable-and-personal-assistant/" target="_blank" rel="noopener">Apple</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 官方发布日期 2026-06-10；iOS 27 / iPadOS 27 / macOS 27 / visionOS 27 开发者测试即日起；公测 later this year<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">Apple发布全新Siri AI</p><p class="signal-prose">Apple 发布 Siri AI：personal context understanding、onscreen awareness、broad world knowledge、专用 Siri app（iCloud 同步对话历史）、Visual Intelligence 扩至 iPad/Mac/Vision Pro。架构基于 next-gen Apple Foundation Models + Private Cloud Compute；EU 因 DMA 暂不在 iOS/iPadOS/watchOS 提供 Siri AI。</p><ul class="signal-prose-list"><li>今日最大官方发布，非 incremental patch</li><li>把 OS 级 agent 能力（跨 app action、Writing Tools、Spotlight 集成）推到 consumer 规模</li></ul><p class="insight-action">若有 Supported Device，在 Developer Beta 测 onscreen awareness + cross-app action 的 failure recovery 设计</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.edtechinnovationhub.com/news/openai-calls-for-youth-ai-safety-institute-ahead-of-g7-summit" target="_blank" rel="noopener">OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-10；G7 Leaders&#x27; Summit Évian 前呼吁<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">OpenAI倡国际青少年AI安全所</p><p class="signal-prose">OpenAI 呼吁建立 international youth AI safety institute，聚焦儿童与青少年如何安全、适龄地使用 AI 学习、创造与技能发展。提议可在 G7 峰会后延续为常设机制，共享证据、开发 guidance、推动跨国 youth safety 标准；将参加 Évian 峰会与 Paris OpenAI Forum。</p><ul class="signal-prose-list"><li>政策/治理信号，非模型发布</li><li>与 Anthropic recursive self-improvement 警告形成「能力 vs 受众安全」双轨叙事</li></ul><p class="insight-action">若产品面向 &lt;18 用户，提前对照 institute 可能提出的 age-gating 框架做 gap 分析</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://fortune.com/2026/06/09/openai-files-confidential-s-1-sec-ipo/" target="_blank" rel="noopener">OpenAI</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 2026-06-08/09；向美国 SEC 秘密提交 S-1 草案<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">OpenAI S-1余波持续</p><p class="signal-prose">OpenAI 于 6/8–9 宣布已向 SEC 秘密提交 S-1，与 Anthropic（6/1 递交）形成双巨头 IPO 并行线。公司称尚未决定 timing，部分战略在私有状态更易完成。今日无新 SEC 公开稿，但资本市场预期仍影响 enterprise API 采购节奏。</p><ul class="signal-prose-list"><li>延续 6/9 主信号</li><li>与 youth safety institute 呼吁同日出现，显示 governance 叙事加速</li></ul><p class="insight-action">企业采购侧跟踪 SEC 公开稿披露节奏，避免仅凭媒体估值预测调整年度 API 预算</p></div></article></div></section><section class="section-block section-bigtech-zh"><h2 id="bigtech-zh"><span class="section-title">中文生态</span><span class="section-intro">国内媒体报道与生态价格</span></h2><div class="signal-list"><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.163.com/dy/article/KV1UE8460514R9P4.html" target="_blank" rel="noopener">工信部 / 国务院国资委</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 澎湃新闻 2026-06-10 07:04；2026 年度人形机器人与具身智能实景实训专项行动启动<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">具身智能万台级落地目标</p><p class="signal-prose">工信部与国务院国资委联合启动 2026 年度专项行动：到 2026 年底，人形机器人等重点产品在一批代表性场景中完成应用验证和常态部署，开启「作业模式」，带动形成万台级规模落地能力。媒体称 2026 年为「商业验证元年」。</p><ul class="signal-prose-list"><li>政策量化指标，非单家公司发布</li><li>与 HF Cosmos 3、原力灵机 Picking 数据飞轮、千寻 Spirit v1.6 榜单突破同频</li></ul><p class="insight-action">若做具身/物流 agent，对照专项行动代表性场景清单评估产品 fit</p></div></article><article class="signal-card"><header class="signal-head"><div class="signal-head-top"><strong class="signal-title"><a href="https://www.qbitai.com/2026/06/432417.html" target="_blank" rel="noopener">原力灵机 / Atomix</a></strong></div><div class="signal-meta"><span class="signal-chip"><span class="chip-label">信号</span> 量子位；并购 Atomix + 智谱/阶跃/商汤/阿里等投资（6 月初）<span class="confidence-badge confidence-high">高</span></span></div></header><div class="signal-body"><p class="signal-lead">具身模型×场景超级合并</p><p class="signal-prose">原力灵机通过股权并购合并物流机器人 Atomix，智谱、阶跃星辰、商汤、阿里等联合押注。路线主张 Picking 是具身的 Coding——Atomix 在 20+ 国 500+ 项目的真实 picking 数据成为模型训练燃料；计划 6/15 发布全球首个仓储物流三级分拣系统。</p><ul class="signal-prose-list"><li>略早于严格 3 日窗口，仍属本周中文生态主信号</li><li>与万台级政策目标形成「民间合并 + 国家队量化」共振</li></ul><p class="insight-action">关注 6/15 三级分拣系统发布是否公开 DM0 模型接口与数据闭环指标</p></div></article></div></section><section class="section-block"><h2 id="八-跟进"><span class="section-title">跟进</span></h2>
+<ul>
+<li>[ ] 观察 last30days-skill 是否在 6/11 维持日榜 #1，验证 skill 叙事持续性</li>
+<li>[ ] 观察 headroom 总 star 是否突破 2.2 万及 MCP 接入案例</li>
+<li>[ ] Apple Developer Beta 上实测 Siri AI cross-app action 失败恢复行为</li>
+<li>[ ] 6/15 原力灵机仓储物流三级分拣系统发布</li>
+<li>[ ] 升格 — <span class="wikilink" title="agent-skill-as-package">agent-skill-as-package</span>（skill 分发 + guard-skills 护栏）</li>
+<li>[ ] 升格 — <span class="wikilink" title="os-native-agent-runtime">os-native-agent-runtime</span>（Siri AI / coreai-models）</li>
+</ul>
+</section><section class="section-block"><h2 id="九-与昨日衔接"><span class="section-title">与昨日衔接</span></h2>
+<ul>
+<li>昨日：<span class="wikilink" title="2026-06-09">2026-06-09</span></li>
+<li>延续：last30days-skill 日榜 #1 连续；headroom 周增从 +14,266 → +15,060；OpenAI S-1 余波</li>
+<li>新增：Apple Siri AI + coreai-models；工信部万台级具身政策；guard-skills 质量门禁</li>
+</ul>
+</section><section class="section-block"><h2 id="十-疑问-待查"><span class="section-title">疑问 / 待查</span></h2>
+<ul>
+<li>Apple Siri AI 公测具体月份与更多语言时间表？</li>
+<li>parcle-memory README 细节不足，核心 API 待补全</li>
+<li>阿里 Token Foundry 是否有官方通稿可交叉核实？（延续 6/9）</li>
+</ul></section>
+<p class="footer">由 trends/index.md 自动生成 · 2026-06-10</p>
+</div>
+</body>
+</html>

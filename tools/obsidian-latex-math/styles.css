@@ -1,0 +1,37 @@
+.aml-math-block {
+  display: block;
+  margin: 1em 0;
+  padding: 0.75em 1em;
+  overflow-x: auto;
+  text-align: center;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.aml-math-block mjx-container {
+  margin: 0 auto !important;
+}
+
+.aml-math-inline {
+  display: inline;
+}
+
+.aml-math-inline mjx-container {
+  display: inline !important;
+  margin: 0 0.1em !important;
+}
+
+.aml-math-error {
+  color: var(--text-error, #e74c3c);
+  font-size: 0.9em;
+  padding: 0.5em;
+  background: var(--background-modifier-error);
+  border-radius: var(--radius-s, 4px);
+}
+
+.aml-math-error code {
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

@@ -1,6 +1,6 @@
 # AI Table Snippet
 
-让 Obsidian 表格字号比正文**小一号**（默认 `0.875em`），阅读模式与 Live Preview 均生效。
+让 Obsidian 表格**铺满内容区宽度**（默认 `100%`，与页宽 / 可读行宽一致），字号比正文**小一号**（默认 `0.875em`），阅读模式与 Live Preview 均生效。
 
 ## 安装
 
@@ -23,6 +23,7 @@ VAULT=/path/to/your/vault bash tools/obsidian-table-snippet/install.sh
 | 变量 | 默认 | 作用 |
 | --- | --- | --- |
 | `--ai-table-size` | `0.875em` | 相对正文的表格字号 |
+| `--ai-table-width` | `100%` | 表格及外层容器宽度 |
 
 ## 更新
 

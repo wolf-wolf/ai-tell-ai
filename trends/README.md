@@ -3,7 +3,7 @@ tags: [trends, index]
 aliases:
   - AI 趋势洞察
   - trends
-updated: 2026-06-09
+updated: 2026-06-11
 ---
 
 # AI 趋势日报（trends/）
@@ -128,6 +128,8 @@ chmod +x scripts/generate-trends.sh scripts/install-trends-schedule.sh
 
 | 日期 | 文件 | 跟进 |
 |------|------|------|
+| 2026-06-11 | [[2026-06-11]] | agent-skills 日榜 #1；Fable 5/Mythos 5 深读；skill 垂直分化 |
+| 2026-06-10 | [[2026-06-10]] | Apple Siri AI；headroom 周 +15060；工信部万台级具身；guard-skills 深读 Siri AI |
 | 2026-06-09 | [[2026-06-09]] | last30days-skill 日榜 #1；headroom 周 +14266；OpenAI S-1；Perplexity agent 生产实证深读 |
 | 2026-06-05 | [[2026-06-05]] | headroom +3142；hermes-agent +1913；6/15 Claude 双桶计费；Self-Reflective APIs 深读 |
 | 2026-06-04 | [[2026-06-04]] | headroom 日增 3530；AgentClaw/SwarmClaw；SaliMory 深读；Anthropic S-1 |

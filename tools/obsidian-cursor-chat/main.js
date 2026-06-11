@@ -324,6 +324,138 @@ function basenameFromPath(p) {
   return i >= 0 ? s.slice(i + 1) : s;
 }
 
+const VAULT_FILE_EXT_RE =
+  /\.(md|markdown|css|js|json|ts|tsx|jsx|sh|html|htm|txt|yaml|yml|toml|py|go|rs|vue|svelte|canvas|svg|png|jpe?g|gif|webp|pdf)$/i;
+
+const INLINE_VAULT_PATH_RE =
+  /\b([a-zA-Z0-9_][a-zA-Z0-9_./-]*\.(?:md|markdown|css|js|json|ts|tsx|jsx|sh|html|htm|txt|yaml|yml|toml|py|go|rs|vue|svelte|canvas|svg|png|jpe?g|gif|webp|pdf))\b/gi;
+
+function normalizeVaultPath(raw, vaultRoot) {
+  let p = String(raw || "").trim().replace(/\\/g, "/");
+  if (!p) return "";
+  if (p.startsWith("./")) p = p.slice(2);
+  if (p.startsWith("file://")) {
+    try {
+      p = decodeURIComponent(new URL(p).pathname);
+    } catch (_) {}
+  }
+  if (vaultRoot) {
+    const base = String(vaultRoot).replace(/\\/g, "/").replace(/\/$/, "");
+    if (p.startsWith(base + "/")) p = p.slice(base.length + 1);
+    else if (p === base) p = "";
+  }
+  return p.replace(/^\/+/, "");
+}
+
+function looksLikeFilePath(text) {
+  const t = String(text || "").trim();
+  if (!t || /\s/.test(t)) return false;
+  if (/^(https?:|mailto:|obsidian:|data:)/i.test(t)) return false;
+  return VAULT_FILE_EXT_RE.test(t);
+}
+
+function resolveVaultFile(app, rawPath) {
+  const vaultRoot = getVaultOsPath(app);
+  const p = normalizeVaultPath(rawPath, vaultRoot);
+  if (!p) return null;
+  const file = app.vault.getAbstractFileByPath(p);
+  return file instanceof TFile ? file : null;
+}
+
+function openVaultFile(app, rawPath) {
+  const file = resolveVaultFile(app, rawPath);
+  if (!file) {
+    new Notice(`库内找不到文件：${normalizeVaultPath(rawPath, getVaultOsPath(app))}`, 4000);
+    return false;
+  }
+  void app.workspace.getLeaf(false).openFile(file);
+  return true;
+}
+
+function linkifyVaultPathsInElement(app, root) {
+  if (!root?.isConnected) return;
+
+  root.querySelectorAll("a[href]").forEach((a) => {
+    const href = a.getAttribute("href");
+    if (!href || /^(https?:|mailto:|obsidian:|data:|#)/i.test(href)) return;
+    let path = href;
+    try {
+      path = decodeURIComponent(href.split("#")[0]);
+    } catch (_) {}
+    if (!looksLikeFilePath(path) && !path.includes("/")) return;
+    const file = resolveVaultFile(app, path);
+    if (!file) return;
+    a.classList.add("acc-vault-link");
+    a.dataset.vaultPath = file.path;
+    a.removeAttribute("target");
+    a.removeAttribute("rel");
+  });
+
+  root.querySelectorAll("code").forEach((code) => {
+    if (code.closest("pre")) return;
+    const t = (code.textContent || "").trim();
+    if (!looksLikeFilePath(t)) return;
+    const file = resolveVaultFile(app, t);
+    if (!file) return;
+    code.classList.add("acc-vault-link");
+    code.dataset.vaultPath = file.path;
+    code.setAttribute("title", `在 Obsidian 中打开 ${file.path}`);
+  });
+
+  const skipSelector = "pre, a, .acc-vault-link";
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.parentElement?.closest(skipSelector)) continue;
+    const text = node.textContent || "";
+    INLINE_VAULT_PATH_RE.lastIndex = 0;
+    if (INLINE_VAULT_PATH_RE.test(text)) textNodes.push(node);
+    INLINE_VAULT_PATH_RE.lastIndex = 0;
+  }
+
+  for (const textNode of textNodes) {
+    const text = textNode.textContent || "";
+    INLINE_VAULT_PATH_RE.lastIndex = 0;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let linked = false;
+
+    while ((match = INLINE_VAULT_PATH_RE.exec(text))) {
+      const path = match[1];
+      const file = resolveVaultFile(app, path);
+      if (!file) continue;
+      if (match.index > lastIndex) {
+        parts.push({ type: "text", value: text.slice(lastIndex, match.index) });
+      }
+      parts.push({ type: "link", path: file.path, label: path });
+      lastIndex = match.index + match[0].length;
+      linked = true;
+    }
+
+    if (!linked) continue;
+    if (lastIndex < text.length) {
+      parts.push({ type: "text", value: text.slice(lastIndex) });
+    }
+
+    const frag = document.createDocumentFragment();
+    for (const part of parts) {
+      if (part.type === "text") {
+        frag.appendChild(document.createTextNode(part.value));
+        continue;
+      }
+      const span = document.createElement("span");
+      span.className = "acc-vault-link";
+      span.dataset.vaultPath = part.path;
+      span.textContent = part.label;
+      span.setAttribute("title", `在 Obsidian 中打开 ${part.path}`);
+      frag.appendChild(span);
+    }
+    textNode.parentNode?.replaceChild(frag, textNode);
+  }
+}
+
 function contextBlockInlineMeta(block) {
   const label = (block.label || "").trim();
   const chars = (block.text || "").length;
@@ -795,6 +927,7 @@ function renderMarkdownInto(app, markdown, el, sourcePath, component) {
   }
   return Promise.resolve(p).then(() => {
     scheduleConstrainWideMarkdownMedia(el);
+    linkifyVaultPathsInElement(app, el);
     return el;
   });
 }
@@ -992,6 +1125,18 @@ class CursorChatView extends ItemView {
     this.renderFileContextBar();
     this.setStatus(this.connectLabel || "就绪");
     this.plugin.setChatView(this);
+    this.registerDomEvent(
+      root,
+      "click",
+      (e) => {
+        const link = e.target.closest(".acc-vault-link[data-vault-path]");
+        if (!link) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openVaultFile(this.app, link.dataset.vaultPath);
+      },
+      { capture: true }
+    );
     void this.plugin.prewarmAcp(this);
   }
 
@@ -1015,8 +1160,12 @@ class CursorChatView extends ItemView {
     const count = qa?.questionCount || 0;
 
     const main = this.fileContextEl.createDiv({ cls: "acc-file-context-main" });
-    const name = main.createSpan({ cls: "acc-file-name", text: noteBasename(notePath) });
-    name.setAttribute("title", notePath);
+    const name = main.createSpan({
+      cls: "acc-file-name acc-vault-link",
+      text: noteBasename(notePath),
+    });
+    name.dataset.vaultPath = notePath;
+    name.setAttribute("title", `在 Obsidian 中打开 ${notePath}`);
     main.createSpan({
       cls: "acc-file-qcount",
       text: `${count} 问`,
@@ -1145,11 +1294,20 @@ class CursorChatView extends ItemView {
 
     const text = row.createDiv({ cls: "acc-tool-text" });
     const line = formatToolLine(msg);
-    text.createDiv({
+    const lineEl = text.createDiv({
       cls: "acc-tool-line",
       text: line,
       attr: { title: line },
     });
+    const pathCandidate = (msg.detail || msg.title || "").trim();
+    if (looksLikeFilePath(pathCandidate) && resolveVaultFile(this.app, pathCandidate)) {
+      lineEl.addClass("acc-vault-link");
+      lineEl.dataset.vaultPath = normalizeVaultPath(
+        pathCandidate,
+        getVaultOsPath(this.app)
+      );
+      lineEl.setAttribute("title", `在 Obsidian 中打开 ${lineEl.dataset.vaultPath}`);
+    }
 
     const statusEl = row.createDiv({ cls: "acc-tool-status" });
     if (running) {

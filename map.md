@@ -120,6 +120,7 @@ AI 系统的三层是因果链，不是分类：
 | [[bm25\|BM25]] | long | 关键词相关度打分；倒排索引上的 sparse baseline |
 | [[rrf\|RRF 倒数排名融合]] | long | 多路异构检索按排名合并；BM25 与向量分不可直接相加 |
 | [[ann\|ANN 近似最近邻]] | long | HNSW / IVF-PQ / DiskANN；大规模向量检索的索引算法 |
+| [[recall-at-k\|Recall@K]] | long | 检索召回率：Top-K 覆盖多少相关文档；RAG 粗排首要诊断指标 |
 
 ---
 
@@ -185,9 +186,11 @@ AI 系统的三层是因果链，不是分类：
 |------|--------|--------|
 | [[skill\|Skill]] | long | 程序化记忆，固化 SOP，防呆纠错的护城河 |
 | [[skill-loading-library\|Skill Loading & Library]] | mid | 加载、开放标准与库演化（Discovery / Activation / Library Drift） |
+| [[skillbank\|Skill Bank]] | mid | 跨回合技能仓库抽象：表示、检索、蒸馏与共演化谱系 |
 | [[skill-scripts\|Skill Scripts]] | mid | scripts/ 执行：Shell 调用、模型传参、stdout 闭环 |
 | [[skill-engineering\|Skill Engineering]] | long | 基于模型运行与加载机制的技能写法方法论与坑点 |
 | [[skill-governance\|Skill Governance]] | mid | 资产分级、发布流程、测试金字塔、路由冲突、供应链与退役 |
+| [[autoskill\|AutoSkill]] | mid | 经验驱动 Skill 抽取、混合检索注入、add/merge/discard 库演化 |
 | [[claude-code-skill-selection\|Claude Code Skill 选择]] | mid | listing 预算、Skill 工具、frontmatter、context: fork |
 
 ---
@@ -224,6 +227,7 @@ AI 系统的三层是因果链，不是分类：
 | [[agentmemory\|AgentMemory]] | short | MCP 持久记忆层，混合检索与多宿主（含 Hermes） |
 | [[agent-zero\|Agent Zero]] | short | Docker 内 Linux Agent 工作台（桌面/浏览器/A0 CLI） |
 | [[openclaw\|OpenClaw]] | short | 个人助手 Gateway：多 IM、ClawHub Skills、SOUL/MEMORY workspace |
+| [[openclaw-node-bridge\|Node Bridge]] | short | OpenClaw 历史协议：Gateway↔node 的 TCP JSONL 窄桥（已并入 WS） |
 | [[claude-code\|Claude Code]] | mid | Anthropic 终端/IDE Agent（CLAUDE.md、Skills、Hooks、MCP） |
 | [[memx\|memX]] | short | NeoLi00 记忆插件：hooks 自动 recall/capture、三层 lineage 存储 |
 | [[claude-managed-agents\|Claude Managed Agents]] | short | Anthropic 托管 Agent API（Agent/Environment/Session/Events） |

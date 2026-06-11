@@ -41,6 +41,7 @@ bash tools/obsidian-cursor-chat/install.sh
 4. 侧栏会自动打开并显示上下文预览；不需要的块可点 **×** 删除
 5. 输入问题并发送（Enter 发送，Shift+Enter 换行）；改文件时会弹出权限确认
 6. **本篇历史**（v0.4.0）：侧栏显示当前笔记的提问次数与 Q/A 列表；成功回答后自动归档，并通知 Read Tracker 更新提问数
+7. **点击打开文件**（v0.4.6）：回复中的库内路径（正文、`code`、Markdown 链接）、工具卡片路径、顶部当前笔记名均可点击，在 Obsidian 中直接打开
 
 **不会**默认附带当前笔记；只有手动加入的上下文会随下一次发送带上。归档路径优先取上下文中的「笔记 · path」，否则取当前前台打开的 `.md`。若 **⌘L** 冲突，在 **设置 → 快捷键** 中搜索「Cursor Chat」改绑。
 
@@ -76,6 +77,7 @@ ACP 实现参考社区 [obsidian-cursor-plugin](https://github.com/jspada200/obs
 
 ## 版本说明
 
+- **v0.4.6**：Chat 回复中的 Vault 文件路径可点击打开（正文路径、行内代码、工具卡片、当前笔记名）
 - **v0.4.0**：按笔记路径归档 `fileQA`（提问数 + Q/A 列表）、侧栏「本篇历史」、通知 Read Tracker 更新 `questionCount`
 
 ## 验收对照（MVP）

@@ -5,6 +5,7 @@ prerequisites:
   - "[[agent]]"
   - "[[skill]]"
 related:
+  - "[[openclaw-node-bridge]]"
   - "[[hermes-agent]]"
   - "[[skill-loading-library]]"
   - "[[skill]]"
@@ -104,7 +105,7 @@ flowchart TB
 
 - **单 host 一个 Gateway** — 例如 WhatsApp（Baileys）会话只在此处维持。
 - **WebSocket API** — macOS App、CLI、WebChat、自动化客户端经 WS 连 `connect` → `agent` / `send` 等 typed 请求。
-- **Nodes** — iOS/Android/macOS 以 `role: node` 接入，提供 `canvas.*`、`camera.*`、`screen.record` 等设备能力；需 **device pairing** 与签名握手。
+- **Nodes** — iOS/Android/macOS 以 `role: node` 接入，提供 `canvas.*`、`camera.*`、`screen.record` 等设备能力；需 **device pairing** 与签名握手。与 node 之间的传输曾称 **Node Bridge**（TCP :18790），已退役，见 [[openclaw-node-bridge]]。
 - **Canvas HTTP** — 同端口提供 `/__openclaw__/canvas/`、`/__openclaw__/a2ui/` 供 Agent 驱动可视化工作区。
 
 远程访问优先 **Tailscale / VPN**；备选 SSH 隧道 `ssh -N -L 18789:127.0.0.1:18789 user@host`。

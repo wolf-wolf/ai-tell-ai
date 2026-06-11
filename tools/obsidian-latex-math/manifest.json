@@ -1,0 +1,9 @@
+{
+  "id": "ai-latex-math",
+  "name": "AI LaTeX Math",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "渲染 \\[...\\] / \\(...\\) 及被 Markdown 转义后的 [ ... ] 块级公式（Obsidian 默认只认 $$）。",
+  "author": "ai-tell-ai",
+  "isDesktopOnly": false
+}

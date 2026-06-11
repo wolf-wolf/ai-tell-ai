@@ -1,28 +1,50 @@
 /*
- * ai-tell-ai — 表格字号（阅读模式 + Live Preview）
+ * ai-tell-ai — 表格字号与宽度（阅读模式 + Live Preview）
  * 安装：bash tools/obsidian-table-snippet/install.sh
  */
 
 body {
   /* 相对正文字号小一号；Obsidian 默认正文约 16px 时 ≈ 14px */
   --ai-table-size: 0.875em;
+  /* 表格宽度；与所在内容区（页宽 / 可读行宽）对齐 */
+  --ai-table-width: 100%;
 }
 
 /* 阅读模式 */
 .markdown-preview-view table,
-.markdown-rendered table {
+.markdown-rendered table,
+.callout-content table {
+  width: var(--ai-table-width);
   font-size: var(--ai-table-size);
 }
 
 .markdown-preview-view table th,
 .markdown-preview-view table td,
 .markdown-rendered table th,
-.markdown-rendered table td {
+.markdown-rendered table td,
+.callout-content table th,
+.callout-content table td {
   font-size: inherit;
 }
 
+/* 阅读模式：表格外层容器（Obsidian 用 div 包裹 table） */
+.markdown-preview-view .el-table,
+.markdown-rendered .el-table,
+.markdown-preview-view.is-readable-line-width .markdown-preview-sizer > div:has(> table),
+.markdown-preview-view.is-readable-line-width .markdown-preview-sizer > .el-table {
+  width: var(--ai-table-width);
+  max-width: 100%;
+}
+
 /* Live Preview：CM6 表格 widget */
+.markdown-source-view.mod-cm6 .cm-table-widget,
+.markdown-source-view.mod-cm6 .cm-table-widget > .table-wrapper {
+  width: var(--ai-table-width);
+  max-width: 100%;
+}
+
 .markdown-source-view.mod-cm6 .cm-table-widget table {
+  width: var(--ai-table-width);
   font-size: var(--ai-table-size);
 }
 
