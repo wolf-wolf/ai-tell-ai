@@ -76,7 +76,7 @@ flowchart TB
 |  metaphor | OS 分页、queue eviction | 混合检索、Hook、MCP | 向量+图，易集成 |
 | 锁定 | 高（换 Runtime） | 低（MCP/宿主插件） | 低 |
 
-与 [[harness-engineering]]：Letta 是 **Harness + Memory 合一**；与 [[claude-managed-agents]] 同属「平台跑 Agent」，但 Letta 卖点是 **自编辑 memory 层级** 而非 Anthropic 托管沙箱。
+Letta 把 **Harness + Memory 合一**（编排取舍见 [[harness-engineering]]）。与 Anthropic 托管智能体（[[claude-managed-agents]]）同属「平台跑 Agent」，但 Letta 卖点是**自编辑记忆层级**，而非托管沙箱。
 
 ## MemGPT 论文：核心机制
 

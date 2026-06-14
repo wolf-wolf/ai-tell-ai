@@ -93,9 +93,9 @@ flowchart TB
 | 记忆 | workspace `MEMORY.md` 等文件 | durable + session search + Skill | 产品内置 / Rules |
 | 典型部署 | 本机 daemon + 可选 Tailscale | 本机 / Modal / SSH backend | 本机 IDE |
 
-与 [[agent-zero]]：Agent Zero 是 Docker 内整台 Linux 桌面；OpenClaw 是**轻量 Gateway + 可选本机 shell**，Companion 可暴露相机/屏幕等 node 能力，但不以完整 VM 桌面为主叙事。
+**Agent Zero**（[[agent-zero]]）是 Docker 内整台 Linux 桌面；OpenClaw 是**轻量网关（Gateway）+ 可选本机 shell**，Companion 可暴露相机/屏幕等 node 能力，但不以完整虚拟机（VM）桌面为主叙事。
 
-与 [[agentmemory]]：AgentMemory 列出 **OpenClaw** 为 native plugin + MCP 宿主之一——可把跨宿主记忆层接在 OpenClaw 上，与 workspace 内 `MEMORY.md` 并存或分工（见 [[agent-context-stack]]）。
+**AgentMemory** 将 OpenClaw 列为 native plugin + 模型上下文协议（MCP）宿主之一——可把跨宿主记忆层接在 OpenClaw 上，与 workspace 内 `MEMORY.md` 并存或分工（上下文分层见 [[agent-context-stack]]）。
 
 ## 架构要点
 
@@ -112,7 +112,7 @@ flowchart TB
 
 ### Workspace 与上下文文件
 
-OpenClaw 用 **workspace 目录** 承载人格、指令与记忆，与 [[agent-context-stack]] 高度对齐：
+OpenClaw 用 **workspace 目录** 承载人格、指令与记忆，对应上下文栈中的 Soul / Rules / 记忆层（见 [[agent-context-stack]]）：
 
 | 文件 | 作用 |
 | --- | --- |
@@ -129,7 +129,7 @@ OpenClaw 用 **workspace 目录** 承载人格、指令与记忆，与 [[agent-c
 
 - **本地**：`workspace/skills/`、`~/.openclaw/skills/`、`~/.agents/skills/` 等路径（与 Hermes 迁移文档中的四源一致）。
 - **ClawHub**：`clawhub search`、`clawhub install author/skill`、`clawhub update --all`；向量检索 + 版本化发布；亦支持 **native code/bundle plugins**（需 `openclaw.compat` manifest）。
-- 与 [[skill-loading-library]]：OpenClaw 使用 **AgentSkills / SKILL.md** 开放格式，Discovery/Activation 因宿主实现而异；安装 Skill ≠ 自动信任——需审查 ClawHub 来源（见坑）。
+- OpenClaw 使用 **AgentSkills / `SKILL.md`** 开放格式；发现阶段（Discovery）与激活阶段（Activation）因宿主实现而异（见 [[skill-loading-library]]）。安装 Skill ≠ 自动信任——需审查 ClawHub 来源（见坑）。
 
 ### 内置能力与工具
 

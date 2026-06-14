@@ -122,14 +122,14 @@ flowchart LR
 
 ### 4.1 静前动后（static-first, dynamic-last）
 
-与 [[context-engineering]] 的上下文排序一致：
+遵循静前动后（static-first, dynamic-last）的上下文排序（见 [[context-engineering]]）：
 
 ```
 [ 稳定：system · 工具 schema · 长期记忆快照 · 大段参考文档 ]
 [ 易变：对话轮次 · tool 输出 · 本轮用户输入 ]
 ```
 
-把大块、少改的内容固定在**最前**；每轮只在后缀追加。这与 [[context-window]] 里「高优先级放开头」并行——既利 attention，也利前缀缓存。
+把大块、少改的内容固定在**最前**；每轮只在后缀追加。高优先级内容放开头既利注意力（Attention），也利前缀缓存（见 [[context-window]]）。
 
 ### 4.2 稳定前缀与动态后缀
 

@@ -1,7 +1,7 @@
 ---
 tags: [technique]
 aliases: [RAG, 检索增强生成, Retrieval-Augmented Generation]
-related: ["[[llm]]", "[[context-window]]", "[[embedding]]", "[[cosine-similarity]]", "[[retrieval-pipeline]]", "[[context-engineering]]", "[[prompt-engineering]]", "[[query-transformation]]", "[[knowledge-fusion]]", "[[agent-context-stack]]", "[[agent]]"]
+related: ["[[llm]]", "[[context-window]]", "[[embedding]]", "[[cosine-similarity]]", "[[retrieval-pipeline]]", "[[context-engineering]]", "[[prompt-engineering]]", "[[query-transformation]]", "[[knowledge-fusion]]", "[[agent-context-stack]]", "[[agent]]", "[[hallucination]]"]
 prerequisites: ["[[llm]]", "[[context-window]]", "[[embedding]]"]
 stability: long
 layer: application

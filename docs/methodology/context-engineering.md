@@ -11,6 +11,7 @@ prerequisites:
 related:
   - "[[prompt-engineering]]"
   - "[[harness-engineering]]"
+  - "[[loop-engineering]]"
   - "[[agent]]"
   - "[[rag]]"
   - "[[skill]]"

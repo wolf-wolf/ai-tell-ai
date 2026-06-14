@@ -19,7 +19,7 @@ updated: 2026-05-31
 
 ## 生命周期与演进
 
-**当前定位**：LangChain 生态里偏**生产编排**的一层；与裸 LangChain Chain 相比，强调循环、人机中断、并行分支与持久化 state。本 vault 在 [[query-transformation]]、[[harness-engineering]] 中已引用其 CRAG Fallback 模式。
+**当前定位**：LangChain 生态里偏**生产编排**的一层；与裸 LangChain Chain 相比，强调循环、人机中断、并行分支与持久化 state。检索增强生成（RAG）中的 CRAG Fallback 模式见 [[query-transformation]]；编排取舍见 [[harness-engineering]]。
 
 **预期寿命**：中期。图编排是 Agent 工业化的常见答案之一，实现会换，「状态机 + 检查点」思路会留。
 

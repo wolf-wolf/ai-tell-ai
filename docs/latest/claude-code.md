@@ -100,9 +100,9 @@ Skill **选型与 listing 预算**见专篇 [[claude-code-skill-selection]]，�
 
 **Checkpoint**：每次改文件前快照，本地可 `Esc Esc` 回滚（非 git；远程副作用不可 checkpoint）。
 
-## 上下文资产（与 Context Stack 对齐）
+## 上下文资产
 
-Claude Code 是理解 [[agent-context-stack]] 的**好样本**：
+Claude Code 把 Soul、Rules、Skill、记忆、模型上下文协议（MCP）与 Hooks 拆成可配置资产，是理解 [[agent-context-stack]] 的**好样本**：
 
 | 资产 | Claude Code 载体 |
 | --- | --- |
@@ -121,7 +121,7 @@ Claude Code 是理解 [[agent-context-stack]] 的**好样本**：
 
 Discovery：**会话启动**注入 name + description listing（约上下文 **1%** 预算）；Activation：`/skill-name`、`@`、或 **Skill 工具** 按需加载全文。
 
-与 [[skill-loading-library]] 对照：Claude Code = 机制 **②**（listing + Skill 工具按需）。
+Claude Code 采用 **listing + Skill 工具按需加载** 的发现与激活路径（机制 ②，见 [[skill-loading-library]]）。
 
 Frontmatter 要点：`description`、`disable-model-invocation`、`user-invocable`、`paths`、`context: fork`（子 Agent 内跑 Skill）。溢出与 `/doctor` 排查 → [[claude-code-skill-selection]]。
 

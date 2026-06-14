@@ -61,7 +61,7 @@ flowchart TD
 | --- | --- | --- |
 | **共享状态** | 所有 Agent 读写同一状态存储 | 需要全局一致视图、可接受锁与冲突处理 |
 | **消息传递** | 结构化消息在 Agent 间传递 | 子任务边界清晰、接口稳定 |
-| **工具调用** | Orchestrator 把 Worker 当工具调 | 实现最简单；与单 Agent 的 tool loop 同构 |
+| **工具调用** | Orchestrator 把 Worker 当工具调 | 实现最简单；结构与单智能体工具循环相同 |
 
 与 [[planning]] 的关系：Planning 是**单 Agent 内部**的任务分解；Multi-Agent 是**跨 Agent** 的分解，决策逻辑相似，规模与协调成本不同。
 

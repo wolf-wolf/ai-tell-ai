@@ -39,7 +39,7 @@ updated: 2026-06-08
 
 ## 在记忆栈中的位置
 
-[[memory]] 定义写入/检索/遗忘；Honcho 实现 **应用侧 External Memory**，但与 [[rag]] 分工不同——RAG 面向静态知识库相似度召回，Honcho 面向**随时间演化的实体（peer）**并主动推理 latent 结论。
+Honcho 实现**应用侧外部记忆（External Memory）**（写入/检索/遗忘范式见 [[memory]]）。检索增强生成（RAG）面向静态知识库相似度召回；Honcho 面向**随时间演化的实体（peer）**并主动推理潜在结论（latent conclusions）（见 [[rag]]）。
 
 ```mermaid
 flowchart LR
@@ -86,7 +86,7 @@ flowchart LR
 | 集成 | REST、MCP、Hermes provider | SDK/MCP/20+ 框架 | MCP + 多宿主 Hook | 跑在 Letta 内 |
 | 许可 | AGPL-3.0（自托管） | Apache-2.0 OSS | Apache-2.0 | 视组件而定 |
 
-与 [[agent-context-stack]]：Honcho 偏 **episodic + 个体化用户模型**（偏好、矛盾调和后的结论）；稳定 SOP 仍应进 [[skill]]，静态文档进 [[rag]]。
+Honcho 偏**情节记忆 + 个体化用户模型**（偏好、矛盾调和后的结论）；稳定 SOP 仍应进 [[skill]]，静态文档进 [[rag]]（见 [[agent-context-stack]]）。
 
 ## 数据模型与系统架构
 
@@ -213,7 +213,7 @@ flowchart LR
 - 低延迟路径优先 `GET representation`；复杂过滤问句用 Chat Endpoint。
 - Workspace 级默认推理深度，对高敏 peer 关闭 `observe_me` 或降级 perspective。
 - 自托管监控 deriver 队列深度与推理失败重试，避免表征长期落后。
-- 与 [[skill]] 分工：Honcho 记「谁、偏好、历史结论」；流程 SOP 不进 Honcho。
+- Honcho 记「谁、偏好、历史结论」；流程 SOP 不进 Honcho（程序性规程见 [[skill]]）。
 
 ### 6.2 坑与诚实边界
 

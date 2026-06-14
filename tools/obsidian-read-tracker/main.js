@@ -51,6 +51,7 @@ const READ_STATES = {
   progress: { label: "在读", cls: "art-badge-progress" },
   read: { label: "已读", cls: "art-badge-read" },
   deep: { label: "精读", cls: "art-badge-deep" },
+  complete: { label: "已读完", cls: "art-badge-complete" },
 };
 
 const RADAR_TOP_N = 10;
@@ -129,6 +130,7 @@ function getReadingThresholds(settings) {
 }
 
 function isNeedsRescan(row, settings) {
+  if (row.markedComplete || row.state.id === "complete") return false;
   if (row.state.id === "deep" || row.state.id === "read") return false;
   if (row.state.id === "skimmed") return true;
   if (row.maxScrollRatio < (settings.rescanCoverageMax ?? 0.5)) return true;
@@ -180,6 +182,19 @@ function debounce(fn, ms) {
 function formatTime(ts) {
   if (!ts) return "—";
   return new Date(ts).toLocaleString();
+}
+
+/** 悬浮「已读完」胶囊用短时刻 */
+function formatFabDoneTime(ts) {
+  if (!ts) return "";
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString(undefined, {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function basename(path) {
@@ -461,6 +476,9 @@ class ReadTrackerDashboardView extends ItemView {
     }
 
     const actions = toolbar.createDiv({ cls: "art-toolbar-actions" });
+    actions
+      .createEl("button", { cls: "art-btn art-btn-ghost", text: "覆盖图" })
+      .onclick = () => void this.plugin.activateCoverageGraph();
     actions.createEl("button", { cls: "art-btn art-btn-ghost", text: "刷新" }).onclick =
       () => this.render();
     actions
@@ -505,7 +523,7 @@ class ReadTrackerDashboardView extends ItemView {
       const headers = [
         ["笔记", "笔记"],
         ["进度", "加权阅读进度 0–100（覆盖+时长+提问+回访）"],
-        ["状态", "阅读深度：未读/略读/在读/已读/精读"],
+        ["状态", "阅读深度：未读/略读/在读/已读/精读/已读完（手动标记）"],
         ["提问", "针对本篇的 Chat 提问次数"],
         ["时长", "有效阅读时长（无滚动 idle 后停表）"],
         ["覆盖", "历史最大滚动深度"],
@@ -632,8 +650,9 @@ class ReadTrackerDashboardView extends ItemView {
         { label: "在读", count: s.progress, mod: "art-fill-progress" },
         { label: "已读", count: s.read, mod: "art-fill-read" },
         { label: "精读", count: s.deep, mod: "art-fill-deep" },
+        { label: "已读完", count: s.complete, mod: "art-fill-complete" },
       ],
-      `范围内 ${distribution.vaultMd} 篇 · 已读透 ${s.read + s.deep} 篇（${distribution.completionRate}%）`
+      `范围内 ${distribution.vaultMd} 篇 · 读完 ${s.read + s.deep + s.complete} 篇（${distribution.completionRate}%）`
     );
   }
 
@@ -681,7 +700,7 @@ class ReadTrackerDashboardView extends ItemView {
       `${distribution.completionRate}%`,
       "完成率",
       "",
-      `已读 + 精读 / 范围内总数（${distribution.byState.read + distribution.byState.deep}/${distribution.vaultMd}）`
+      `已读 + 精读 + 已读完 / 范围内总数（${distribution.byState.read + distribution.byState.deep + distribution.byState.complete}/${distribution.vaultMd}）`
     );
     addStat(summary.deepRead, "精读", "", "滚动覆盖 ≥85% 且有效时长达预期");
     addStat(
@@ -1031,6 +1050,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     }, 120);
 
     this.registerView(VIEW_TYPE, (leaf) => new ReadTrackerDashboardView(leaf, this));
+    this.registerView(VIEW_TYPE_COVERAGE, (leaf) => new CoverageGraphView(leaf, this));
 
     this.registerEvent(
       this.app.workspace.on("file-open", (file) => {
@@ -1072,6 +1092,10 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       void this.activateDashboard();
     });
 
+    this.addRibbonIcon("git-graph", "知识覆盖图", () => {
+      void this.activateCoverageGraph();
+    });
+
     this.addCommand({
       id: "reload-self",
       name: "Read Tracker: 重新加载本插件",
@@ -1082,6 +1106,12 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       id: "open-dashboard",
       name: "Read Tracker: 打开全库阅读统计",
       callback: () => void this.activateDashboard(),
+    });
+
+    this.addCommand({
+      id: "open-coverage-graph",
+      name: "Read Tracker: 打开知识覆盖图",
+      callback: () => void this.activateCoverageGraph(),
     });
 
     this.addCommand({
@@ -1316,6 +1346,9 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     this.app.workspace.getLeavesOfType(VIEW_TYPE).forEach((leaf) => {
       if (leaf.view instanceof ReadTrackerDashboardView) leaf.view.render();
     });
+    this.app.workspace.getLeavesOfType(VIEW_TYPE_COVERAGE).forEach((leaf) => {
+      if (leaf.view instanceof CoverageGraphView) leaf.view.render();
+    });
     this.updateStatusBar();
   }
 
@@ -1433,7 +1466,14 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     const files = this.data.files || {};
     const settings = this.data.settings || {};
     const scoped = this.getScopedMarkdownFiles();
-    const byState = { unread: 0, skimmed: 0, progress: 0, read: 0, deep: 0 };
+    const byState = {
+      unread: 0,
+      skimmed: 0,
+      progress: 0,
+      read: 0,
+      deep: 0,
+      complete: 0,
+    };
     const buckets = [0, 0, 0, 0, 0];
     let questionNotes = 0;
     let totalQuestions = 0;
@@ -1463,7 +1503,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     }
 
     const vaultMd = scoped.length;
-    const done = byState.read + byState.deep;
+    const done = byState.read + byState.deep + byState.complete;
     return {
       byState,
       buckets,
@@ -1585,11 +1625,9 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     const estReadSec =
       entry.estReadSec ||
       (file instanceof TFile ? this.estimateReadSec(file) : 60);
-    const state = computeReadingState(
-      entry,
-      estReadSec,
-      this.getReadingThresholds()
-    );
+    const state = entry.markedComplete
+      ? { id: "complete", ...READ_STATES.complete }
+      : computeReadingState(entry, estReadSec, this.getReadingThresholds());
     const progressScore = computeProgressScore(
       entry,
       estReadSec,
@@ -1694,6 +1732,19 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
     }
     workspace.revealLeaf(leaf);
     if (leaf.view instanceof ReadTrackerDashboardView) leaf.view.render();
+  }
+
+  async activateCoverageGraph() {
+    const { workspace } = this.app;
+    let leaf = workspace.getLeavesOfType(VIEW_TYPE_COVERAGE)[0];
+    if (!leaf) {
+      leaf = workspace.getLeaf(false);
+      await leaf.setViewState({ type: VIEW_TYPE_COVERAGE, active: true });
+    } else {
+      await leaf.setViewState({ type: VIEW_TYPE_COVERAGE, active: true });
+    }
+    workspace.revealLeaf(leaf);
+    if (leaf.view instanceof CoverageGraphView) leaf.view.render();
   }
 
   async writeDashboardNote() {
@@ -1810,6 +1861,7 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
       `| 在读 | ${dist.byState.progress} |`,
       `| 已读 | ${dist.byState.read} |`,
       `| 精读 | ${dist.byState.deep} |`,
+      `| 已读完 | ${dist.byState.complete} |`,
       "",
       "## 进度分布（已触达）",
       "",
@@ -2064,21 +2116,24 @@ module.exports = class AiReadTrackerPlugin extends Plugin {
 
     if (marked) {
       const done = container.createDiv({ cls: "art-read-fab-done" });
-      const row = done.createDiv({ cls: "art-read-fab-done-row" });
-      const iconWrap = row.createSpan({ cls: "art-read-fab-done-icon" });
-      setIcon(iconWrap, "check-circle");
-      row.createSpan({ cls: "art-read-fab-done-text", text: "已读完" });
+      const main = done.createDiv({ cls: "art-read-fab-done-main" });
+      const iconWrap = main.createSpan({ cls: "art-read-fab-done-icon" });
+      setIcon(iconWrap, "check-circle-2");
+      main.createSpan({ cls: "art-read-fab-done-text", text: "已读完" });
       const at = entry.markedCompleteAt;
-      if (at) {
-        done.createSpan({
+      const timeLabel = formatFabDoneTime(at);
+      if (timeLabel) {
+        main.createSpan({ cls: "art-read-fab-done-sep", text: "·" });
+        main.createSpan({
           cls: "art-read-fab-done-time",
-          text: formatTime(at),
+          text: timeLabel,
+          attr: { title: formatTime(at) },
         });
       }
       const undo = done.createEl("button", {
         cls: "art-read-fab-undo",
         text: "撤销",
-        attr: { type: "button" },
+        attr: { type: "button", title: "撤销读完标记" },
       });
       undo.onclick = (e) => {
         e.preventDefault();

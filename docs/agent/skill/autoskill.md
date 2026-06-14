@@ -25,15 +25,15 @@ updated: 2026-06-11
 
 **近期演进**：从论文双环架构走向**可部署 SDK**（Web UI、OpenAI 兼容反向代理、离线对话/轨迹抽取）；与 OpenClaw 等宿主的轨迹镜像、SkillEvo 的 replay–mutation–promote 闭环正在补齐「改完是否变好」的评测门。
 
-**终极威胁**：一是底座模型内化更多通用偏好，显式 Skill 库边际下降；二是无治理的自动建库导致检索噪声与路由战争，反而不如受控的 [[skill-governance]] 手写库——AutoSkill 解决「该不该入库」，不替代人工 intake 与测试金字塔。
+**终极威胁**：一是底座模型内化更多通用偏好，显式 Skill 库边际下降；二是无治理的自动建库导致检索噪声与路由战争，反而不如受控的手写库——AutoSkill 解决「该不该入库」，不替代人工 intake 与测试金字塔（见 [[skill-governance]]）。
 
 ## 动机：经验为何应变成 Skill，而非只进 Memory
 
 用户在与 Agent 的多轮协作里会反复表达**稳定约束**：少幻觉、固定公文格式、禁用某类措辞、固定工具调用顺序等。传统 **长程记忆（RAG over chat）** 把过去对话当文本片段检索回来，模型仍要在每轮重新「理解这些片段对当前任务意味着什么」。**Memory 记的是发生过什么；Skill 记的是以后该怎么做。**
 
-AutoSkill 的论点是：把重复交互抽象为**行为单元**——约束、响应策略、工具规程、领域惯例——并固化为结构化工件 $s = (n, d, p, \tau, \gamma, \xi, v)$（名称、描述、可执行指令正文、触发集、标签、示例、版本）。工件可 diff、可 merge、可退役，正好对齐本库 [[skill-governance]] 的 creation gate 与 [[skill-loading-library]] 的库演化四动作（Refine / Merge / Retire / Version）。
+AutoSkill 的论点是：把重复交互抽象为**行为单元**——约束、响应策略、工具规程、领域惯例——并固化为结构化工件 $s = (n, d, p, \tau, \gamma, \xi, v)$（名称、描述、可执行指令正文、触发集、标签、示例、版本）。工件可 diff、可 merge、可退役，并配套 creation gate 与库演化四动作（精炼（Refine）/ 合并（Merge）/ 退役（Retire）/ 版本（Version））。
 
-与 [[tool-self-learning]] 的衔接在于：后者偏「现场造工具/API 并沉淀」；AutoSkill 偏**已有 Skill 库上的库级决策**（新建还是改旧），正文质量仍依赖 [[skill-engineering]] 的写法与 Grounding 规范。
+[[tool-self-learning]] 偏「现场造工具/API 并沉淀」；AutoSkill 偏**已有 Skill 库上的库级决策**（新建还是改旧）。单篇正文质量仍依赖 [[skill-engineering]] 的写法与 Grounding 规范。
 
 ## 双环架构
 
@@ -72,7 +72,7 @@ flowchart LR
 
 ## 库级决策：add、merge、discard
 
-新候选 $z_t$ **不会直接写入**技能库。管理模块先在库内检索最相似邻居 $s_t^*$（同样用稠密+BM25 混合分，只比较 Top-M 邻居以保持可扩展），再由判决 Prompt（$P_{\mathrm{judge}}$）在 $\{\texttt{add}, \texttt{merge}, \texttt{discard}\}$ 中选择——论文三元组；工程 README 与 [[skill-governance]] 常扩展为 **discard / improve / merge / create** 四决策，其中 improve 针对单 Skill 补约束，create 对应 add。
+新候选 $z_t$ **不会直接写入**技能库。管理模块先在库内检索最相似邻居 $s_t^*$（同样用稠密+BM25 混合分，只比较 Top-M 邻居以保持可扩展），再由判决 Prompt（$P_{\mathrm{judge}}$）在 $\{\texttt{add}, \texttt{merge}, \texttt{discard}\}$ 中选择——论文三元组；工程 README 常扩展为 **discard / improve / merge / create** 四决策，其中 improve 针对单 Skill 补约束，create 对应 add（人工治理侧的 promote 流程见 [[skill-governance]]）。
 
 | 决策 | 典型条件 | 技能库更新 |
 | --- | --- | --- |
@@ -80,9 +80,9 @@ flowchart LR
 | **merge** | 与 $s_t^*$ 同一 capability family，差异仅为新约束/示例 | 版本 bump，语义并集替换 $s_t^*$ |
 | **add**（create） | 持久、可区分的新能力域，且通过 discard gate | $B_u^{t+1} = B_u^t \cup \{z_t\}$ |
 
-判决 Prompt 的四轴比较（job-to-be-done、交付物类型、硬约束/成功标准、工具与工作流）与 [[skill-governance]] intake 四问（可复用、稳定、可路由、可验证）**同构**：AutoSkill 用模型自动化 gate，治理文档用人工 PR 落实同一逻辑。
+判决 Prompt 的四轴比较（job-to-be-done、交付物类型、硬约束/成功标准、工具与工作流）与 intake 四问（可复用、稳定、可路由、可验证）覆盖同一类门卫问题：AutoSkill 用模型自动化 gate，团队场景用人工 PR 落实（见 [[skill-governance]]）。
 
-**版本化合并**（$P_{\mathrm{merge}}$）不是字符串拼接：保留原技能身份，对候选做**语义并集**——只纳入可复用、非冲突的新增，丢弃过时或实例化细节，版本号递增（如 `v0.1.0` → `v0.1.1`）。这直接回应 [[skill-loading-library]] 里 Merge 动作用于 overlap 与 **Version** 用于约束演进的工程需求。
+**版本化合并**（$P_{\mathrm{merge}}$）不是字符串拼接：保留原技能身份，对候选做**语义并集**——只纳入可复用、非冲突的新增，丢弃过时或实例化细节，版本号递增（如 `v0.1.0` → `v0.1.1`）。Merge 处理 overlap，Version 承载约束演进——库演化四动作见 [[skill-loading-library]]。
 
 **图 1：** AutoSkill 双环——左环检索注入，右环抽取与库维护
 
@@ -97,11 +97,11 @@ flowchart LR
 | `AutoSkill4OpenClaw/` | OpenClaw 轨迹驱动演化与原生 Skill 镜像 |
 | `SkillEvo/` | replay、评测、变异、晋升的迭代自演化框架 |
 
-与 **MUSE-Autoskill** 的文献关联：本库 [[skill-loading-library]] 将 MUSE-Autoskill 记在 **Refine**（单测失败时修单 Skill）一侧；AutoSkill 论文与仓库侧重 **merge / add / discard** 与混合检索注入，二者可组合为「库结构演化 + 单 Skill 轨迹 refine」。
+**MUSE-Autoskill** 侧重单测失败时修单 Skill（Refine）；AutoSkill 论文与仓库侧重 **merge / add / discard** 与混合检索注入——二者可组合为「库结构演化 + 单 Skill 轨迹 refine」（MUSE 在 [[skill-loading-library]] 延伸阅读有述）。
 
 ## 落地要点与反模式
 
-**默认 improve/merge 优于 create**（对齐 [[skill-governance]] promote 流程）：同一用户反复纠正时，应版本化更新既有 Skill，而非 duplicate 描述近似的第二份——否则 Discovery 路由与 [[skill-loading-library]] 中的 Library Drift 同步恶化。
+**默认 improve/merge 优于 create**：同一用户反复纠正时，应版本化更新既有 Skill，而非 duplicate 描述近似的第二份——否则发现阶段路由噪声与 Library Drift 同步恶化（promote 流程见 [[skill-governance]]）。
 
 **抽取与判决都要防噪**：泛化请求、无稳定偏好的单次任务必须走 discard；团队场景下自动 promote 仍应接 **golden/negative 路由测** 与 scripts 契约（见 [[skill-governance]] 测试金字塔），AutoSkill 不替代 CI。
 

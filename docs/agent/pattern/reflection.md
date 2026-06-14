@@ -12,13 +12,15 @@ related:
   - "[[agent]]"
   - "[[tool-use]]"
   - "[[planning]]"
+  - "[[plan-and-solve]]"
+  - "[[agent-paradigms]]"
   - "[[chain-of-thought]]"
   - "[[reAct]]"
   - "[[skill-engineering]]"
   - "[[skill-scripts]]"
 stability: long
 layer: application
-updated: 2026-06-04
+updated: 2026-06-14
 ---
 
 # Reflection（反思模式）
@@ -55,6 +57,50 @@ updated: 2026-06-04
 > 请检查上面的输出，指出其中的错误、遗漏或可以改进的地方。
 
 Harness 负责：把初稿与原始任务约束一并传入 Reflect 轮；将批评结构化后触发 Revise；设 `max_reflect_rounds` 防止成本失控。
+
+## 评审维度
+
+批评者（Critic）宜按**可表述的检查项**扫描初稿，而非笼统「好不好」：
+
+**表 — 常见 Reflect 评审维度**
+
+| 维度 | 检查什么 | 例子 |
+| --- | --- | --- |
+| **事实性** | 与已知事实/工具结果是否矛盾 | 引用不存在的 API、错日期 |
+| **逻辑** | 推理链是否自洽、有无跳步 | 摘要漏掉否定词 |
+| **完整性** | 是否遗漏约束或子问题 | 退款政策未核对订单状态 |
+| **效率/质量** | 有无更优算法或更短路径 | O(n²) 可改为筛法 |
+| **格式** | schema、PEP8、引用规范 | JSON 缺字段 |
+
+角色设定会改变批评重心（「严格性能评审」vs「可读性维护者」）——Harness 应用固定 rubric，避免漂移。
+
+## 轨迹记忆（短期）
+
+多轮 Reflect 需要记住「第几版代码 + 对应反馈」，与 [[memory]] 的跨任务长期记忆不同：
+
+- 用列表记录 `execution` / `reflection` 条目
+- `get_trajectory()` 序列化进后续 prompt，避免评审员看不到前轮尝试
+- 反思输入宜**只给可核验产出**（代码、答案正文），少塞 hidden chain-of-thought，减轻自我确认偏差
+
+Reflexion（Shinn et al.）进一步把反思轨迹用于**下一 episode** 的策略改进；本篇的 Generate→Reflect→Revise 多指**同一任务内**的迭代。
+
+## 成本、收益与终止
+
+Reflection 是典型的**以成本换质量**：
+
+| 成本 | 收益 |
+| --- | --- |
+| 每轮至少 +2 次 LLM（Reflect + Revise） | 终稿逻辑更严、代码更优 |
+| 串行延迟累加 | 降低「功能对但质量差」的交付风险 |
+
+**终止条件**（可组合）：
+
+- 批评含「无需改进」或 rubric 全通过
+- 达到 `max_reflect_rounds`（通常 1–2 轮收益递减）
+- **工具硬验证**：`pytest` / linter 全绿（优于纯 LLM 互评）
+- 批评与上一轮 feedback 重复（无新信息）
+
+实时客服、低延迟问答宜用轻量 [[reAct]] 或 [[plan-and-solve]]；代码、报告、决策支持宜用 Reflect。选型见 [[agent-paradigms]]。
 
 ## 单模型反思与双模型反思
 
@@ -118,6 +164,8 @@ Round 3 - 修改：
 
 ## 进一步阅读
 
+- [[agent-paradigms]] — 何时叠加 Reflection
+- [[plan-and-solve]] — 按计划执行后再 Reflect 润色
 - [[agent]] — Reflection 在设计模式与错误累积对策中的位置
 - [[planning]] — 执行前的路径分解，与 Reflection 正交
 - [[reAct]] — Observe 后挂 Reflect 的常见增强

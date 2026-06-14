@@ -129,7 +129,7 @@ Recall 只看「找全没有」；用户还关心「前 K 条有多干净」「�
 ## 怎么在自己的库上测
 
 1. **准备标注**：对每个 eval query 列出应召回的 chunk_id / doc_id（哪怕先抽 50～100 条）。
-2. **固定 K 网格**：至少报 Recall@5、Recall@10、Recall@50，便于和 [[retrieval-pipeline]] 消融表对齐。
+2. **固定 K 网格**：至少报 Recall@5、Recall@10、Recall@50，便于与 [[retrieval-pipeline]] 消融实验使用同一 K 档位。
 3. **分路报数**：Dense 一路、BM25 一路、RRF 融合后各报一遍——才能证明多路召回的价值。
 4. **与延迟同表**：Recall@50 从 0.7→0.9 若靠 K×10 暴力扩召回，要一起看 p99 延迟。
 

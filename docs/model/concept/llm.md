@@ -6,6 +6,10 @@ related:
   - "[[context-window]]"
   - "[[transformer]]"
   - "[[token-prediction]]"
+  - "[[scaling-laws]]"
+  - "[[emergence]]"
+  - "[[hallucination]]"
+  - "[[world-model]]"
   - "[[rag]]"
   - "[[memory]]"
   - "[[llm-generation-traps]]"
@@ -49,7 +53,7 @@ updated: 2026-05-31
   代价：引入对称性偏置与「端水效应」——见 [[llm-generation-traps]]
 ```
 
-**涌现能力（Emergent Abilities）**：参数量和数据量超过临界点后，模型突然能做之前完全不会的事——few-shot 学习、chain-of-thought 推理、跨领域迁移。这不是线性增长，而是相变式跃升。
+**[[emergence|涌现能力（Emergent Abilities）]]**：参数量和数据量超过临界点后，模型突然能做之前完全不会的事——few-shot 学习、chain-of-thought 推理、跨领域迁移。这不是线性增长，而是相变式跃升（存在度量争议，见该文 §4）。
 
 ## 推理时的生成过程
 
@@ -106,7 +110,7 @@ updated: 2026-05-31
 
 | 局限 | 根因 | 工程对策 |
 | --- | --- | --- |
-| **幻觉（Hallucination）** | 生成的是「高概率的 token 序列」，不是事实检索；知识不足时仍会自信续写 | RAG、工具调用、输出校验 |
+| **幻觉（Hallucination）** | 生成的是「高概率的 token 序列」，不是事实检索；知识不足时仍会自信续写 | [[hallucination]]、RAG、工具调用、输出校验 |
 | **知识截止日期** | 训练数据有时间截点，之后发生的事模型不知道 | RAG 注入实时信息 |
 | **无状态** | 每次 API 调用独立，不自动记忆上次对话 | 外部 Memory、context 管理——见 [[memory]] |
 | **上下文长度限制** | context window 有上限；过长时中间段内容被忽略（Lost in the Middle） | RAG 精准注入、分块处理——见 [[context-window]] |
@@ -117,6 +121,8 @@ updated: 2026-05-31
 - [[token-prediction]] — 预训练核心目标，理解它才能理解 LLM 能力和局限的根源
 - [[transformer]] — LLM 底层的神经网络架构
 - [[context-window]] — 推理时能「看到」的文本窗口；Lost in the Middle 等问题的来源
+- [[hallucination]] — 幻觉的类型、成因与缓解策略（RAG、工具、验证）
+- [[world-model]] — 显式状态动力学预测 vs LLM 隐式文本知识
 - [[llm-generation-traps]] — RLHF 与自回归生成引入的隐性行为偏置（对称性偏置、端水效应）
 - [[rag]] — 用外部检索补偿知识截止与幻觉问题
 - [[memory]] — 用外部 Memory 补偿无状态限制

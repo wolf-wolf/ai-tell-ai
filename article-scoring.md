@@ -85,8 +85,10 @@ done = true  当且仅当：
   (8) tier >= target_tier                  // 默认 target_tier = A
   (9) majors_open === 0
   (10) anti_gaming === pass                // 见 §五.2
-  (11) run_status === "ok"                 // 仅 article-scoring-evolve 对抗轮，见 §2.5
-  (12) 当轮 scoring-adversary 席位 === "ok" // 同上；单轮自检可省略 (11)(12)
+  (11) reading_ladder === pass             // 强制，见 §5.5
+  (12) term_budget === pass                // 强制，见 §5.5
+  (13) run_status === "ok"                 // 仅 article-scoring-evolve 对抗轮，见 §2.5
+  (14) 当轮 scoring-adversary 席位 === "ok" // 同上；单轮自检可省略 (13)(14)
 ```
 
 - `done = false` → `action: continue`，`next_fixes` ≤ 5 条（blocker → major → 未过的强制项）
@@ -101,6 +103,8 @@ done = true  当且仅当：
 | 大纲与原理层次（§五.3） | Q2 最高 **2**；记 major `weak_principle_outline` |
 | 图文阅读标准（§五.3） | Q4 最高 **2**；记 major `weak_visual_integration` |
 | 反 gaming（§五.2） | 记 major `format_without_mechanism`；Q2/Q4 相关项最高 **2** |
+| 阅读梯（§5.5） | Q4 最高 **2**；记 major `weak_reading_ladder` |
+| 术语预算（§5.5） | Q4 最高 **2**；记 major `term_budget_exceeded` |
 | `tier < target_tier` | 不记 major；`next_fixes` 指明需拉升的维 |
 
 ### 2.3 防无限打磨
@@ -160,7 +164,7 @@ breakthrough_done = true  当且仅当：
 | 变动类型（每轮 breakthrough 至少 1 项） | 例 |
 | --- | --- |
 | **重组** | 拆分/合并 `###`；原理节换论证顺序 |
-| **补层** | 新增机制层：反例、失败模式、算例 walkthrough、与兄弟文差异段 |
+| **补层** | 新增机制层：反例、失败模式、算例 walkthrough（勿写与兄弟文的对齐/边界段） |
 | **抬天花板** | 某维从 2→3：完整因果链、深内容仍好读的图示叙事 |
 | **删减壁垒** | 删掉重复/挡深度的段落，把篇幅让给机制 |
 
@@ -237,6 +241,8 @@ _meta/article-reviews/<slug>-r<round>.json
     "Q1_conditional_causality": "pass",
     "outline_principle": "fail",
     "visual_reading": "pass",
+    "reading_ladder": "pass",
+    "term_budget": "pass",
     "anti_gaming": "pass",
     "external_verification": "pass"
   },
@@ -295,11 +301,12 @@ _meta/article-reviews/<slug>-r<round>.json
 4. 扫原理篇标题树与 ### 层次 → outline_principle
 5. 扫图/表/Mermaid 前后文与图题 → visual_reading
 6. 扫表/图 vs prose → anti_gaming
-7. 扫外链/框架断言 vs verification_log → external_verification（§5.4）
-8. 打 Q1–Q6（强制项 fail 则按 §2.2 封顶）→ sum
-9. 列 blockers / majors / minors
-10. 算 tier
-11. 算 done、action、next_fixes、score_notes、run_status
+7. 扫关键 ### 阅读梯与术语密度 → reading_ladder、term_budget（§5.5）
+8. 扫外链/框架断言 vs verification_log → external_verification（§5.4）
+9. 打 Q1–Q6（强制项 fail 则按 §2.2 封顶）→ sum
+10. 列 blockers / majors / minors
+11. 算 tier
+12. 算 done、action、next_fixes、score_notes、run_status
 ```
 
 ---
@@ -386,6 +393,35 @@ _meta/article-reviews/<slug>-r<round>.json
 
 **Q6 锚定补充**：**3 分**须 `external_verification=pass` 且版本敏感处有日期；仅有日期无验真日志最高 **2**。
 
+### 5.5 阅读梯与术语预算（强制）
+
+两项独立校验，均须 pass 方可 `done`（与 §5.1 同级）。
+
+#### A. 阅读梯 — `reading_ladder`
+
+**对象**：正文内所有带机制讲解的 `###`（参数速查表、延伸阅读不计）。
+
+**pass**（同时满足）：
+
+1. 随机抽 **≥ 3 个**关键 `###`，每个首段或首两段的叙述顺序为：**具象场景/失败模式 → 直觉（无公式）→ 形式定义/机制**（允许 intuition 与场景合并为一段）
+2. 无 `###` 以未定义的多系统/多论文名开场
+3. 概念/算法文正文首 `##` 为**问题语境**或等价（具象「无它哪环断」），非文献综述式罗列
+
+**fail 例**：段首 `SkillRL 的 X 与 COS-PLAY 的 Y…`；先参数表后解释；首 `##` 直接「各算法对比表」。
+
+**处理**：`checks.reading_ladder = fail` → Q4 ≤ 2 → major `weak_reading_ladder`。
+
+#### B. 术语预算 — `term_budget`
+
+**pass**（同时满足）：
+
+1. 随机抽 **≥ 3 个**机制 `###`，每节**新引入**术语（中文（English）或首次定义的专名）≤ **3 个**
+2. 每张非 trivial 表前有 prose 说明「为何需要此表」；表后有 prose 说明「因此应认为…」
+
+**fail 例**：单节同时引入 HNSW、IVF、PQ、OPQ、DiskANN 五个未铺垫概念；表无表前表后 prose。
+
+**处理**：`checks.term_budget = fail` → Q4 ≤ 2 → major `term_budget_exceeded`。
+
 ---
 
 ## 附录 A — 硬门槛 G1–G7
@@ -468,6 +504,8 @@ _meta/article-reviews/<slug>-r<round>.json
 | `weak_principle_outline` | §5.3.A fail | 重排 ###、补节首直入、按问题→机制→抉择组织 |
 | `weak_visual_integration` | §5.3.B fail | 补图题、图前引入、图后结论；拆表或降负荷 |
 | `format_without_mechanism` | §5.2 fail | 补机制 prose，非加表 |
+| `weak_reading_ladder` | §5.5.A fail | 重排 ### 为场景→直觉→形式化；问题语境前移 |
+| `term_budget_exceeded` | §5.5.B fail | 拆 ###、减同屏新术语、补表前表后 prose |
 | `unverified_external_claim` | §5.4 fail | WebFetch 或删/降级断言；补 verification_log |
 | `other` | blocker 以外显著缺陷 | 具体可验证修改 |
 

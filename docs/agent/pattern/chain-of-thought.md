@@ -1,10 +1,10 @@
 ---
 tags: [technique]
 aliases: [CoT, 思维链, 链式推理]
-related: ["[[prompt-engineering]]", "[[planning]]", "[[reflection]]", "[[llm]]"]
+related: ["[[prompt-engineering]]", "[[planning]]", "[[plan-and-solve]]", "[[agent-paradigms]]", "[[reflection]]", "[[reAct]]", "[[llm]]"]
 stability: long
 layer: application
-updated: 2026-05-25
+updated: 2026-06-14
 ---
 
 # Chain of Thought（思维链）
@@ -108,6 +108,19 @@ A：
 - 创意写作（推理链干扰创意流动）
 - 单步分类任务（「这句话是正面还是负面情绪？」不需要推理链）
 
+## 与 ReAct、Plan-and-Solve 的分工
+
+CoT 属于**纯思考**：在已有 context 里外化推理，**不与外部世界交替**。
+
+| 类型 | 新信息从哪来 | 典型形态 |
+| --- | --- | --- |
+| **CoT** | 仅 prompt 内知识 | 单轮「一步步思考」 |
+| **纯行动** | 无显式推理链，直接输出动作 | 早期 tool-only 基线（缺规划） |
+| **ReAct** | 每轮 **Observation**（工具/环境） | Thought → Action → Observe 循环 |
+| **Plan-and-Solve** | 先列计划再逐步求解；可叠加工具 | 两阶段 Planner + Executor |
+
+Zero-shot CoT（「Let's think step by step」）易**漏步、算错**；Wang et al. 的 [[plan-and-solve]] 在其上增加显式计划阶段。三范式如何组合选型见 [[agent-paradigms]]。
+
 ---
 
 ## 实践与应用
@@ -157,7 +170,10 @@ A：
 
 - [[prompt-engineering]] — CoT 是提示工程里「先推理、后回答」的核心技巧
 - [[llm]] — CoT 利用 token 预测机制，理解机制才能理解为什么有效
+- [[agent-paradigms]] — CoT 在 Agent 范式谱系中的位置
+- [[plan-and-solve]] — 针对 Zero-shot CoT 漏步的两阶段改进
 - [[planning]] — Agent 规划是 CoT 在任务分解上的延伸
+- [[reAct]] — CoT 式 Reason + 工具 Act
 - [[reflection]] — 生成答案后再用 CoT 检验答案
 - [Chain-of-Thought Prompting Elicits Reasoning (Wei et al., 2022)](https://arxiv.org/abs/2201.11903) — CoT 原始论文
 - [Large Language Models are Zero-Shot Reasoners (Kojima et al., 2022)](https://arxiv.org/abs/2205.11916) — Zero-shot CoT

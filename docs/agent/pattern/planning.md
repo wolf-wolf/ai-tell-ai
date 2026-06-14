@@ -15,9 +15,11 @@ related:
   - "[[multi-agent]]"
   - "[[chain-of-thought]]"
   - "[[reAct]]"
+  - "[[plan-and-solve]]"
+  - "[[agent-paradigms]]"
 stability: long
 layer: application
-updated: 2026-06-04
+updated: 2026-06-14
 ---
 
 # Planning（规划模式）
@@ -61,12 +63,16 @@ updated: 2026-06-04
 
 Planning 发生在**执行前**（做什么、什么顺序）；Reflection 发生在**执行后**（做得好不好）。二者不可混为一谈。
 
+**命名范式**：[[plan-and-solve]]（Wang et al. 2023）是静态两阶段规划的论文化实现——Planner 一次出计划、Executor 按步执行并维护 history。三范式总览与选型见 [[agent-paradigms]]。
+
 ## 静态规划与动态规划
 
 | 策略 | 做法 | 优点 | 缺点 |
 | --- | --- | --- | --- |
 | **静态规划** | 一次性生成完整计划，再按序执行 | 清晰、可审计、易做人工审批 | 执行中遇意外难以调整 |
 | **动态规划** | 每步执行后根据观察重评下一步 | 灵活应对工具失败、新信息 | 更多 token，路径难预测 |
+
+静态规划的论文级范例见 [[plan-and-solve]]（含动态重规划与 Plan→ReAct 组合）。
 
 动态规划最常见的实现是 [[reAct|ReAct]]（Reason + Act + Observe 循环）。机制细节、prompt 结构与 Harness 分工见 [[reAct]]，本篇只保留与「规划」相关的摘要：
 
@@ -119,6 +125,8 @@ ReAct 把思考过程外化，便于调试——从 Reason 步骤即可定位规
 
 ## 进一步阅读
 
+- [[agent-paradigms]] — ReAct / Plan-and-Solve / Reflection 选型
+- [[plan-and-solve]] — 两阶段 Planner + Executor
 - [[agent]] — Planning 在 Agent 谱系与设计模式中的位置
 - [[reAct]] — 动态规划的主流循环实现
 - [[chain-of-thought]] — 显式推理，Planning 的认知基础

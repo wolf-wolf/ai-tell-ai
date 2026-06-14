@@ -36,7 +36,7 @@ updated: 2026-05-31
 
 ## 在记忆栈中的位置
 
-[[memory]] 定义写入/检索/遗忘；Mem0 实现 **应用侧 External Memory**，与 [[rag]] 不同——RAG 面向静态知识库，Mem0 面向**运行时交互与 Agent 确认的事实**。
+Mem0 实现**应用侧外部记忆（External Memory）**：写入/检索/遗忘的通用范式见 [[memory]]。检索增强生成（RAG）面向静态知识库；Mem0 面向**运行时交互与智能体（Agent）确认的事实**（见 [[rag]]）。
 
 ```mermaid
 flowchart LR
@@ -67,7 +67,7 @@ flowchart LR
 | 检索 | semantic + BM25 + entity | BM25+vector+graph RRF | hybrid + query compiler | recall/archival paging |
 | 锁定 | 低 | 低–中 | 中（Hook 绑定） | 高 |
 
-与 [[agent-context-stack]]：Mem0 存 **Episodic / 个体化陈述**；程序性 SOP 仍应进 [[skill]]，静态文档进 RAG。
+Mem0 存**情节记忆（Episodic）/ 个体化陈述**；程序性标准作业程序（SOP）仍应进 [[skill]]，静态文档进 RAG（上下文分层见 [[agent-context-stack]]）。
 
 ## V3 记忆算法（观测 2026-04）
 

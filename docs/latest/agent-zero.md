@@ -79,11 +79,11 @@ flowchart TB
 | 可视化 | 编辑器内 diff | Web UI + Canvas 实时看桌面/浏览器 |
 | 典型用户 | 日常编码 | 研究、自动化、跨 GUI/终端/文档的泛任务 |
 
-与 [[hermes-agent]]：Hermes 是**终端编码宿主**；Agent Zero 是**独立 Agent 操作系统**。可并存：Hermes 写 repo 内代码，Agent Zero 跑沙箱内爬虫、Blender、LibreOffice 等重环境任务。
+**Hermes**（[[hermes-agent]]）是**终端编码宿主**；Agent Zero 是**独立智能体操作系统**。可并存：Hermes 写仓库内代码，Agent Zero 跑沙箱内爬虫、Blender、LibreOffice 等重环境任务。
 
-与 [[agentmemory]]：Agent Zero 有**内置 memory 管理**（见官方 Memory guide）；AgentMemory 是**跨宿主 MCP 记忆层**。Agent Zero Plugin Hub 亦有第三方 memory 插件；选型看是否要跨 Cursor/Hermes 共享同一记忆库。
+Agent Zero 有**内置记忆管理**（见官方 Memory guide）。**AgentMemory** 是跨宿主模型上下文协议（MCP）记忆层；Plugin Hub 亦有第三方记忆插件。是否要跨 Cursor/Hermes 共享同一记忆库，见 [[agentmemory]]。
 
-与 [[skill]] / [[skill-loading-library]]：Agent Zero 支持 **SKILL.md 开放标准**，与 Claude Code、Cursor、Codex 等 Skill 可移植；加载方式为项目/聊天内按需或 pin，逻辑与 vault 内 Skill 生态文档一致。
+Agent Zero 支持 **`SKILL.md` 开放标准**，与 Claude Code、Cursor、Codex 等可移植；加载方式为项目/聊天内按需或 pin（发现与激活机制见 [[skill-loading-library]]）。
 
 ## 架构要点
 
@@ -100,7 +100,7 @@ flowchart TB
 
 ### 默认工具 vs 自创工具
 
-官方 README 强调：**无大量预置单用途工具**。出厂能力大致包括在线搜索、memory、与用户/子 Agent 通信、代码与终端执行；其余由 Agent **现场编写**或通过插件/MCP 扩展。这与 [[tool-self-learning]] 中「运行时造工具」方向一致，但 Agent Zero 把「造工具」落实为 shell + 文件系统权限。
+官方 README 强调：**无大量预置单用途工具**。出厂能力大致包括在线搜索、memory、与用户/子 Agent 通信、代码与终端执行；其余由 Agent **现场编写**或通过插件/MCP 扩展——「运行时造工具」落点为 shell + 文件系统权限（见 [[tool-self-learning]]）。
 
 ### 多 Agent 协作
 
@@ -108,7 +108,7 @@ Superior Agent 可 spawn **subordinate agents**，子 Agent 独立 context，完
 
 ### Projects 与隔离
 
-**Projects** 隔离：工作区、instructions、memory、secrets、knowledge、Git repo 克隆、model presets。类似「每个客户/代码库一个 Agent 工作空间」，与 [[agent-context-stack]] 的项目级 Rules/Skill 分工类似。
+**Projects** 隔离：工作区、instructions、memory、secrets、knowledge、Git repo 克隆、model presets。类似「每个客户/代码库一个 Agent 工作空间」，项目级 Rules/Skill 分层见 [[agent-context-stack]]。
 
 ### Plugin Hub 与 MCP
 

@@ -14,13 +14,15 @@ related:
   - "[[agent]]"
   - "[[tool-use]]"
   - "[[planning]]"
+  - "[[plan-and-solve]]"
+  - "[[agent-paradigms]]"
   - "[[reflection]]"
   - "[[chain-of-thought]]"
   - "[[function-calling]]"
   - "[[harness-engineering]]"
 stability: long
 layer: application
-updated: 2026-06-04
+updated: 2026-06-14
 ---
 
 # ReAct（推理与行动）
@@ -30,7 +32,7 @@ updated: 2026-06-04
 
 ## 生命周期与演进
 
-**当前定位**：Yao et al. 2022 提出后，已成为 Agent 教科书的默认循环；与 [[agent]] 文中的「思考 → 行动 → 观察」是同一结构。现代产品（Cursor Agent、Claude Code、LangGraph）多在 API 层用 [[function-calling|Function Calling]] 表达 Act，语义仍是 ReAct，只是 Observation 由 Harness 自动注入为 tool result。
+**当前定位**：Yao et al. 2022 提出后，已成为 Agent 教科书的默认循环——「思考 → 行动 → 观察」结构见 [[agent]]。现代产品（Cursor Agent、Claude Code、LangGraph）多在 API 层用[[function-calling|函数调用（Function Calling）]]表达 Act，语义仍是 ReAct，只是 Observation 由 Harness 自动注入为 tool result。
 
 **预期寿命**：长期。只要任务需要多轮、依赖实时外部状态，交替推理与行动就不会被单次超长生成取代。
 
@@ -65,7 +67,18 @@ ReAct 是**模式**（交替什么）；Harness 是**实现**（如何拼 prompt
 | **新信息从哪来** | 仅已有 context | 每轮 Observation | 计划 + 每步执行结果 |
 | **典型用途** | 单轮复杂推导 | 多轮需查资料、试错的任务 | 复杂目标的分解与顺序 |
 
-CoT 解决「跳步推理」；ReAct 在 CoT 之上增加**对外部世界的探测**。静态 [[planning]] 可先列出 1→2→3 再执行；ReAct 更适合**每一步执行完再决定下一步**的动态规划，二者常组合（先 plan 一轮，再 ReAct 执行）。
+CoT 解决「跳步推理」；ReAct 在 CoT 之上增加**对外部世界的探测**。静态 [[plan-and-solve]] 或 [[planning]] 可先列出 1→2→3 再执行；ReAct 更适合**每一步执行完再决定下一步**的动态规划，二者常组合（先 plan 一轮，再 ReAct 执行）。三范式对照见 [[agent-paradigms]]。
+
+## 固有局限
+
+ReAct 的逐步决策带来灵活，也带来结构性代价：
+
+| 局限 | 表现 | 缓解 |
+| --- | --- | --- |
+| **缺全局蓝图** | 只顾眼前 Observation，路径局部最优或原地打转 | 前置 [[plan-and-solve]]；或 `max_steps` + 重复 action 检测 |
+| **多轮成本** | 每步一次 LLM + 工具延迟 | 并行 tool call；Reasoning 模型减少无效轮 |
+| **强依赖模型能力** | 格式错乱、错误 Thought 导致链中断 | 见下文「输出解析与调试」；换更强模型或降 temperature |
+| **提示词脆弱** | 模板用词变动即行为漂移 | Few-shot 轨迹示例；改用语义更稳的 function calling |
 
 ## Prompt 与 Harness 分工
 
@@ -84,12 +97,36 @@ Action: …
 1. **文本轨迹**：模型输出 Thought/Action 行，Harness 用正则或解析器提取 Action，执行后拼 `Observation:` 再继续生成。
 2. **原生 tool call**：模型返回结构化 tool_calls，Reason 常出现在 `content` 或 reasoning 通道，Observation 即 `tool` role 消息——对用户不可见，但循环语义不变。
 
-Harness 必做事项（与 [[agent]] Runtime 职责一致）：
+Harness 必做事项（运行时职责见 [[agent]]）：
 
 - 维护 `history`（含每轮 Observation）
 - 校验 Action 是否在工具白名单、参数是否符合 schema
 - 捕获执行异常并写成 Observation（避免整链崩溃）
 - 终止条件：`max_steps`、无新 tool call、LLM 声明完成、关键写操作人工确认
+
+## 输出解析与调试
+
+**表 — Action 解析方案**
+
+| 方案 | 做法 | 优点 | 脆弱点 |
+| --- | --- | --- | --- |
+| **文本标签 + 正则** | 解析 `Thought:` / `Action:` / `Finish[答案]` | 人类可读、易调试 | 模型多说话、漏标签即失败 |
+| **结构化 JSON** | 约束输出 schema | 机器稳 | 模型仍可能 JSON 损坏 |
+| **原生 function calling** | `tool_calls` 字段 | 工业默认 | Reason 可能在独立通道，需 Harness 拼 history |
+
+**调试清单**（行为异常时按序检查）：
+
+1. **打印完整 prompt**（含 history）——追溯模型决策输入
+2. **打印 LLM 原始输出**——区分「没遵格式」vs「解析器 bug」
+3. **核对 tool 输入/输出**——参数类型、Observation 是否由 Harness 注入（非模型编造）
+4. **加 1–2 条 Few-shot 轨迹**——稳住 Thought/Action 格式
+5. **调 temperature**（常设 0）或换更强模型
+
+## 工具失败与规模
+
+**错工具 / 错参数**：连续失败时 Harness 应把错误写入 Observation（含可用工具名与 schema 提示），而非静默终止；必要时缩小当轮工具白名单。详见 [[tool-use]] 权限最小化。
+
+**工具数量膨胀**（数十上百）：纯文本描述塞满 prompt 会降路由准确率——用分组、按需暴露、[[function-calling]] 的 tool search / [[tool-mcp]] 动态发现。见 [[harness-engineering]]。
 
 ## 实践要点
 
@@ -117,6 +154,8 @@ Harness 必做事项（与 [[agent]] Runtime 职责一致）：
 
 ## 进一步阅读
 
+- [[agent-paradigms]] — 三范式选型与组合
+- [[plan-and-solve]] — 静态计划 vs ReAct 动态执行
 - [[agent]] — 感知-思考-行动循环与 Runtime 职责
 - [[tool-use]] — Act 阶段的能力边界与风险模型
 - [[function-calling]] — 结构化 Action 的协议与 schema

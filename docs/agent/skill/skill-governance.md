@@ -71,7 +71,7 @@ flowchart LR
 
 ### 1. Intake（是否值得做成 Skill）
 
-Creation gate（对齐 [AutoSkill](https://github.com/ECNU-ICALK/AutoSkill)）——先问四个问题：
+Creation gate（与 [AutoSkill](https://github.com/ECNU-ICALK/AutoSkill) 论文同类门卫）——先问四个问题：
 
 1. **可复用吗？** 同一类任务会重复 ≥3 次，且不是一次性对话偏好？
 2. **稳定吗？** 流程 30 天内不会全盘推翻？

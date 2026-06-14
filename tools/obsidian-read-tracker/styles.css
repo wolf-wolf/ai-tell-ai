@@ -903,6 +903,16 @@
   background: var(--interactive-accent);
 }
 
+.ai-read-tracker-dashboard .art-badge-complete {
+  color: var(--color-green, #3fb950);
+  background: rgba(63, 185, 80, 0.16);
+  border: 1px solid rgba(63, 185, 80, 0.28);
+}
+
+.ai-read-tracker-dashboard .art-chart-fill.art-fill-complete {
+  background: var(--color-green, #3fb950);
+}
+
 .ai-read-tracker-dashboard table.art-table th {
   color: var(--text-muted);
   font-weight: 600;
@@ -1105,68 +1115,351 @@
 }
 
 .art-read-fab-done {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: var(--radius-m, 10px);
-  border: 1px solid color-mix(in srgb, var(--color-green, #2d8a56) 30%, transparent);
+  display: inline-flex;
+  align-items: stretch;
+  max-width: min(100%, 280px);
+  border-radius: 999px;
+  border: 1px solid var(--background-modifier-border);
   background: color-mix(
     in srgb,
-    var(--color-green, #2d8a56) 10%,
-    var(--background-primary) 90%
+    var(--background-primary) 90%,
+    var(--background-secondary) 10%
   );
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.05),
     0 4px 14px rgba(0, 0, 0, 0.07);
   backdrop-filter: blur(6px);
+  overflow: hidden;
 }
 
-.art-read-fab-done-row {
+.art-read-fab-done-main {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  padding: 8px 4px 8px 11px;
+  min-width: 0;
 }
 
 .art-read-fab-done-icon {
   display: inline-flex;
-  color: var(--color-green, #2d8a56);
+  flex-shrink: 0;
+  color: var(--color-green, #3fb950);
 }
 
 .art-read-fab-done-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .art-read-fab-done-text {
   font-size: var(--font-ui-smaller, 12px);
   font-weight: 600;
-  color: var(--color-green, #2d8a56);
+  color: var(--text-normal);
   white-space: nowrap;
 }
 
+.art-read-fab-done-sep {
+  flex-shrink: 0;
+  color: var(--text-faint, var(--text-muted));
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.65;
+}
+
 .art-read-fab-done-time {
-  font-size: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 9.5em;
 }
 
 .art-read-fab-undo {
   appearance: none;
   -webkit-appearance: none;
   margin: 0;
-  padding: 0;
+  flex-shrink: 0;
+  padding: 0 12px;
   border: none;
-  background: none;
+  border-left: 1px solid var(--background-modifier-border);
+  background: transparent;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  white-space: nowrap;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
 .art-read-fab-undo:hover {
   color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+/* —— Coverage graph (main workspace tab) —— */
+.workspace-leaf-content[data-type="ai-read-tracker-coverage-graph"] > .view-content {
+  overflow: hidden;
+  padding: 0;
+  height: 100%;
+}
+
+.ai-coverage-graph {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  box-sizing: border-box;
+}
+
+.workspace-leaf-content[data-type="ai-read-tracker-coverage-graph"] .view-content > .ai-coverage-graph {
+  height: 100%;
+}
+
+.ai-coverage-graph .acg-header {
+  flex-shrink: 0;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ai-coverage-graph .acg-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  min-width: 0;
+}
+
+.ai-coverage-graph .acg-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ai-coverage-graph .acg-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.ai-coverage-graph .acg-scope {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.ai-coverage-graph .acg-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.ai-coverage-graph .acg-stat {
+  padding: 3px 8px;
+  border-radius: var(--radius-s, 6px);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  text-align: center;
+  min-width: 52px;
+}
+
+.ai-coverage-graph .acg-stat-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-coverage-graph .acg-stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.ai-coverage-graph .acg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.ai-coverage-graph .acg-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-s, 6px);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ai-coverage-graph .acg-btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.ai-coverage-graph .acg-btn-accent {
+  border-color: var(--interactive-accent);
+  color: var(--interactive-accent);
+}
+
+.ai-coverage-graph .acg-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 6px;
+}
+
+.ai-coverage-graph .acg-legend-title {
+  display: block;
+  width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ai-coverage-graph .acg-legend-map {
+  min-width: 160px;
+}
+
+.ai-coverage-graph .acg-legend-ring {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid rgba(210, 153, 34, 0.85);
+  flex-shrink: 0;
+}
+
+.ai-coverage-graph .acg-legend-ring-dashed {
+  border-style: dashed;
+  border-color: rgba(140, 140, 140, 0.5);
+}
+
+.ai-coverage-graph .acg-tooltip {
+  position: absolute;
+  z-index: 20;
+  max-width: 240px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-normal);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.ai-coverage-graph .acg-tooltip.is-visible {
+  opacity: 1;
+}
+
+.ai-coverage-graph .acg-tooltip > div:first-child {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.ai-coverage-graph .acg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 0;
+}
+
+.ai-coverage-graph .acg-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ai-coverage-graph .acg-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-coverage-graph .acg-legend-panel {
+  display: none;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--background-modifier-border);
+}
+
+.ai-coverage-graph .acg-legend-panel.is-open {
+  display: block;
+}
+
+.ai-coverage-graph .acg-float-hint {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 5;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  color: var(--text-faint, var(--text-muted));
+  background: color-mix(in srgb, var(--background-primary) 82%, transparent);
+  border: 1px solid var(--background-modifier-border);
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.ai-coverage-graph .acg-hint {
+  display: none;
+}
+
+.ai-coverage-graph .acg-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.ai-coverage-graph .acg-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(127, 127, 127, 0.06), transparent 62%),
+    var(--background-primary);
+}
+
+.ai-coverage-graph .acg-canvas-wrap:active {
+  cursor: grabbing;
+}
+
+.ai-coverage-graph .acg-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ai-coverage-graph .acg-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
 }

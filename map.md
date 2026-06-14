@@ -54,8 +54,9 @@ AI 系统的三层是因果链，不是分类：
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[training-data\|训练数据与语料]] | permanent | 模型的知识从哪来，数据决定上限 |
+| [[scaling-laws\|缩放法则]] | long | Loss 对参数量/数据/算力的幂律；Chinchilla 与 [[emergence\|涌现]] 争议 |
 | [[tokenization\|Tokenization]] | permanent | 文本怎么变成模型能处理的东西 |
-| [[rlhf\|RLHF]] | long | 模型怎么从"能生成"变成"对人有用" |
+| [[rlhf\|RLHF]] | long | SFT→RM→PPO 偏好对齐；DPO 等闭式替代 |
 | [[rlhf-bias\|RLHF 偏置]] | long | 奖励模型代理不完美时的结构性偏置与缓解 |
 | [[rlvr\|RLVR]] | mid | 用可自动验真的规则奖励做推理对齐（数学、代码等） |
 
@@ -78,6 +79,9 @@ AI 系统的三层是因果链，不是分类：
 | [[llm\|LLM]] | permanent | 大语言模型是什么、能做什么、不能做什么 |
 | [[inductive-bias\|Inductive Bias]] | permanent | 学习为何必须「偏心」泛化；架构/目标与 No Free Lunch |
 | [[context-window\|Context Window]] | permanent | 模型的工作内存，理解它才能理解所有上限 |
+| [[hallucination\|模型幻觉]] | permanent | 流畅续写≠事实；分类、成因与 RAG/工具缓解 |
+| [[world-model\|世界模型]] | long | 预测状态演化以支持想象与规划；JEPA / RL 两条脉络 |
+| [[emergence\|涌现]] | long | 规模下不可外推的能力跃迁；Wei 定义与 Schaeffer 度量争议 |
 | [[prefix-cache\|Prefix Cache]] | mid | 跨请求复用 prompt 前缀 KV，降延迟与输入成本 |
 | [[embedding\|Embedding]] | long | 文本怎么变成向量，语义相似的底层原理 |
 | [[dense-vector\|稠密向量]] | long | 固定维连续表示；Dense 召回的形态，与稀疏/BM25 互补 |
@@ -105,8 +109,9 @@ AI 系统的三层是因果链，不是分类：
 | [[structured-json-output\|Structured JSON Output]] | mid | 约束解码、JSON Schema、API strict 与基准数据：稳定结构化输出 |
 | [[context-engineering\|Context Engineering]] | long | 管理模型能看到什么，比 prompt 更本质的问题 |
 | [[harness-engineering\|Harness Engineering]] | mid | 搭系统让模型长期可靠干活，框架层，演化快 |
+| [[loop-engineering\|Loop Engineering]] | short | 2026-06：设计替人 prompt Agent 的外层自驱系统（触发/目标/验收/记忆） |
 
-递进链：**Prompt → Context → Harness**；指令设计 / 语言学 / 跨语言是输入侧的专题。
+递进链：**Prompt → Context → Harness → Loop**（Loop 为 2026-06 社区命名的新层）；指令设计 / 语言学 / 跨语言是输入侧的专题。
 
 ---
 
@@ -144,6 +149,8 @@ AI 系统的三层是因果链，不是分类：
 
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
+| [[agent-paradigms\|智能体经典范式]] | long | ReAct / Plan-and-Solve / Reflection 选型与组合索引 |
+| [[plan-and-solve\|Plan-and-Solve]] | long | 先规划后执行；Wang 2023 两阶段范式 |
 | [[planning\|Planning]] | long | 复杂目标拆解，Agent 面对大任务的必要能力 |
 | [[reAct\|ReAct]] | long | Think→Act→Observe 循环，Agent 的基本执行框架 |
 | [[reflection\|Reflection]] | long | 自我检查纠错，应对 Agent 错误累积的手段 |
@@ -234,6 +241,7 @@ AI 系统的三层是因果链，不是分类：
 | [[memgpt\|MemGPT / Letta]] | mid | OS 式分页记忆研究 + Letta 有状态 Agent 平台 |
 | [[mem0\|Mem0]] | mid | 可插拔记忆 API（add/search，Cloud 或 OSS） |
 | [[honcho\|Honcho]] | short | 推理优先 peer 记忆（representation、Dreaming，托管或自托管） |
+| [[huggingface-transformers\|Hugging Face Transformers]] | long | 开源模型定义框架：Hub、Auto、Pipeline、Trainer 与推理生态枢纽 |
 
 ---
 
@@ -289,7 +297,7 @@ AI 系统的三层是因果链，不是分类：
 → [[cosine-similarity\|余弦相似度]] / [[bm25\|BM25]] → [[retrieval-pipeline\|检索全链路]]
 
 **我想搞懂 Agent 怎么实现的**
-→ [[agent\|Agent]] → [[tool-use\|Tool Use]] → [[reAct\|ReAct]] → [[planning\|Planning]]
+→ [[agent\|Agent]] → [[agent-paradigms\|智能体经典范式]] → [[tool-use\|Tool Use]] → [[reAct\|ReAct]] / [[plan-and-solve\|Plan-and-Solve]] / [[reflection\|Reflection]]
 
 **指令与 prompt 怎么设计**
 → [[instruction-design\|指令设计]] → [[instruction-linguistics\|指令语言学]] → [[cross-lingual-instruction\|跨语言]] → [[context-engineering\|Context Engineering]]

@@ -13,6 +13,7 @@ prerequisites:
 related:
   - "[[prompt-engineering]]"
   - "[[context-engineering]]"
+  - "[[loop-engineering]]"
   - "[[agent]]"
   - "[[workflow]]"
   - "[[skill-loading-library]]"
@@ -33,7 +34,7 @@ updated: 2026-06-05
 
 **预期寿命**：长期；具体框架实现会轮换，但「模型外循环 + 工具 + 状态」结构稳定。
 
-**近期演进**：推理模型承担更多规划，Harness 变薄、偏执行与安全；Skill/MCP/Hooks 标准化工具面。
+**近期演进**：推理模型承担更多规划，Harness 变薄、偏执行与安全；Skill/MCP/Hooks 标准化工具面；2026-06 **Loop 工程**把「谁启动 Harness、如何验收」提到范式层（见 [[loop-engineering]]）。
 
 **终极威胁**：平台内置不可替换的 Harness 时，自建编排价值下降；但领域边界与安全策略仍须本地定制。
 
@@ -79,15 +80,17 @@ Harness 借自软件测试里的 test harness：包裹被测核心、提供受�
 易与「Agent 产品」混为一谈：Agent 是面向用户的整体能力，Harness 是其中的 Runtime 层——负责循环与工具，不负责模型权重或业务 UI。三代范式则解决不同粒度的问题；Harness 不取代 Prompt/Context，而是在每次循环迭代里仍依赖它们：
 
 ```
-Prompt Engineering → Context Engineering → Harness Engineering
-   单次怎么说            单次给什么信息            多步怎么跑起来
+Prompt Engineering → Context Engineering → Harness Engineering → Loop Engineering
+   单次怎么说            单次给什么信息            多步怎么跑起来          谁替你在日程上反复启动
 ```
+
+（Loop 层为 2026-06 社区命名，详见 [[loop-engineering]]。）
 
 箭头表示能力粒度递进，不是「后者替代前者」：在每次 loop 迭代内，三者并列——每轮仍要写 prompt、管 context，再由 Harness 负责多步编排与收敛。
 
 Harness 内每一轮模型调用，仍要写对 prompt、管对 context；Harness 额外负责把多轮调用编排成可终止、可恢复的任务。
 
-一次多步任务在 Harness 里的最小因果链如下（对照 [[causal-chain]]；与 [[agent]] 图 L2 同构，本篇强调 Harness 侧职责）：用户目标进入循环 → 模型基于当前 state 推理下一步 → 若输出 tool call 则 Harness 校验并执行 → observation 写回 state → 直至终止条件或 `max_steps`。断在任一环节，任务就不会收敛：没有循环则只有一拍；没有校验则工具幻觉直达生产；没有 state 回注则模型看不见自己上一步做了什么。Anthropic 将自主 Agent 概括为「LLM 依环境反馈在循环中使用工具」[^anthropic-agent-loop]，并建议显式设置停止条件（如最大迭代次数）[^anthropic-stop]。
+一次多步任务在 Harness 里的最小因果链如下（因果分析框架见 [[causal-chain]]；与 [[agent]] 运行时循环结构相同，本篇强调 Harness 侧职责；2026-06 社区提出的 [[loop-engineering]] 在该循环**之上**再包一层触发/验收/跨 run 记忆）：用户目标进入循环 → 模型基于当前 state 推理下一步 → 若输出 tool call 则 Harness 校验并执行 → observation 写回 state → 直至终止条件或 `max_steps`。断在任一环节，任务就不会收敛：没有循环则只有一拍；没有校验则工具幻觉直达生产；没有 state 回注则模型看不见自己上一步做了什么。Anthropic 将自主 Agent 概括为「LLM 依环境反馈在循环中使用工具」[^anthropic-agent-loop]，并建议显式设置停止条件（如最大迭代次数）[^anthropic-stop]。
 
 ```mermaid
 flowchart LR
@@ -156,7 +159,7 @@ Context 逼近上限后旧 observation 会被静默截断，模型上一轮读�
 | 只回注错误不换策略 | 工具 schema 质量 | 同一 schema 错误循环重试，`max_steps` 触顶无交付 |
 | 边界只写 prompt 无 Hook | 工具与自主循环 | 高危调用在审批前已发出，事后无法审计 |
 
-设计顺序上，与 [[building-effective-agents]]「先最简单、可度量后再加复杂度」一致：宜 先划边界与工具 schema → 再定 state 压缩 → 最后调错误分层；在边界未硬编码前扩工具面，失败面最大。读表 takeaway：排障时先问「是哪一个抉择失衡」，而不是再加一个工具或加一段 system prompt。
+设计顺序上宜遵循「先最简单、可度量后再加复杂度」（见 [[building-effective-agents]]）：先划边界与工具 schema → 再定 state 压缩 → 最后调错误分层；在边界未硬编码前扩工具面，失败面最大。读表 takeaway：排障时先问「是哪一个抉择失衡」，而不是再加一个工具或加一段 system prompt。
 
 ### 典型实现
 
@@ -176,7 +179,7 @@ LlamaIndex Agents（[模块指南](https://docs.llamaindex.ai/en/stable/module_g
 
 本节回答：**图 1 与错误/边界分层在链路上怎么落地？**
 
-> **性质**：教学走读，场景对齐 [[tool-use]]（schema 校验、风险分层）与 [[cursor-hooks]]（`beforeShellExecution` 硬拦截），不是某次生产 incident 的实录。
+> **性质**：教学走读，演示 schema 校验与风险分层（[[tool-use]]）及 `beforeShellExecution` 硬拦截（[[cursor-hooks]]），不是某次生产 incident 的实录。
 
 下面走读把「工具 / 状态 / 错误 / 边界」四机制落到同一条任务链：工具 schema 在校验层收口，observation 写入 state 供后续推理，错误按策略性/瞬态分层，高危命令在 Hook 处硬拦截。
 
@@ -227,7 +230,7 @@ LlamaIndex Agents（[模块指南](https://docs.llamaindex.ai/en/stable/module_g
 
 读表 takeaway：先对照「决定什么」列定层级——Agent 产品≠Runtime，Prompt/Context 管单轮，Workflow 管固定 DAG，Harness 管多轮收敛；误判多发生在把低层问题强行上移到高层能力解决。
 
-「模型越强，Harness 越不重要」：[[agent]] 已述——Reasoning 模型（如 o3 / Claude 3.7+）改善的是链内单步规划，但 LLM 仍无状态，循环、工具执行、权限边界无法内化；Harness 可更薄，却不会消失（与 [[agent]]「坑与误区」、Anthropic「agents 仍需 stopping conditions 与 sandbox 测试」[^anthropic-stop] 一致）。
+「模型越强，Harness 越不重要」——Reasoning 模型（如 o3 / Claude 3.7+）改善的是链内单步规划，但大语言模型（LLM）仍无状态，循环、工具执行、权限边界无法内化；Harness 可更薄，却不会消失（常见误区见 [[agent]]；Anthropic 亦强调 agents 仍需 stopping conditions 与 sandbox 测试[^anthropic-stop]）。
 
 过度设计是另一头：工具过多、记忆层级过深、规划套规划，延迟与失败面同步放大。能用 [[workflow]] 封死的任务不必上 Agent 级 Harness；好的 Harness 默认薄、可组合、可替换。
 

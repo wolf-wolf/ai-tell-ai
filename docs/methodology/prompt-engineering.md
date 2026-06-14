@@ -10,6 +10,7 @@ prerequisites:
 related:
   - "[[context-engineering]]"
   - "[[harness-engineering]]"
+  - "[[loop-engineering]]"
   - "[[agent]]"
 stability: mid
 layer: application

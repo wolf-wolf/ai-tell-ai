@@ -34,7 +34,7 @@ updated: 2026-06-09
 
 ## 生命周期与演进
 
-**当前定位**：Hermes 记忆是「个人 Agent Harness」产品化方案，不是通用 Memory 框架。内置层极简（双文件 + 字符上限 + 冻结快照）；扩展层可插 Honcho / Mem0 / Supermemory 等 provider；Skill 与 Curator 构成程序性记忆的自进化闭环。与 [[agentmemory]]（跨宿主 MCP 记忆服务）互补：只跑 Hermes 用内置即可，要 Cursor + Hermes 共享库再接 MCP。
+**当前定位**：Hermes 记忆是「个人 Agent Harness」产品化方案，不是通用 Memory 框架。内置层极简（双文件 + 字符上限 + 冻结快照）；扩展层可插 Honcho / Mem0 / Supermemory 等 provider；Skill 与 Curator 构成程序性记忆的自进化闭环。只跑 Hermes 用内置即可；要 Cursor + Hermes 共享库再接跨宿主模型上下文协议（MCP）记忆服务（见 [[agentmemory]]）。
 
 **预期寿命**：中期。事实 / 流程 / 历史 三层分工在 Agent 工程里稳定；具体阈值（2200 字符、每 10 轮 nudge）会随版本调整。
 
@@ -79,7 +79,7 @@ flowchart TB
 
 **表 1：** 三层与通用 [[memory]] 对照
 
-| Hermes 层 | 存什么 | 典型内容 | 怎么读 | 与 [[agent-context-stack]] 对应 |
+| Hermes 层 | 存什么 | 典型内容 | 怎么读 | 在上下文栈中的角色 |
 | --- | --- | --- | --- | --- |
 | **持久记忆** | `MEMORY.md`（环境/任务）、`USER.md`（用户画像） | 「本项目不用 Vercel」「偏好中文技术博客体」 | 会话启动**整包**注入 system prompt | 个体 Rules + 用户偏好 |
 | **Skill 库** | `~/.hermes/skills/*/SKILL.md` 及附属文件 | 调试步骤、格式偏好、工具组合 | prompt 索引 + `skills_list` / `skill_view` | 程序性记忆 / Commands |
@@ -327,7 +327,7 @@ flowchart TB
 | **主 Agent 即时** | 用户说「记住」，或任务进行中识别到稳定事实 / 流程经验 | 主对话循环 |
 | **后台 Review** | 默认每 10 个用户轮扫描一次对话快照（PR #2235 后独立线程，不拖慢主回复） | `background_review.py` 派生的子 Agent |
 
-两条路径最终都调同一套工具：**稳定事实** → `memory`（必要时 `replace` 合并条目）；**这类任务怎么做** → `skill_manage`（优先 `patch` 已有大类 Skill）。Review 是在**只读对话快照**上跑一轮短 Agent，白名单只有 `memory` 与 `skill_manage`，**不**先产出 JSON 候选包再入库——和本库 [[knowledge-extraction]] / [[knowledge-fusion]] 描述的 Wiki/RAG 流水线（候选断言 → 实体对齐 → 冲突消解）是不同路线。
+两条路径最终都调同一套工具：**稳定事实** → `memory`（必要时 `replace` 合并条目）；**这类任务怎么做** → `skill_manage`（优先 `patch` 已有大类 Skill）。Review 是在**只读对话快照**上跑一轮短 Agent，白名单只有 `memory` 与 `skill_manage`，**不**先产出 JSON 候选包再入库——这是产品内嵌的即时沉淀路线，而非 Wiki/RAG 式的「候选断言 → 实体对齐 → 冲突消解」流水线（后者见 [[knowledge-extraction]]、[[knowledge-fusion]]）。
 
 ```mermaid
 flowchart LR
@@ -368,7 +368,7 @@ flowchart LR
 
 **子 Agent 从父 Agent「继承」什么、又刻意「隔离」什么**
 
-| 继承（对齐主会话） | 隔离（Review 专用约束） |
+| 继承（与主会话共享） | 隔离（Review 专用约束） |
 | --- | --- |
 | 同一 model、provider、auth | `quiet_mode=True`：不往 CLI 打日志，用户看不见 Review 过程 |
 | 已缓存的 system prompt（利于 [[prefix-cache]] 前缀复用） | `skip_context_files=True`：不再加载工作区 `AGENTS.md` 等上下文文件 |

@@ -69,9 +69,9 @@ flowchart LR
 | 捕获 | 靠模型或用户手写 | Pre/PostToolUse 等 Hook 自动记录 |
 | 治理 | 手动编辑 | TTL 衰减、矛盾检测、审计删除 |
 
-与 [[rag]]：**RAG** 面向预先策划的静态知识库；AgentMemory 面向**运行时观察**（改了哪个文件、测挂了什么、你选了 jose 而非 jsonwebtoken）。检索底层可复用向量/BM25 思路，**用途不同**——见 [[memory#Memory 与 RAG 的区别]]。
+**检索增强生成（RAG）** 面向预先策划的静态知识库；AgentMemory 面向**运行时观察**（改了哪个文件、测挂了什么、你选了 jose 而非 jsonwebtoken）。检索底层可复用向量/BM25 思路，**用途不同**（见 [[rag]]、[[memory#Memory 与 RAG 的区别]]）。
 
-与 [[skill]] / [[agent-context-stack]]：Skill 存稳定 SOP；AgentMemory 偏 **episodic + 个体化事实**（「这个项目 auth 在 `src/middleware/auth.ts`」）。程序性「怎么做发布」仍应进 Skill，勿把完整 SOP 塞进 `memory_save`。
+Skill 存稳定标准作业程序（SOP）；AgentMemory 偏 **情节记忆（Episodic）+ 个体化事实**（「这个项目 auth 在 `src/middleware/auth.ts`」）。程序性「怎么做发布」仍应进 Skill（见 [[skill]]），勿把完整 SOP 塞进 `memory_save`（上下文分层见 [[agent-context-stack]]）。
 
 ## 架构概览
 
@@ -83,7 +83,7 @@ flowchart LR
 | **@agentmemory/mcp** | stdio MCP shim | 代理到 `AGENTMEMORY_URL`；无服务时退化为 7 工具本地集 |
 | **宿主插件 / hooks** | Claude Code 12 hooks、Codex 6 hooks 等 | 零胶水自动 capture |
 
-**集成深度分三档**（与 [[hermes-agent]]、[[skill-loading-library]] 的宿主矩阵一致）：
+**集成深度分三档**（各宿主对照见 [[hermes-agent]]、[[skill-loading-library]]）：
 
 1. **Native plugin + hooks + MCP** — Claude Code、Codex CLI、Copilot CLI、Hermes、OpenClaw、pi：安装 marketplace 插件后，SessionStart/PostToolUse/Stop 等自动进 pipeline。
 2. **MCP only** — Cursor、Gemini CLI、Cline、Windsurf：配 universal MCP JSON 即可 recall/save，无自动 hook 时需模型主动调工具。
@@ -113,7 +113,7 @@ SessionStart → 加载 project profile
   → 默认 ~2000 token 预算 → 注入对话
 ```
 
-这与 [[memory#记忆操作：写入、检索、遗忘、合并]] 的操作链一一对应：Hook 负责 **Write**，SessionStart 负责 **Query**，巩固任务负责 **Consolidate/Forget**。
+Hook 负责 **Write**，SessionStart 负责 **Query**，巩固任务负责 **Consolidate/Forget**——对应通用记忆操作链（见 [[memory#记忆操作：写入、检索、遗忘、合并]]）。
 
 ### 四层巩固（4-Tier Consolidation）
 
@@ -227,7 +227,7 @@ Hermes：first-party Python 插件 + yaml 配置（与 [[hermes-agent]] 联读�
 
 ### 与本仓库 POC 的关系
 
-当前 POC（`poc/poc_server/hermes_adapter.py`）**未**接 AgentMemory，仍直接用 Hermes CLI。若要在问答/融合流水线里复用跨会话项目记忆，典型做法是：Session 前 `memory_profile` / `memory_smart_search`，或将融合结论经 `memory_save` 写回——与 [[knowledge-fusion]] 的「写入前人工校验」流程可并存。
+当前 POC（`poc/poc_server/hermes_adapter.py`）**未**接 AgentMemory，仍直接用 Hermes CLI。若要在问答/融合流水线里复用跨会话项目记忆，典型做法是：Session 前 `memory_profile` / `memory_smart_search`，或将融合结论经 `memory_save` 写回——写入前人工校验可与知识融合流水线并存（见 [[knowledge-fusion]]）。
 
 ## 坑与边界
 

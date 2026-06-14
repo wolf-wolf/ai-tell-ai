@@ -1,0 +1,9 @@
+{
+  "id": "ai-echarts",
+  "name": "AI ECharts",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "在阅读/预览模式中渲染 ```echarts 代码块（JSON 配置），用于散点图、折线图等坐标系教学图。",
+  "author": "ai-tell-ai",
+  "isDesktopOnly": false
+}

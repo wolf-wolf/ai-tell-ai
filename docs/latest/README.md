@@ -28,6 +28,7 @@
 | [[memgpt]] | MemGPT / Letta（OS 式分页记忆 + 有状态 Agent Runtime） |
 | [[mem0]] | Mem0 可插拔记忆层（Library / 自托管 / Cloud，V3 hybrid 检索） |
 | [[honcho]] | Honcho 推理优先 peer 记忆（representation、Neuromancer、Dreaming） |
+| [[huggingface-transformers]] | Transformers：Hub 加载、Auto/Pipeline、训练与 vLLM 等推理栈 |
 
 ## 待补充（占位，达阈值后建文）
 

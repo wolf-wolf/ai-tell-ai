@@ -1,7 +1,7 @@
 ---
 tags: [principle]
 aliases: [下一个 token 预测, Next Token Prediction, 语言建模]
-related: ["[[llm]]", "[[transformer]]", "[[attention]]"]
+related: ["[[llm]]", "[[world-model]]", "[[transformer]]", "[[attention]]", "[[emergence]]", "[[scaling-laws]]"]
 stability: permanent
 layer: model
 updated: 2026-05-25
@@ -93,7 +93,7 @@ top-p = 0.9：只考虑前 90% 累积概率的候选 token
 要预测一段对话中下一句合理的回应，模型必须理解对话结构和社交常识。
 要预测代码的下一行，模型必须理解编程语言语法和逻辑。
 
-当模型在足够大的数据规模和参数量上训练后，这些能力开始**涌现（Emergence）**——在某个规模阈值后突然出现，而非线性增长。这正是 Scaling Law 的核心发现。
+当模型在足够大的数据规模和参数量上训练后，这些能力开始**[[emergence|涌现（Emergence）]]**——在某个规模阈值后突然出现，而非线性增长。这正是 [[scaling-laws|Scaling Law]] 的核心发现之一。
 
 ### 为什么 LLM 会幻觉
 

@@ -8,7 +8,39 @@ VAULT="${VAULT:-$REPO_ROOT}"
 DEST="$VAULT/.obsidian/plugins/ai-read-tracker"
 
 mkdir -p "$DEST"
-cp "$SCRIPT_DIR/manifest.json" "$SCRIPT_DIR/main.js" "$DEST/"
+
+# Obsidian 无法可靠加载 require('./coverage-graph.js')，安装时合并为单文件 main.js
+python3 - "$SCRIPT_DIR" "$DEST" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+script_dir = Path(sys.argv[1])
+dest = Path(sys.argv[2])
+main_path = script_dir / "main.js"
+cov_path = script_dir / "coverage-graph.js"
+
+main = main_path.read_text(encoding="utf-8")
+cov = cov_path.read_text(encoding="utf-8")
+cov = re.sub(r"// coverage-graph\.js[^\n]*\n\s*", "", cov, count=1)
+cov = re.sub(
+    r'const \{ ItemView, TFile \} = require\("obsidian"\);\s*\n',
+    "",
+    cov,
+    count=1,
+)
+cov = re.sub(r"\nmodule\.exports\s*=\s*\{[\s\S]*\}\s*;\s*$", "\n", cov)
+
+marker = 'const VIEW_TYPE = "ai-read-tracker-dashboard";'
+if marker not in main:
+    raise SystemExit("install bundle: marker missing in main.js")
+
+bundled = main.replace(marker, cov + marker, 1)
+(dest / "main.js").write_text(bundled, encoding="utf-8")
+print("Bundled coverage-graph.js into main.js")
+PY
+
+cp "$SCRIPT_DIR/manifest.json" "$DEST/"
 if [[ -f "$SCRIPT_DIR/styles.css" ]]; then
   cp "$SCRIPT_DIR/styles.css" "$DEST/"
 fi

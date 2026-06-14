@@ -9,6 +9,7 @@ prerequisites: []
 related:
   - "[[llm]]"
   - "[[token-prediction]]"
+  - "[[scaling-laws]]"
   - "[[rlhf]]"
 stability: permanent
 layer: data

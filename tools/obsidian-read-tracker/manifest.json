@@ -1,9 +1,9 @@
 {
   "id": "ai-read-tracker",
   "name": "AI Read Tracker",
-  "version": "0.10.1",
-  "minAppVersion": "1.4.0",
-  "description": "阅读进度加权、状态/进度分布图、待跟进清单与有效阅读热力。",
+  "version": "0.12.3",
+  "minAppVersion": "1.5.0",
+  "description": "阅读进度、知识覆盖图（域聚合+map 索引）、统计 Dashboard 与热力。",
   "author": "ai-tell-ai",
   "isDesktopOnly": false
 }

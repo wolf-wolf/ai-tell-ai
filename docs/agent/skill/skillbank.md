@@ -11,9 +11,9 @@ updated: 2026-06-11
 # Skill Bank（技能库）
 
 > [!tip] 核心本质
-> **Skill Bank** 是 Agent 在跨回合、跨任务中**持久存放、检索、维护**可复用行为单元的结构化仓库——单元可以是 `SKILL.md`、带 effect contract 的协议技能、或蒸馏后的策略条目，而非原始轨迹全文。若没有技能库，经验只能以 episodic memory 或隐式 prompt 片段存在：每局重学、token 冗余、难以 merge/退役，[[skill-loading-library]] 所称的 Library Drift 与 silent stagnation 在规模化后几乎必然出现。
+> Skill Bank 是智能体（Agent）在跨回合、跨任务中持久存放、检索、维护可复用行为单元的结构化仓库——单元可以是 `SKILL.md`、带效应契约（effect contract）的协议技能、或蒸馏后的策略条目，而非原始轨迹全文。若没有技能库，经验只能以情景记忆（episodic memory）或隐式提示（prompt）片段存在：每局重学、词元（token）冗余、难以合并或退役，[[skill-loading-library]] 所称的库漂移（Library Drift）与静默停滞（silent stagnation）在规模化后几乎必然出现。
 
-适合已理解 [[skill]] 单份工件与渐进式披露的读者；本篇讲**库作为一等架构**（存什么、怎么取、怎么养），运行时 listing 预算与四动作治理分别见 [[skill-loading-library]]、[[skill-governance]]；具体自演化框架见 [[autoskill]]。
+适合已理解 [[skill]] 单份工件与渐进式披露的读者；本篇讲**库作为一等架构**（存什么、怎么取、怎么养）。相关专题：运行时 listing 与发现阶段（[[skill-loading-library]]）、入库治理（[[skill-governance]]）、自演化框架（[[autoskill]]）。
 
 *检索说明：正文对照 SkillRL（arXiv:2602.08234）、COS-PLAY（arXiv:2604.20987）、AutoSkill（arXiv:2603.01145）及 agentskills.io 开放标准（观测 2026-06-11）。*
 
@@ -21,11 +21,11 @@ updated: 2026-06-11
 
 **当前定位**：从研究隐喻走向工程标配。2023 年 Voyager 在 Minecraft 中构建的**技能库（skill library）**证明「可执行代码入库 + 检索」能**拉长探索视野（exploration horizon）**；2026 年多条研究线把同一抽象命名并形式化——SkillRL 的 **SkillBank**、AutoSkill 的 $\mathcal{B}_u$、COS-PLAY 的**带契约的可学习技能库（learnable skill bank with contracts）**、生产侧的 `.cursor/skills/` 目录与 agentskills.io 分发，都在回答「经验如何变成可组合能力」。
 
-**预期寿命**：中长期。在 frozen LLM + 上下文注入仍是主流部署形态时，**外置行为知识库**不会消失；差异在表示（Markdown vs JSON vs 代码）、谁维护（人 vs 轨迹管道 vs RL co-evolve）、以及检索接在 Discovery 还是独立 Top-K。
+**预期寿命**：中长期。在冻结底座大模型（frozen LLM）与上下文注入仍是主流部署形态时，外置行为知识库不会消失；差异在表示（`Markdown`、`JSON` 与可执行代码）、谁维护（人工、轨迹管道，还是强化学习协同演化（RL co-evolve））、以及检索接在发现阶段（Discovery）还是独立的相似度前 K 项（Top-K）。
 
-**近期演进**：分层库（通用策略 + 任务专用启发式）、带 **contract** 的可验证技能、与 GRPO/SFT 联训的「决策 Agent + 库管 Agent」双体共演化；工程侧 Ratchet、SkillClone 推动 **cap + dedup** 成为库运维默认项。
+**近期演进**：分层库（通用策略与任务专用启发式）、带效应契约（effect contract）的可验证技能、与 GRPO/SFT 联训的「决策智能体 + 库管智能体」双体共演化；工程侧 Ratchet、SkillClone 推动容量上限与去重（cap + dedup）成为库运维默认项。
 
-**终极威胁**：全参数持续学习或超长上下文「整库塞进窗口」会压缩独立 Skill Bank 的价值；更现实的威胁是**只建不养**的 ever-growing bank——表现静默变差却无报错，恰是 Ratchet 论文强调的 frozen-LLM 场景风险。
+**终极威胁**：全参数持续学习或超长上下文「整库塞进窗口」会压缩独立技能库（Skill Bank）的价值；更现实的威胁是只建不养的只增不减库（ever-growing bank）——表现静默变差却无报错，恰是 Ratchet 论文强调的冻结底座大模型（frozen LLM）场景风险。
 
 ## 技能库不是什么
 
@@ -38,19 +38,39 @@ updated: 2026-06-11
 | **工具注册表** | API schema、MCP 清单 | 调用签名 | 解决「能调什么」，不解决「多步规程」 |
 | **Skill Bank** | 可复用**行为模式**（约束、工作流、策略、可执行脚本） | 结构化技能正文 + 触发/适用条件 | 须治理：merge、版本、退役 |
 
-[[tool-self-learning]] 的 Voyager/LATM 闭环往往在 **Store** 阶段写入技能库；若缺少 [[skill-loading-library]] 的 Retire/Merge，库会只增不减。AutoSkill 与 [[skill-governance]] 的 add/merge/discard 则是在库边界上的**门卫**。
+[[tool-self-learning]] 的 Voyager/LATM 闭环往往在 **Store** 阶段写入技能库；若缺少退役与合并（Retire / Merge），库会只增不减。AutoSkill 与人工治理流程里的 add / merge / discard 则是在库边界上的**门卫**（见 [[skill-governance]]）。
 
 ## 库内单元：表示与元数据
 
-不同系统对「一条技能」的字段不同，但可收敛为同一逻辑元组：**身份**（name/id）、**路由/触发**（description、triggers、when_to_apply）、**可执行正文**（prompt、workflow、code）、**证据或契约**（examples、effect contract）、**版本**（$v$ 或 semver）。
+不同系统对「一条技能」的字段不同，但可收敛为同一逻辑元组：**身份**（`name` / `id`）、**路由/触发**（`description`、`triggers`、`when_to_apply`）、**可执行正文**（`prompt`、工作流、代码）、**证据或契约**（`examples`、效应契约（effect contract））、**版本**（$v$ 或 semver）。
 
 **工程 Skill（agentskills.io）**：目录 + `SKILL.md`，Discovery 用 `name`/`description`，Activation 载入全文，Execution 拉 `scripts/`——见 [[skill]]。这是当前最易人工审阅、跨宿主互操作的形态。
 
 **SkillRL SkillBank**[^skillrl]：JSON 分层库 $\mathcal{S}_g \cup \bigcup_k \mathcal{S}_k$。每条技能含 `name`、`principle`、`when_to_apply`；另设 **common_mistakes** 条目，把失败轨迹蒸馏为「勿重复某类错误」。通用技能 $\mathcal{S}_g$ **推理时常驻**；任务类技能按任务描述 embedding 做 Top-K，过相似度阈值 $\delta$ 才注入。
 
-**COS-PLAY 协议技能**[^cosplay]：从无标注 rollout 经边界提议、分段、**contract learning** 得到带紧凑 **effect contract** 的可复用技能；库管 Agent 对库做 refine、merge、split、retire，与决策 Agent 的检索策略 **GRPO 共训**。
+**COS-PLAY 协议技能**[^cosplay]：从无标注轨迹（rollout）经边界提议、分段、契约学习（contract learning）得到带紧凑效应契约的可复用技能；库管智能体对库做精炼、合并、切分、退役（refine / merge / split / retire），与决策智能体的检索策略经组相对策略优化（GRPO）共训。效应契约的定义、学习流程与三条用途见 [[#3.1 效应契约（effect contract）]]。
 
 **AutoSkill $\mathcal{B}_u$**[^autoskill]：用户级 `SKILL.md` 工件，混合稠密+BM25 检索，版本化 merge（`v0.1.0` → `v0.1.1`）；详见 [[autoskill]]。
+
+### 3.1 效应契约（effect contract）
+
+效应契约是 COS-PLAY 为每条协议技能附带的紧凑、可检验的状态变化说明：执行该技能后，环境里可靠地发生什么变化。它回答「用了之后世界会变成什么样」，与适用条件（如 `when_to_apply`：何时用）和 `SKILL.md` 工作流（怎么做）正交，落在元组里的「证据或契约」字段。
+
+| 表示 | 主要回答 |
+| --- | --- |
+| `SKILL.md` 工作流 | 怎么做（步骤、禁止项） |
+| `when_to_apply` 等触发描述 | 什么时候用 |
+| 效应契约（effect contract） | 用了之后环境可靠地变成什么样 |
+
+COS-PLAY 的库管流水线把无标注轨迹收成带契约的技能，四段依次为：边界提议（boundary proposal）→ 轨迹分段（segmentation）→ 契约学习（contract learning）→ 库维护（refine / merge / split / retire）。契约学习阶段聚合多段轨迹里新增与删除的状态谓词（predicate），归纳「前置状态 → 后置状态」的可靠变化；仅验证通过率足够高的契约才写回库，把偶然成功的片段挡在门外。
+
+效应契约在运行时承担三类工作，对应本篇检索表里的「契约过滤」行：
+
+1. **入库验证门**：执行后对照环境状态，判断技能是否真的生效，而非仅「描述像、偶尔碰对」。
+2. **检索后过滤**：语义相似度前 K 项（Top-K）之后，再用契约判断当前状态是否适用，抑制误召。
+3. **库管切分与合并**：长线任务里判断轨迹该切哪条技能边界；两条技能若效应高度重叠可合并，冲突则可切分。
+
+在状态可观测环境（游戏、沙箱）里，效应契约是自然表示。写文档、改代码等难形式化任务无法照搬环境谓词，但可部分迁移为可检查的输出契约——测试通过、产物路径、脚本退出码等——与 [[skill-engineering]] 里激活层（Activation）的规程契约同构，只是可验证对象从「棋盘状态」换成「工程产物」。
 
 [^skillrl]: [SkillRL（arXiv:2602.08234）](https://arxiv.org/abs/2602.08234)
 [^cosplay]: [COS-PLAY（arXiv:2604.20987）](https://arxiv.org/abs/2604.20987)
@@ -58,7 +78,7 @@ updated: 2026-06-11
 
 ## 运行时：从库到上下文
 
-技能库对决策层的接口可以概括为 **Retrieve → Render → Condition**：按当前任务/query 选子集，压成上下文块 $C_t$，再参与生成。与 [[skill-loading-library]] 的 Discovery→Activation 对齐处在于：**不要全库灌入**；分歧处在于研究系统常用独立检索器（embedding、BM25、混合分），而 Cursor/Claude 等宿主把 Discovery 嵌在 listing 与 `@skill` 路由里。
+技能库对决策层的接口可以概括为 **Retrieve → Render → Condition**：按当前任务/query 选子集，压成上下文块 $C_t$，再参与生成。**不要全库灌入**——只注入与当前任务相关的技能子集（渐进式披露）。研究系统常用独立检索器（嵌入（Embedding）、BM25、混合分）；Cursor / Claude 等宿主则把发现阶段嵌在 listing 与 `@skill` 路由里（见 [[skill-loading-library]]）。
 
 ```mermaid
 flowchart LR
@@ -79,7 +99,7 @@ flowchart LR
 | **语义 Top-K** | embedding 相似度 + 阈值 | SkillRL $\mathcal{S}_{\text{ret}}$ |
 | **混合检索** | 稠密 + BM25 加权 | AutoSkill $\mathrm{Rel}(q,s)$ |
 | **分层固定 + 动态** | 通用层常驻 + 专用层检索 | SkillRL $\mathcal{S}_g$ 恒注入 |
-| **契约过滤** | 检索后再用 effect contract 筛适用性 | COS-PLAY |
+| **契约过滤** | 检索后再用效应契约（effect contract）筛适用性 | COS-PLAY |
 
 SkillRL 报告相对原始轨迹约 **10–20× token 压缩**且推理效用不降反升[^skillrl]——说明库的价值不仅是「记住」，更是**抽象层级抬升**后同样窗口能塞更多可行动知识。
 
@@ -114,7 +134,7 @@ SkillRL 的 **recursive evolution**：每个 validation epoch 收集失败轨迹
 
 ### 2.1 与 Library Drift 的关系
 
-[[skill-loading-library]] 指出：ever-growing library 在 frozen LLM 上可导致 **silent stagnation**——Skill 越来越多、重叠描述越多，任务表现缓慢变差却少显性错误。Skill Bank 架构**必须**把 **Retire / Merge / Cap** 当作与 Retrieve 同等的一等操作；Ratchet、SkillClone、skill-compact 提供的是**库级算法与证据**，[[skill-governance]] 提供的是**团队何时执行**。
+Ever-growing library 在冻结底座大模型（frozen LLM）上可导致 **silent stagnation**——Skill 越来越多、重叠描述越多，任务表现缓慢变差却少显性错误（Library Drift，见 [[skill-loading-library]]）。Skill Bank 架构**必须**把 **Retire / Merge / Cap** 当作与 Retrieve 同等的一等操作；Ratchet、SkillClone、skill-compact 提供**库级算法与证据**；团队何时执行见 [[skill-governance]]。
 
 ## 分层与分区：大库怎么组织
 
@@ -124,15 +144,15 @@ SkillRL 的 **recursive evolution**：每个 validation epoch 收集失败轨迹
 
 **用户 / 项目 / 全局（工程实践）**：个人 `~/.cursor/skills/`、项目 `.cursor/skills/`、第三方 registry——[[skill-governance]] 用级别与 description 边界防止全局抢路由。
 
-**协议 + 契约（COS-PLAY）**：技能附带可学习的 effect contract，便于在长线任务中判断「这一段轨迹该切哪条技能边界」以及合并时是否语义重复。
+**协议 + 契约（COS-PLAY）**：技能附带可学习的效应契约，便于在长线任务中判断轨迹切分边界与合并是否语义重复（机制见 [[#3.1 效应契约（effect contract）]]）。
 
 **图 1：** 经验 → 蒸馏 → 门卫 → 银行；银行 → 检索 → Agent → 新经验
 
 ## 落地要点
 
-1. **把库当产品，不当文件夹**：为库定义入库门卫（可复用、可路由、可验证——与 [[skill-governance]] intake 四问同构）、退役策略与活跃上限 cap。
+1. **把库当产品，不当文件夹**：为库定义入库门卫（可复用、可路由、可验证——intake 四问见 [[skill-governance]]）、退役策略与活跃上限 cap。
 2. **检索与 Discovery 分别调参**：研究系统的 $\delta$、$K$、混合权重 $\lambda$ 对应工程上的 listing 预算、negative prompt 集与 golden 路由测。
-3. **默认 merge 优于 duplicate**：同一 capability family 应版本化更新，而非平行新建——AutoSkill、SkillRL 演化 loop 与治理 promote 流程一致。
+3. **默认 merge 优于 duplicate**：同一 capability family 应版本化更新，而非平行新建——AutoSkill、SkillRL 演化 loop 与人工 promote 流程均遵循此纪律（见 [[skill-governance]]）。
 4. **失败也是库输入**：SkillRL 的 common_mistakes、失败轨迹蒸馏，比只缓存成功 rollout 更能抑制重复犯错。
 5. **区分「库」与「单 Skill 写法」**：库结构演化不替代 [[skill-engineering]] 的正文质量；SkillOpt 优化单篇，skill-compact 压缩整库——分层使用。
 

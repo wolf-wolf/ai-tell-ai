@@ -74,13 +74,13 @@ flowchart TB
 | 学习闭环 | 弱 | 弱 | 自动建 Skill、GEPA 式改进（官方叙事） |
 | 脚本化 | 有限 | `codex` 非交互 | `hermes chat -q … --quiet` |
 
-与 [[agent-zero]]：Agent Zero 是 Docker 内**整台 Linux 桌面**工作台；Hermes 是**轻量 CLI/Gateway**，终端 backend 可 Docker 但不强制 GUI。编码日常优先 Hermes/Cursor；GUI/Blender/Annotate 浏览器选 Agent Zero。
+**Agent Zero**（[[agent-zero]]）是 Docker 内**整台 Linux 桌面**工作台；Hermes 是**轻量命令行界面（CLI）/ 网关（Gateway）**，终端 backend 可 Docker 但不强制图形界面（GUI）。编码日常优先 Hermes/Cursor；GUI/Blender/Annotate 浏览器选 Agent Zero。
 
-与 [[agentmemory]]：Hermes **内置**三层记忆（见下节）；AgentMemory 是**跨宿主 MCP 记忆服务**，Hermes 有 first-party 插件可接 AgentMemory。选型：只 Hermes 生态用内置；要 Cursor+Hermes 共享记忆库用 AgentMemory MCP。
+Hermes **内置**三层记忆（见下节）。**AgentMemory** 是跨宿主模型上下文协议（MCP）记忆服务，Hermes 有 first-party 插件可接。只跑 Hermes 生态用内置即可；要 Cursor + Hermes 共享记忆库再接 AgentMemory MCP（见 [[agentmemory]]）。
 
 ## 核心机制
 
-### 三层记忆（与 [[memory]] 对照）
+### 三层记忆
 
 官方实践分层（观测 2026-05）：
 
@@ -90,11 +90,11 @@ flowchart TB
 | **Skills** | 可复用 SOP：命令、验证步骤、坑点（[[skill]] 程序性记忆） | 任务匹配 description 时 Activation |
 | **Session search** | 过去对话与工作的 [[fts5\|FTS5]] 检索 + LLM 摘要 | 用户提「上次我们怎么做的」 |
 
-这与 [[agent-context-stack]] 分工一致：Memory 存易变个体事实，Skill 存稳定流程；Hermes 把两者都产品化，并加 **Honcho dialectic user modeling**（用户画像随会话加深）。实现细节（提取、融合、FTS5 检索、Curator）见专文 [[hermes-agent-memory]]。
+Memory 存易变个体事实，Skill 存稳定流程——对应上下文栈中的记忆层与程序性规程（见 [[memory]]、[[agent-context-stack]]）。Hermes 把两者都产品化，并加 **Honcho dialectic user modeling**（用户画像随会话加深）。实现细节（提取、融合、全文检索（FTS5）、Curator）见 [[hermes-agent-memory]]。
 
 ### Skill：Discovery 与 Activation
 
-本 vault 在 [[skill-loading-library]] 对 Hermes 的验收摘要：
+Hermes 在发现阶段（Discovery）与激活阶段（Activation）上的典型行为如下（宿主对照表见 [[skill-loading-library]]）：
 
 | 维度 | Hermes 行为 |
 | --- | --- |

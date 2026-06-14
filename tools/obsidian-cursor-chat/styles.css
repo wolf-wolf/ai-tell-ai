@@ -173,6 +173,52 @@
   gap: 8px;
   padding: 4px 2px 8px;
   font-size: 13px;
+  /* Obsidian 侧栏默认可禁用选择；对话区须允许拖选复制 */
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: auto;
+}
+
+.acc-messages .acc-msg-body,
+.acc-messages .acc-user-text,
+.acc-messages .acc-status-line,
+.acc-messages .acc-tool-line,
+.acc-messages .acc-md-rendered,
+.acc-messages .acc-md-rendered.markdown-rendered,
+.acc-file-context,
+.acc-file-history,
+.acc-file-history-q,
+.acc-file-history-a,
+.acc-queue-dock,
+.acc-queue-text {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: auto;
+}
+
+.acc-messages .acc-md-rendered *,
+.acc-file-history * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.acc-messages button,
+.acc-file-history-toggle,
+.acc-icon-btn,
+.acc-composer-editor .acc-inline-chip,
+.acc-composer-editor .acc-inline-meta {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.acc-msg-user ::selection {
+  background: rgba(255, 255, 255, 0.32);
+  color: inherit;
+}
+
+.acc-msg-assistant ::selection,
+.acc-file-history ::selection {
+  background: rgba(var(--interactive-accent-rgb, 100, 140, 255), 0.22);
 }
 
 .acc-bottom-dock {

@@ -182,11 +182,11 @@ npx -y -p github:NeoLi00/memX memx uninstall claude-code   # 或 codex / opencla
 
 备份配置后移除 memX 自有项；Claude/Codex 会停服务、卸 plugin 与 marketplace snapshot。
 
-### 与 [[claude-code]] / [[openclaw]] 联读
+### 宿主集成要点
 
-- Claude Code：memX 走 **native hooks**，与 [[cursor-hooks]] / Claude Hooks 并列——memX hook 专管记忆，不替代格式化/测试门禁类 hook。  
-- OpenClaw：memX **占 memory slot**；与 workspace `MEMORY.md` 分工见上文。  
-- 若同时装 **[[agentmemory]]**：避免双插件同时 auto-capture 同一 turn；择一或显式隔离 actor/DB。
+- **Claude Code**（[[claude-code]]）：memX 走 native hooks，专管记忆，不替代格式化/测试门禁类 hook（横切治理见 [[cursor-hooks]]）。  
+- **OpenClaw**（[[openclaw]]）：memX 占 memory slot；与 workspace `MEMORY.md` 分工见上文。  
+- 若同时装 **AgentMemory**（[[agentmemory]]）：避免双插件同时 auto-capture 同一 turn；择一或显式隔离 actor/DB。
 
 ## 坑与边界
 

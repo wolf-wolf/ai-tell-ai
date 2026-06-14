@@ -162,7 +162,7 @@ Discovery 层常见坑：Skill 在磁盘上存在，但**未进宿主 listing**�
 
 - 要求复述 tool result 中的具体字段或 exit code。
 - API / MCP 报错时：**终止并上报**，禁止猜测返回值。
-- 与 [[context-engineering]] 一致：信噪比来自**真实数据引用**，不是更长 prompt。
+- 信噪比来自**真实数据引用**，不是更长 prompt（上下文工程原则见 [[context-engineering]]）。
 
 ### 5. 强制自检与脚本闭环
 

@@ -1039,6 +1039,8 @@ class CursorChatView extends ItemView {
     this.fileHistoryEl = null;
     /** 侧栏获焦后仍显示「本篇历史」 */
     this.pinnedNotePath = null;
+    /** 区分拖选与点击库内文件链接 */
+    this._vaultLinkPress = null;
   }
 
   getViewType() {
@@ -1127,10 +1129,40 @@ class CursorChatView extends ItemView {
     this.plugin.setChatView(this);
     this.registerDomEvent(
       root,
+      "mousedown",
+      (e) => {
+        const link = e.target.closest(".acc-vault-link[data-vault-path]");
+        if (!link) {
+          this._vaultLinkPress = null;
+          return;
+        }
+        this._vaultLinkPress = {
+          x: e.clientX,
+          y: e.clientY,
+          path: link.dataset.vaultPath,
+        };
+      },
+      { capture: true }
+    );
+    this.registerDomEvent(
+      root,
       "click",
       (e) => {
         const link = e.target.closest(".acc-vault-link[data-vault-path]");
         if (!link) return;
+        const sel = window.getSelection();
+        if (sel && !sel.isCollapsed && (sel.toString() || "").trim()) {
+          return;
+        }
+        const press = this._vaultLinkPress;
+        if (
+          press &&
+          press.path === link.dataset.vaultPath &&
+          (Math.abs(e.clientX - press.x) > 4 ||
+            Math.abs(e.clientY - press.y) > 4)
+        ) {
+          return;
+        }
         e.preventDefault();
         e.stopPropagation();
         openVaultFile(this.app, link.dataset.vaultPath);
