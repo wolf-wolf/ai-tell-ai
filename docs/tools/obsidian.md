@@ -6,6 +6,8 @@ related:
   - "[[memory]]"
   - "[[tool-mcp]]"
   - "[[skill]]"
+  - "[[qmd]]"
+  - "[[llm-wiki-overview]]"
 prerequisites: []
 stability: long
 layer: application

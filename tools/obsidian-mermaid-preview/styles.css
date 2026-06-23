@@ -25,6 +25,20 @@
   min-height: 2rem;
 }
 
+.amm-host.amm-fit-view-host .amm-stage.amm-fit-view {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  max-height: var(--amm-max-h, 480px);
+  overflow: visible;
+}
+
+.amm-host.amm-fit-view-host .amm-stage.amm-fit-view svg {
+  display: block;
+  flex-shrink: 0;
+}
+
 .amm-host .amm-mermaid-inner,
 .amm-host .amm-graph {
   display: block;
@@ -60,7 +74,7 @@
 .amm-diagram-surface svg g.node path.label-container {
   fill: var(--amm-node-fill, var(--background-primary)) !important;
   stroke: var(--amm-node-border, var(--text-muted)) !important;
-  stroke-width: 2px !important;
+  stroke-width: var(--amm-node-border-width, 1.25px) !important;
 }
 
 .amm-diagram-surface svg g.cluster rect,
@@ -86,6 +100,12 @@
 
 .amm-diagram-surface svg foreignObject div {
   color: var(--amm-text-color, var(--text-normal)) !important;
+  overflow: visible !important;
+  white-space: nowrap;
+}
+
+.amm-diagram-surface svg foreignObject {
+  overflow: visible !important;
 }
 
 .amm-toolbar {
@@ -235,6 +255,13 @@
   height: auto;
   background: transparent;
   border-radius: 4px;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.amm-lightbox-inner svg foreignObject div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Print */

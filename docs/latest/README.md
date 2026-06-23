@@ -19,20 +19,23 @@
 | --- | --- |
 | [[hermes-agent]] | Hermes CLI 编码 Agent（Skill、工具、本地执行） |
 | [[langgraph]] | LangGraph 状态图编排与 CRAG 等生产模式 |
+| [[crewai]] | CrewAI 角色化多 Agent（Agent/Task/Crew；Sequential / Hierarchical） |
+| [[langchain]] | LangChain 组合框架与生态分层（LangGraph / LangSmith） |
+| [[langsmith]] | LangSmith 追踪、dataset 评测与在线监控 |
+| [[low-code-agents]] | Dify / n8n / Coze 低代码 Agent 选型 |
+| [[ollama]] | 本地大模型运行时：pull/serve、REST 与 OpenAI 兼容 API |
 | [[agentmemory]] | AgentMemory 持久记忆层（MCP、iii、混合检索） |
 | [[agent-zero]] | Agent Zero / Agent0（Docker Linux Agent 工作台、A0 CLI） |
 | [[openclaw]] | OpenClaw 个人助手 Gateway（多 IM 通道、ClawHub、workspace 记忆） |
 | [[claude-code]] | Anthropic Claude Code（终端/IDE Agent、CLAUDE.md、Skills、Hooks） |
+| [[codex-cli]] | OpenAI Codex CLI（Rust 终端编码 Agent、MCP、exec、Cloud） |
 | [[memx]] | memX 本地记忆插件（Claude Code/Codex/OpenClaw hooks、三层溯源存储） |
 | [[claude-managed-agents]] | Anthropic Claude Managed Agents（托管 Harness + 沙箱 REST API） |
 | [[memgpt]] | MemGPT / Letta（OS 式分页记忆 + 有状态 Agent Runtime） |
 | [[mem0]] | Mem0 可插拔记忆层（Library / 自托管 / Cloud，V3 hybrid 检索） |
 | [[honcho]] | Honcho 推理优先 peer 记忆（representation、Neuromancer、Dreaming） |
 | [[huggingface-transformers]] | Transformers：Hub 加载、Auto/Pipeline、训练与 vLLM 等推理栈 |
-
-## 待补充（占位，达阈值后建文）
-
-- Codex CLI 宿主对比
-- LangSmith / LangChain Agent 栈选型
+| [[gbrain]] | GBrain：Markdown Git 大脑、混合检索、写时图谱、MCP synthesis |
+| [[palantir-ontology]] | Palantir Ontology：Foundry 运营层、OAG/AIP、OSDK、Palantir MCP / OMCP |
 
 新建文章：复制 `templates/template-knowledge-node.md` 或参照同目录已有节点的 frontmatter；文件名全库唯一。

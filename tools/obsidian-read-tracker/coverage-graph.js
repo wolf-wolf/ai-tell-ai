@@ -54,12 +54,12 @@ const MACRO_LAYOUT = {
 };
 
 function clusterBubbleRadius(count) {
-  const cell = 44;
-  const cols = Math.max(1, Math.ceil(Math.sqrt(count * 1.3)));
+  const cell = 36;
+  const cols = Math.max(1, Math.ceil(Math.sqrt(count)));
   const rows = Math.ceil(count / cols);
-  const halfW = ((cols - 1) * cell) / 2 + 32;
-  const halfH = ((rows - 1) * cell) / 2 + 32;
-  return Math.max(58, Math.hypot(halfW, halfH) + 38);
+  const halfW = ((cols - 1) * cell) / 2 + 20;
+  const halfH = ((rows - 1) * cell) / 2 + 20;
+  return Math.max(42, Math.hypot(halfW, halfH) + 22);
 }
 
 function countNodesByCluster(nodes) {
@@ -100,8 +100,8 @@ function clusterStroke(hue, alpha = 0.22) {
 }
 
 function nodeRadius(progress, stateId, inMap) {
-  let r = stateId === "unread" ? 5 : 5 + Math.min(6, (progress || 0) / 20);
-  if (inMap) r += 1.2;
+  let r = stateId === "unread" ? 5.5 : 5.5 + Math.min(7, (progress || 0) / 18);
+  if (inMap) r += 1.4;
   return r;
 }
 
@@ -262,8 +262,10 @@ class CoverageGraphView extends ItemView {
 
   layoutClusterCenters(clusterIds, viewportMin = 720, clusterCounts = new Map()) {
     const ids = [...clusterIds].sort((a, b) => clusterSortKey(a).localeCompare(clusterSortKey(b)));
-    const vmin = Math.max(700, viewportMin);
-    const gap = 64;
+    const vmin = Math.max(640, viewportMin);
+    const gap = 34;
+    const maxRowWidth = vmin * 0.94;
+    const innerRowGap = 22;
 
     for (const id of ids) {
       const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
@@ -276,42 +278,72 @@ class CoverageGraphView extends ItemView {
     const agent = ids.filter((id) => id.startsWith("agent"));
     const rest = ids.filter((id) => !foundation.includes(id) && !agent.includes(id));
 
-    const rowWidth = (list) =>
-      list.reduce((sum, id) => {
-        const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
-        return sum + def.bubbleR * 2 + gap;
-      }, -gap);
-
-    const placeRow = (list, cy) => {
-      if (!list.length) return;
-      let x = -rowWidth(list) / 2;
+    const buildRows = (list) => {
+      if (!list.length) return [];
+      const rows = [];
+      let current = [];
+      let currentW = -gap;
       for (const id of list) {
         const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
-        def.cx = x + def.bubbleR;
-        def.cy = cy;
-        x += def.bubbleR * 2 + gap;
+        const w = def.bubbleR * 2 + gap;
+        if (current.length && currentW + w > maxRowWidth) {
+          rows.push(current);
+          current = [];
+          currentW = -gap;
+        }
+        current.push(id);
+        currentW += w;
+      }
+      if (current.length) rows.push(current);
+      return rows;
+    };
+
+    const blockHeight = (list) => {
+      const rows = buildRows(list);
+      if (!rows.length) return 0;
+      let h = 0;
+      rows.forEach((row, i) => {
+        const rowH = Math.max(...row.map((id) => (CLUSTER_DEFS[id]?.bubbleR || 48) * 2));
+        h += rowH + (i > 0 ? innerRowGap : 0);
+      });
+      return h;
+    };
+
+    const placeBlock = (list, centerY) => {
+      const rows = buildRows(list);
+      if (!rows.length) return;
+      const totalH = blockHeight(list);
+      let y = centerY - totalH / 2;
+      for (const row of rows) {
+        const rowH = Math.max(...row.map((id) => (CLUSTER_DEFS[id]?.bubbleR || 48) * 2));
+        const rowW = row.reduce((sum, id) => {
+          const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
+          return sum + def.bubbleR * 2 + gap;
+        }, -gap);
+        let x = -rowW / 2;
+        const cy = y + rowH / 2;
+        for (const id of row) {
+          const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
+          def.cx = x + def.bubbleR;
+          def.cy = cy;
+          x += def.bubbleR * 2 + gap;
+        }
+        y += rowH + innerRowGap;
       }
     };
 
-    const agentH =
-      agent.reduce((m, id) => Math.max(m, CLUSTER_DEFS[id]?.bubbleR || 70), 0) * 2;
-    const foundH =
-      foundation.reduce((m, id) => Math.max(m, CLUSTER_DEFS[id]?.bubbleR || 70), 0) * 2;
-    const restH =
-      rest.reduce((m, id) => Math.max(m, CLUSTER_DEFS[id]?.bubbleR || 70), 0) * 2;
-    const rowGap = gap + 24;
+    const sectionGap = 40;
+    const foundH = blockHeight(foundation);
+    const agentH = blockHeight(agent);
+    const restH = blockHeight(rest);
+    const totalH = foundH + agentH + restH + sectionGap * 2;
+    let y = -totalH / 2;
 
-    placeRow(foundation, -(agentH / 2 + foundH / 2 + rowGap));
-    placeRow(agent, 0);
-    placeRow(rest, agentH / 2 + restH / 2 + rowGap);
-
-    const scale = Math.max(1, vmin / 680);
-    for (const id of ids) {
-      const def = CLUSTER_DEFS[id] || CLUSTER_DEFS.other;
-      def.cx *= scale;
-      def.cy *= scale;
-      def.bubbleR *= Math.min(1.35, 0.92 + scale * 0.08);
-    }
+    placeBlock(foundation, y + foundH / 2);
+    y += foundH + sectionGap;
+    placeBlock(agent, y + agentH / 2);
+    y += agentH + sectionGap;
+    placeBlock(rest, y + restH / 2);
   }
 
   seedNodePositions(nodes) {
@@ -598,12 +630,12 @@ class CoverageGraphView extends ItemView {
 
   fitToView() {
     if (!this.graph?.nodes.length || !this.size.w || !this.size.h) return;
-    const bounds = this.computeGraphBounds(56);
+    const bounds = this.computeGraphBounds(48);
     if (!bounds || bounds.w < 1 || bounds.h < 1) return;
-    const margin = 28;
+    const margin = 18;
     const availW = Math.max(80, this.size.w - margin * 2);
     const availH = Math.max(80, this.size.h - margin * 2);
-    const scale = Math.min(availW / bounds.w, availH / bounds.h) * 0.96;
+    const scale = Math.min(availW / bounds.w, availH / bounds.h) * 0.98;
     this.transform.scale = Math.max(0.06, Math.min(12, scale));
     this.transform.x = this.size.w / 2 - bounds.cx * this.transform.scale;
     this.transform.y = this.size.h / 2 - bounds.cy * this.transform.scale;
@@ -616,41 +648,73 @@ class CoverageGraphView extends ItemView {
     return node.inMap || !["unread", "skimmed"].includes(node.stateId);
   }
 
-  drawClusterLabel(ctx, transform, x, y, title, sub, hue) {
-    const fs = Math.max(11, 13 / transform.scale);
-    const fsSub = Math.max(9, 10 / transform.scale);
-    ctx.font = `600 ${fs}px var(--font-interface, sans-serif)`;
-    const tw = ctx.measureText(title).width;
-    ctx.font = `${fsSub}px var(--font-interface, sans-serif)`;
-    const sw = ctx.measureText(sub).width;
-    const pw = Math.max(tw, sw) + 18 / transform.scale;
-    const ph = (fs + fsSub + 10) / transform.scale;
-    const rx = 6 / transform.scale;
-    const left = x - pw / 2;
-    const top = y - ph / 2 - 2 / transform.scale;
-
-    ctx.fillStyle = clusterFill(hue, 0.22);
-    ctx.strokeStyle = clusterStroke(hue, 0.5);
-    ctx.lineWidth = 1.2 / transform.scale;
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(left, top, pw, ph, rx);
-    } else {
-      ctx.rect(left, top, pw, ph);
+  drawClusterLabelsScreen() {
+    if (!this.ctx || !this.graph) return;
+    const { ctx, transform, graph } = this;
+    const byCluster = new Map();
+    for (const node of graph.nodes) {
+      if (!byCluster.has(node.clusterId)) byCluster.set(node.clusterId, []);
+      byCluster.get(node.clusterId).push(node);
     }
-    ctx.fill();
-    ctx.stroke();
 
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `600 ${fs}px var(--font-interface, sans-serif)`;
-    ctx.fillStyle = clusterStroke(hue, 0.95);
-    ctx.fillText(title, x, y - 5 / transform.scale);
-    ctx.font = `${fsSub}px var(--font-interface, sans-serif)`;
-    ctx.fillStyle =
-      getComputedStyle(document.body).getPropertyValue("--text-muted").trim() ||
-      "#888";
-    ctx.fillText(sub, x, y + 7 / transform.scale);
+    const muted =
+      getComputedStyle(document.body).getPropertyValue("--text-muted").trim() || "#888";
+    const font =
+      getComputedStyle(document.body).getPropertyValue("--font-interface").trim() ||
+      "sans-serif";
+
+    for (const [cid, list] of byCluster) {
+      if (!list.length) continue;
+      const def = CLUSTER_DEFS[cid] || CLUSTER_DEFS.other;
+      const bubbleR = def.bubbleR || clusterBubbleRadius(list.length);
+      const screenR = bubbleR * transform.scale;
+      if (screenR < 22) continue;
+
+      const anchor = this.worldToScreen(def.cx, def.cy - bubbleR);
+      const inMapCount = list.filter((n) => n.inMap).length;
+      const readCount = list.filter((n) =>
+        ["read", "deep", "complete"].includes(n.stateId)
+      ).length;
+      const showSub = screenR >= 40;
+      const titleSize = Math.round(Math.min(13, Math.max(10, screenR * 0.17)));
+      const subSize = Math.max(9, titleSize - 2);
+
+      ctx.save();
+      ctx.font = `600 ${titleSize}px ${font}`;
+      const tw = ctx.measureText(def.label).width;
+      let sw = 0;
+      const sub = `${readCount}/${list.length} 已读 · ${inMapCount} 在地图`;
+      if (showSub) {
+        ctx.font = `${subSize}px ${font}`;
+        sw = ctx.measureText(sub).width;
+      }
+      const pw = Math.max(tw, sw) + 14;
+      const ph = showSub ? titleSize + subSize + 8 : titleSize + 8;
+      const x = anchor.x;
+      const top = anchor.y + 8;
+      const left = x - pw / 2;
+
+      ctx.fillStyle = `hsla(${def.hue}, 48%, 52%, 0.11)`;
+      ctx.strokeStyle = `hsla(${def.hue}, 42%, 46%, 0.32)`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(left, top, pw, ph, 5);
+      else ctx.rect(left, top, pw, ph);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.font = `600 ${titleSize}px ${font}`;
+      ctx.fillStyle = clusterStroke(def.hue, 0.92);
+      ctx.fillText(def.label, x, top + 4);
+      if (showSub) {
+        ctx.font = `${subSize}px ${font}`;
+        ctx.fillStyle = muted;
+        ctx.fillText(sub, x, top + 4 + titleSize + 2);
+      }
+      ctx.restore();
+    }
   }
 
   worldToScreen(x, y) {
@@ -705,29 +769,15 @@ class CoverageGraphView extends ItemView {
 
       ctx.beginPath();
       ctx.arc(cx, cy, bubbleR, 0, Math.PI * 2);
-      const grad = ctx.createRadialGradient(cx, cy, bubbleR * 0.15, cx, cy, bubbleR);
-      grad.addColorStop(0, clusterFill(def.hue, 0.16));
-      grad.addColorStop(1, clusterFill(def.hue, 0.03));
+      const grad = ctx.createRadialGradient(cx, cy, bubbleR * 0.1, cx, cy, bubbleR);
+      grad.addColorStop(0, clusterFill(def.hue, 0.12));
+      grad.addColorStop(0.72, clusterFill(def.hue, 0.05));
+      grad.addColorStop(1, clusterFill(def.hue, 0.02));
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.strokeStyle = clusterStroke(def.hue, 0.48);
-      ctx.lineWidth = 2 / transform.scale;
+      ctx.strokeStyle = clusterStroke(def.hue, 0.34);
+      ctx.lineWidth = 1.4 / transform.scale;
       ctx.stroke();
-
-      const inMapCount = list.filter((n) => n.inMap).length;
-      const readCount = list.filter((n) =>
-        ["read", "deep", "complete"].includes(n.stateId)
-      ).length;
-      const labelY = cy - bubbleR + 22 / transform.scale;
-      this.drawClusterLabel(
-        ctx,
-        transform,
-        cx,
-        labelY,
-        def.label,
-        `${readCount}/${list.length} 已读 · ${inMapCount} 在地图`,
-        def.hue
-      );
     }
   }
 
@@ -855,6 +905,7 @@ class CoverageGraphView extends ItemView {
     }
 
     ctx.restore();
+    this.drawClusterLabelsScreen();
   }
 
   startSimulationLoop() {
@@ -1114,9 +1165,11 @@ class CoverageGraphView extends ItemView {
       if (panel) panel.toggleClass("is-open", !panel.hasClass("is-open"));
     });
 
-    const statsRow = header.createDiv({ cls: "acg-stats" });
-    const addStat = (value, label, tip) => {
-      const card = statsRow.createDiv({ cls: "acg-stat" });
+    const statsRow = header.createDiv({ cls: "acg-stats acg-stats-grid" });
+    const addStat = (value, label, tip, variant = "") => {
+      const card = statsRow.createDiv({
+        cls: `acg-stat${variant ? ` ${variant}` : ""}`,
+      });
       if (tip) card.setAttribute("title", tip);
       card.createDiv({ cls: "acg-stat-value", text: String(value) });
       card.createDiv({ cls: "acg-stat-label", text: label });
@@ -1130,16 +1183,20 @@ class CoverageGraphView extends ItemView {
     addStat(
       `${stats.mapLearnPct}%`,
       "地图已读",
-      "纳入地图的节点中，你已读+精读+已读完的比例"
+      "纳入地图的节点中，你已读+精读+已读完的比例",
+      "acg-stat-warn"
     );
     addStat(
-      stats.coreTotal
-        ? `${stats.coreRead}/${stats.coreTotal}`
-        : "—",
+      stats.coreTotal ? `${stats.coreRead}/${stats.coreTotal}` : "—",
       "核心已读",
       "permanent + long 核心节点中已读透数量"
     );
-    addStat(`${stats.touchedPct}%`, "你已触达", "统计范围内打开或有效阅读过的比例");
+    addStat(
+      `${stats.touchedPct}%`,
+      "你已触达",
+      "统计范围内打开或有效阅读过的比例",
+      "acg-stat-accent"
+    );
 
     const legendPanel = header.createDiv({ cls: "acg-legend-panel" });
     this.renderLegend(legendPanel);

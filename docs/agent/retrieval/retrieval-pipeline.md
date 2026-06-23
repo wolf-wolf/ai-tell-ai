@@ -77,7 +77,7 @@ flowchart LR
 | 技术 | 做什么 | 适用场景 |
 | --- | --- | --- |
 | **查询改写** | 同义词扩展、补全上下文 | 口语查询、历史依赖查询 |
-| **HyDE** | 先让 LLM 生成假设答案，用假设答案的 embedding 去检索 | 专业领域、用户表述和文档语言差距大 |
+| **[[hyde]]** | 先让 LLM 生成假设答案，用假设答案的 embedding 去检索 | 专业领域、用户表述和文档语言差距大 |
 | **多查询拆解** | 将复合问题拆为 N 个子查询分别检索后合并 | 多跳问题、聚合型问答 |
 | **语言归一** | 多语查询翻译为主语言 | 中英混库 |
 
@@ -162,7 +162,7 @@ flowchart LR
 
 ## 第四阶段：精排（Rerank）
 
-精排用 [[cross-encoder]] 对融合后的 Top-K（常见 50–100）逐对 **联合注意力打分**，修正粗排里「关键词像、语义偏」的噪声，再取 Top-N（3–10）注入 prompt。[[bi-encoder|双塔]]（[[embedding]] + [[cosine-similarity]]）与 [[bm25]] 保 **召回**；交叉编码器保 **精准**——架构对比、相似度计算、复杂度下界与 ColBERT 折中见专文，本篇只保留 **选型与落地**。
+精排用 [[cross-encoder]] 对融合后的 Top-K（常见 50–100）逐对 **联合注意力打分**，修正粗排里「关键词像、语义偏」的噪声，再取 Top-N（3–10）注入 prompt。生产选型见 [[rerank]]。[[bi-encoder|双塔]]（[[embedding]] + [[cosine-similarity]]）与 [[bm25]] 保 **召回**；交叉编码器保 **精准**——架构对比、相似度计算、复杂度下界与 ColBERT 折中见专文，本篇只保留 **选型与落地**。
 
 **实测延迟**：单 A10 GPU，`bge-reranker-v2-m3` FP16 约 200–400 pair/s，50 候选约 125–250ms。
 
@@ -332,7 +332,8 @@ API Gateway
 - [[recall-at-k]] — Recall@K / Recall@5 定义、手算示例、与 Precision/NDCG 分工
 - [[rag]] — RAG 整体框架概述与适用场景判断
 - [[rrf]] — 多路排名融合（RRF）专文：公式、k、加权与常见误区
-- [[query-transformation]] — Query 预处理的各种技术（HyDE、多查询、子查询）
+- [[hyde]] — 假设文档嵌入专文
+- [[query-transformation]] — Query 预处理的各种技术（[[hyde]]、多查询、子查询）
 - [[embedding]] — Embedding 模型原理，向量相似度为何有效
 - [[context-engineering]] — 检索结果如何在有限窗口内高效组装
 - [FlagEmbedding](https://github.com/FlagOpen/FlagEmbedding) — BGE 系列 embedding + reranker 官方实现

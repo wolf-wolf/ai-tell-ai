@@ -1,9 +1,9 @@
 {
   "id": "ai-mermaid-preview",
   "name": "AI Mermaid Preview",
-  "version": "0.1.8",
+  "version": "0.2.5",
   "minAppVersion": "1.5.0",
-  "description": "增强阅读/预览模式下的 Mermaid 图：主题跟随、更大字号、自适应宽度、缩放与全屏查看。",
+  "description": "增强阅读/预览模式下的 Mermaid 图：紧凑布局、内联适应视口、主题跟随、全屏缩放。",
   "author": "ai-tell-ai",
   "isDesktopOnly": false
 }

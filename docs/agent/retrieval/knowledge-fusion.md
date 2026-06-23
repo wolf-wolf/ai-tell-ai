@@ -164,7 +164,7 @@ Truth Discovery 实现碎片化；LLM 流水线（如 STORM）越来越多承担
 | [MEMIT](https://github.com/kmeng01/memit) | ~900 | ROME 批量扩展 |
 | [GRACE](https://github.com/thartvigsen/grace) | ~200 | 外挂码本，少改权重 |
 
-知识编辑仍偏研究；GRACE 外挂码本本质接近 RAG。生产优先推理层融合方向。
+知识编辑仍偏研究；GRACE 外挂码本本质接近 RAG。生产优先推理层融合方向。工具索引见 [[knowledge-fusion-tools]]。
 
 ## 进一步阅读
 

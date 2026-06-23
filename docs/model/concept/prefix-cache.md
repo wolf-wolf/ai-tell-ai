@@ -49,7 +49,7 @@ Decode KV cache 在**同一次请求**内缓存已生成 token 的 K/V，下一�
 
 ### 1.2 前缀缓存 / Prompt Caching（跨请求）
 
-跨请求优化：若请求 B 的 prompt **前缀**与请求 A 完全一致，则 B 可**跳过**该前缀的 prefill 计算，直接复用 A（或共享池）里已算好的 KV，从首个「未命中」token 继续。
+跨请求优化：若请求 B 的 prompt **前缀**与请求 A 完全一致，则 B 可**跳过**该前缀的 prefill 计算，直接复用 A（或共享池）里已算好的 KV，从首个「未命中」token 继续。机制层见 [[kv-cache-inference]]。
 
 ```mermaid
 flowchart LR

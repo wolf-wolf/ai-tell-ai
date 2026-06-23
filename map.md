@@ -4,7 +4,7 @@ tags:
 aliases:
   - 知识地图
   - index
-updated: 2026-06-03
+updated: 2026-06-15
 ---
 
 # AI 知识地图
@@ -56,9 +56,12 @@ AI 系统的三层是因果链，不是分类：
 | [[training-data\|训练数据与语料]] | permanent | 模型的知识从哪来，数据决定上限 |
 | [[scaling-laws\|缩放法则]] | long | Loss 对参数量/数据/算力的幂律；Chinchilla 与 [[emergence\|涌现]] 争议 |
 | [[tokenization\|Tokenization]] | permanent | 文本怎么变成模型能处理的东西 |
+| [[sft\|SFT]] | long | 监督微调：示范把基座变成听指令的策略 |
 | [[rlhf\|RLHF]] | long | SFT→RM→PPO 偏好对齐；DPO 等闭式替代 |
 | [[rlhf-bias\|RLHF 偏置]] | long | 奖励模型代理不完美时的结构性偏置与缓解 |
 | [[rlvr\|RLVR]] | mid | 用可自动验真的规则奖励做推理对齐（数学、代码等） |
+| [[agentic-rl\|Agentic RL / GRPO]] | mid | 工具轨迹 RL；组相对 advantage；DeepSeek-R1 路线 |
+| [[local-llama-pretrain\|本地 Llama 预训练]] | mid | 从零预训练 Llama 系小模型：路径区分、流水线、工具链与学习路径 |
 
 ### 机制
 
@@ -83,15 +86,30 @@ AI 系统的三层是因果链，不是分类：
 | [[world-model\|世界模型]] | long | 预测状态演化以支持想象与规划；JEPA / RL 两条脉络 |
 | [[emergence\|涌现]] | long | 规模下不可外推的能力跃迁；Wei 定义与 Schaeffer 度量争议 |
 | [[prefix-cache\|Prefix Cache]] | mid | 跨请求复用 prompt 前缀 KV，降延迟与输入成本 |
+| [[vllm\|vLLM]] | mid | PagedAttention + continuous batching 高吞吐 serving |
+| [[quantization\|模型量化]] | mid | GPTQ/AWQ/INT4；与 vLLM/Ollama 部署配套 |
+| [[kv-cache-inference\|KV Cache 与推理加速]] | mid | FlashAttention、PagedAttention；补 [[prefix-cache]] |
+| [[vlm\|视觉–语言模型 VLM]] | mid | CLIP/LLaVA 主线；多模态 RAG 与 Computer Use 基座 |
 | [[embedding\|Embedding]] | long | 文本怎么变成向量，语义相似的底层原理 |
 | [[dense-vector\|稠密向量]] | long | 固定维连续表示；Dense 召回的形态，与稀疏/BM25 互补 |
 | [[bi-encoder\|Bi-Encoder（双塔）]] | long | 可预计算的 query/doc 双编码；粗排用 cos 等相似度 + ANN |
 | [[cross-encoder\|Cross-Encoder]] | long | 查询–文档联合注意力精排；双塔保召回、交叉编码保精准 |
 | [[llm-generation-traps\|LLM Generation Traps]] | long | 模型生成的系统性偏置：对称性偏置、顺从惩罚 |
 
-### 规划中（尚无文章，见 [[STRUCTURE]]）
+### 微调 / 评测 / 数据（待建）
 
-`model/fine-tuning/`（LoRA、PEFT、指令微调）、`model/evaluation/`（benchmark、红队）、`data/`（清洗、标注、合成数据工程）。
+> 详表见下文 **[[#待补充知识节点|待补充知识节点]]**；目录规则见 [[STRUCTURE]]。
+
+| 节点 | 稳定性 | 一句话 |
+|------|--------|--------|
+| [[agent-evaluation\|Agent 轨迹评测]] | mid | 任务完成率、轨迹匹配、工具 P/R、路径与成本效率 |
+| [[llm-as-judge\|LLM-as-Judge]] | mid | 模型评模型：rubric、偏差、与确定性指标分工 |
+| [[llm-benchmarks\|LLM Benchmark 地图]] | long | MMLU、HumanEval、SWE-bench、MT-Bench 各测什么 |
+| [[red-teaming\|红队与安全评测]] | mid | OWASP 对抗探针；Agent 轨迹与工具滥用 |
+| [[lora-peft\|LoRA / QLoRA / PEFT]] | long | 参数高效微调：秩、QLoRA、何时相对 RAG 使用 |
+| [[dpo\|DPO]] | long | 直接偏好优化：SFT 后闭式对齐，替代 RM+PPO |
+| [[constitutional-ai\|Constitutional AI]] | mid | 宪法原则 + SL-CAI + RLAIF；harm 用 AI 反馈 |
+| [[tool-use-sft\|Tool-use SFT]] | mid | 工具调用微调；assistant-only loss masking |
 
 ---
 
@@ -109,7 +127,11 @@ AI 系统的三层是因果链，不是分类：
 | [[structured-json-output\|Structured JSON Output]] | mid | 约束解码、JSON Schema、API strict 与基准数据：稳定结构化输出 |
 | [[context-engineering\|Context Engineering]] | long | 管理模型能看到什么，比 prompt 更本质的问题 |
 | [[harness-engineering\|Harness Engineering]] | mid | 搭系统让模型长期可靠干活，框架层，演化快 |
+| [[agent-observability\|Agent 可观测性]] | mid | Tracing、OTEL、成本；闭合 Harness 闭环 |
 | [[loop-engineering\|Loop Engineering]] | short | 2026-06：设计替人 prompt Agent 的外层自驱系统（触发/目标/验收/记忆） |
+| [[prompt-injection\|Prompt 注入]] | mid | 直接/间接注入；Rule of Two；Agent 比 Chat 更致命 |
+| [[agent-sandbox\|Agent 沙箱]] | mid | Firecracker/E2B 隔离不可信代码；与 Rule of Two、[[tool-use]] 并列 |
+| [[skill-supply-chain\|Skill / MCP 供应链安全]] | mid | ClawHub 类市场；SKILL.md 注入与 curated 源 |
 
 递进链：**Prompt → Context → Harness → Loop**（Loop 为 2026-06 社区命名的新层）；指令设计 / 语言学 / 跨语言是输入侧的专题。
 
@@ -126,6 +148,23 @@ AI 系统的三层是因果链，不是分类：
 | [[rrf\|RRF 倒数排名融合]] | long | 多路异构检索按排名合并；BM25 与向量分不可直接相加 |
 | [[ann\|ANN 近似最近邻]] | long | HNSW / IVF-PQ / DiskANN；大规模向量检索的索引算法 |
 | [[recall-at-k\|Recall@K]] | long | 检索召回率：Top-K 覆盖多少相关文档；RAG 粗排首要诊断指标 |
+| [[precision-at-k\|Precision@K]] | long | Top-K 中相关比例；与 Recall@K 配对诊断噪声 |
+| [[mrr-ndcg\|MRR / NDCG]] | long | 排序质量；Rerank 与第一个相关位置 |
+
+**待建**（见 [[#待补充知识节点|待补充]]）：无（MRR/NDCG 已建 `[[mrr-ndcg]]`）。
+
+---
+
+## 数据工程
+
+> 预训练/微调前的语料 ETL 与质量（`docs/data/`）。理论见模型层 [[training-data]]。
+
+| 节点 | 稳定性 | 一句话 |
+|------|--------|--------|
+| [[corpus-cleaning\|语料清洗与去重]] | long | MinHash/LSH 近重复、过滤、benchmark 污染检测 |
+| [[synthetic-data\|合成数据]] | mid | Self-Instruct、蒸馏；质量门禁与 collapse 风险 |
+| [[data-annotation\|标注与偏好数据规范]] | mid | Pairwise、rubric、IAA；RLHF/DPO 数据契约 |
+| [[data-lineage\|数据版本与血缘]] | mid | DVC/lakeFS；训练–评测可复现链 |
 
 ---
 
@@ -141,7 +180,8 @@ AI 系统的三层是因果链，不是分类：
 |------|--------|--------|
 | [[agent\|Agent]] | long | LLM + 感知-思考-行动循环；从「能说」到「能持续执行任务」 |
 | [[workflow\|Workflow]] | long | 固定步骤编排；可预测、可审计，适合流程明确的任务 |
-| [[multi-agent\|Multi-Agent]] | long | 多角色分工协作；复杂域的编排与通信成本 |
+| [[multi-agent\|Multi-Agent]] | long | Orchestrator-Worker、拓扑、Spawn 契约、评测与生产可靠性 |
+| [[agent-frameworks\|Agent 框架选型]] | mid | LangGraph / CrewAI / AutoGen / AgentScope 对照 |
 
 ### 执行模式（pattern/）
 
@@ -149,6 +189,11 @@ AI 系统的三层是因果链，不是分类：
 
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
+| [[workflow-patterns\|Workflow 五模式]] | long | Anthropic 编排索引：Chaining / Routing / Parallel / Orchestrator-Workers / Evaluator-Optimizer |
+| [[prompt-chaining\|Prompt Chaining]] | long | 固定序 LLM 链 + 程序 gate；五模式之首 |
+| [[routing\|Routing]] | long | 分类 → 专精 handler；分离关注点 |
+| [[evaluator-optimizer\|Evaluator-Optimizer]] | long | Generator + Evaluator 循环至 pass；与 [[reflection]] 工作流分工 |
+| [[parallelization\|Parallelization]] | long | Sectioning / Voting 并行 + Aggregator |
 | [[agent-paradigms\|智能体经典范式]] | long | ReAct / Plan-and-Solve / Reflection 选型与组合索引 |
 | [[plan-and-solve\|Plan-and-Solve]] | long | 先规划后执行；Wang 2023 两阶段范式 |
 | [[planning\|Planning]] | long | 复杂目标拆解，Agent 面对大任务的必要能力 |
@@ -169,7 +214,9 @@ AI 系统的三层是因果链，不是分类：
 |------|--------|--------|
 | [[tool-use\|Tool Use]] | long | 给模型接上手脚，从"说"到"做" |
 | [[function-calling\|Function Calling]] | long | 模型和外部工具之间的标准化调用协议 |
+| [[a2a\|A2A 协议]] | mid | Agent↔Agent 互操作；Agent Card；与 [[tool-mcp]] 互补 |
 | [[tool-mcp\|MCP]] | long | 标准化外部工具协议，Skill 互补 |
+| [[codebase\|Codebase 代码库索引]] | mid | 整仓语义切块+多路索引+增量同步；Agent 仓库级上下文 |
 | [[tool-self-learning\|Tool Self-Learning]] | mid | 模型自学调用 API 或现场造工具并沉淀复用 |
 | [[cursor-hooks\|Cursor Hooks]] | mid | 事件钩子 vs Skill scripts 治理层 |
 
@@ -179,13 +226,23 @@ AI 系统的三层是因果链，不是分类：
 
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
+| [[modular-rag\|Modular RAG]] | mid | 可插拔算子架构：Linear / Conditional / Branching / Looping |
+| [[graph-rag\|GraphRAG]] | mid | 图索引与社区摘要；全局/多跳；与向量 RAG 互补 |
+| [[chunking\|文档分块 Chunking]] | long | 固定/语义/层次/Late/Contextual；RAG 入库第一杠杆 |
 | [[rag\|RAG]] | long | 给模型接入外部知识，解决知识截止和幻觉问题 |
 | [[retrieval-pipeline\|检索全链路]] | mid | 粗排/精排/融合/Rerank 生产架构；算法细节见算法与度量 |
+| [[rerank\|Rerank 生产选型]] | long | 延迟–精度；模型默认 bge-v2-m3；链 [[cross-encoder]] |
 | [[fts5\|FTS5 全文检索]] | long | SQLite 内置倒排+BM25；本地会话/笔记关键词检索，Hermes session search 底座 |
 | [[query-transformation\|Query Transformation]] | mid | 跨越用户提问与知识库的语义鸿沟，高级 RAG 必经之路 |
+| [[crag\|CRAG]] | mid | 检索后评估与三态纠错（精炼 / 换源 / 合并），检索失败时加固生成 |
+| [[hyde\|HyDE]] | mid | 假设文档嵌入：用答案形态向量检索，对齐短 query 与长文档 |
 | [[knowledge-extraction\|Knowledge Extraction]] | long | 从异构原文析出带溯源的候选事实，融合的入库前契约 |
 | [[knowledge-fusion\|Knowledge Fusion]] | long | 多源异构知识整合，RAG 之上的更完整框架 |
+| [[ontology\|Ontology 歧义索引]] | permanent | 指向 [[palantir-ontology]]；区分 Palantir 框架 vs OWL 语义网 |
 | [[conflict-resolution\|Conflict Resolution]] | long | 多源冲突消解，Truth Discovery 与可信度推断 |
+| [[triggering-retrieval\|如何更好地触发检索]] | long | RAG 能跑但不查时：选型、四类实践、注入、指标与场景速查 |
+| [[context-compaction\|上下文压缩]] | mid | 长程 Agent 压 observation/history；ACON 与 parallel compaction |
+| [[knowledge-fusion-tools\|知识融合工具清单]] | short | 对齐/冲突/GraphRAG 开源索引；链 [[knowledge-fusion]] |
 
 ### Skill 生态（skill/）
 
@@ -209,6 +266,7 @@ AI 系统的三层是因果链，不是分类：
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[llm-wiki-overview\|LLM Wiki 模式]] | mid | Karpathy 式 raw/wiki/schema 三层 + ingest/query/lint 工作流 |
+| [[agent-concept-map\|Agent 概念谱系图]] | mid | 模型底座 + Harness 运行时 + 多 Agent + 工程治理总览脑图 |
 
 ---
 
@@ -219,6 +277,7 @@ AI 系统的三层是因果链，不是分类：
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[obsidian\|Obsidian]] | long | 本地 Markdown 知识库：Vault、wikilink、Graph 与 CLI |
+| [[qmd\|qmd]] | mid | 本地 Markdown 混合检索：BM25 + 向量 + 重排；CLI 与 MCP |
 
 ---
 
@@ -230,31 +289,41 @@ AI 系统的三层是因果链，不是分类：
 |------|--------|--------|
 | [[hermes-agent\|Hermes Agent]] | short | Nous 自托管 Agent：CLI/Gateway、三层记忆、Skill 闭环；POC 用 `hermes chat` |
 | [[hermes-agent-memory\|Hermes Agent 记忆系统]] | short | Hermes 记忆深潜：Curated Memory、后台 Review、FTS5 会话检索、Curator/GEPA |
-| [[langgraph\|LangGraph]] | mid | 有状态图编排 Agent 与控制流（CRAG、检查点） |
+| [[langgraph\|LangGraph]] | mid | 有状态图 Runtime：检查点、条件边、HITL；CRAG/ReAct 编排 |
+| [[crewai\|CrewAI]] | short | 角色 + Task + Crew；Sequential / Hierarchical 快速原型 |
+| [[langchain\|LangChain]] | mid | 模型/工具/RAG 组合框架；create_agent；与 LangGraph 分层 |
+| [[ollama\|Ollama]] | mid | 本地 GGUF 运行时：pull/serve、原生 REST 与 OpenAI `/v1` 兼容 |
 | [[agentmemory\|AgentMemory]] | short | MCP 持久记忆层，混合检索与多宿主（含 Hermes） |
 | [[agent-zero\|Agent Zero]] | short | Docker 内 Linux Agent 工作台（桌面/浏览器/A0 CLI） |
 | [[openclaw\|OpenClaw]] | short | 个人助手 Gateway：多 IM、ClawHub Skills、SOUL/MEMORY workspace |
 | [[openclaw-node-bridge\|Node Bridge]] | short | OpenClaw 历史协议：Gateway↔node 的 TCP JSONL 窄桥（已并入 WS） |
 | [[claude-code\|Claude Code]] | mid | Anthropic 终端/IDE Agent（CLAUDE.md、Skills、Hooks、MCP） |
+| [[codex-cli\|Codex CLI]] | short | OpenAI Rust 终端编码 Agent；exec/MCP/Cloud；对照 [[claude-code]] |
 | [[memx\|memX]] | short | NeoLi00 记忆插件：hooks 自动 recall/capture、三层 lineage 存储 |
 | [[claude-managed-agents\|Claude Managed Agents]] | short | Anthropic 托管 Agent API（Agent/Environment/Session/Events） |
 | [[memgpt\|MemGPT / Letta]] | mid | OS 式分页记忆研究 + Letta 有状态 Agent 平台 |
 | [[mem0\|Mem0]] | mid | 可插拔记忆 API（add/search，Cloud 或 OSS） |
 | [[honcho\|Honcho]] | short | 推理优先 peer 记忆（representation、Dreaming，托管或自托管） |
 | [[huggingface-transformers\|Hugging Face Transformers]] | long | 开源模型定义框架：Hub、Auto、Pipeline、Trainer 与推理生态枢纽 |
+| [[langsmith\|LangSmith]] | mid | Trace + dataset eval + 在线监控；LangGraph 默认可观测层 |
+| [[low-code-agents\|低代码 Agent 平台]] | short | Dify / n8n / Coze 选型；RAG vs 集成 vs 对外 bot |
+| [[gbrain\|GBrain]] | short | Garry Tan 开源 brain 层：Markdown 主权 + 自连线图谱 + MCP think/search |
+| [[palantir-ontology\|Palantir Ontology]] | mid | Foundry 运营孪生：Object/Action + OAG/AIP + OSDK/双 MCP |
+
+**待建**（见 [[#待补充知识节点|待补充]]）：无。
 
 ---
 
-## 外部精读（resources/）
+## 外部精读（docs/resources/）
 
-> 官方/社区长文摘要，链到图谱节点；非自写 wiki 正文。
+> 官方/社区长文摘要，链到图谱节点；正文在 `docs/resources/`（wikilink 用 `[[slug]]`）。
 
 | 节点 | 稳定性 | 一句话 |
 |------|--------|--------|
 | [[building-effective-agents\|Building Effective Agents]] | long | Anthropic：Workflow vs Agent、何时不用 Agent |
 | [[writing-tools-for-agents\|Writing Tools for Agents]] | mid | Anthropic：工具 schema 与描述怎么写才好用 |
 | [[mcp-code-execution\|MCP Code Execution]] | mid | Anthropic：用代码执行降 token、提 MCP 效率 |
-| [[knowledge-fusion-tools\|知识融合工具清单]] | short | 多源融合与冲突消解相关开源工具索引 |
+| [[knowledge-fusion-tools\|知识融合工具清单]] | short | 多源融合与冲突消解相关开源工具索引（正文在 `agent/retrieval/`） |
 
 ---
 
@@ -276,6 +345,107 @@ AI 系统的三层是因果链，不是分类：
 | `Research/` | 深度调研稿（如 Knowledge Fusion Survey），达阈值后可拆为 wiki 节点 |
 | `poc/` | Hermes 等 POC 与最小知识库试验 |
 | `new-idea/` | 产品创意说明书，未纳入图谱 |
+
+---
+
+## 待补充知识节点
+
+> 对照 [Hello Agents](https://github.com/datawhalechina/hello-agents)、[Anthropic: Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)、[Stanford CS324](https://stanford-cs324.github.io/winter2023/syllabus/)、[Modular RAG](https://arxiv.org/pdf/2407.21059) 与库内缺口整理（2026-06-14）。  
+> **无 wikilink = 尚无正文**；`P0` 最高优先。建文后把对应行改为 `[[slug|标题]]` 并移入上文各层表格。
+
+### 建议补充顺序
+
+| 波次 | 节点 | 优先级 | 理由 |
+|------|------|--------|------|
+| Wave 1 | ~~Building Effective Agents~~、~~Workflow 五模式~~、~~Agent 评测~~、~~文档分块~~、~~MCP Code Execution~~；Writing Tools 已建 | P0 | Wave 1 完成 |
+| Wave 2 | ~~A2A~~、~~可观测性~~、~~GraphRAG~~、~~LangSmith~~、~~低代码~~ | P1 | 低代码已建 `[[low-code-agents]]` |
+| Wave 3 | SFT/LoRA/DPO、~~Benchmark~~/LLM-as-Judge、~~语料清洗~~、~~合成数据~~ | P0–P1 | 合成数据已建 `[[synthetic-data]]` |
+| Wave 4 | ~~推理部署~~、KV 专文；合规与供应链 | P2 | KV 已建 `[[kv-cache-inference]]` |
+
+### 已入地图、尚无正文（resources/）
+
+| 节点 | 建议路径 | 优先级 | 稳定性 | 一句话 |
+|------|----------|--------|--------|--------|
+| （无） | — | — | — | 三篇 Anthropic 精读见 `docs/resources/` |
+
+### 模型层 · 微调（`model/fine-tuning/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | CAI / tool SFT 见 `[[constitutional-ai]]`、`[[tool-use-sft]]` |
+
+### 模型层 · 评测（`model/evaluation/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | 红队见 `[[red-teaming]]` |
+
+### 数据工程（`data/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | 标注见 `[[data-annotation]]`；血缘见 `[[data-lineage]]` |
+
+### 算法与度量（待建）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | MRR/NDCG 见 `[[mrr-ndcg]]` |
+
+### Agent · 工作流模式（`agent/pattern/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （五模式专文齐备） | — | — | — | 见 `[[workflow-patterns]]` 与子节点 |
+
+### Agent · 协议与编排框架
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | 专文见 `[[crewai]]`；横评见 `[[agent-frameworks]]` |
+
+### Agent · 检索（`agent/retrieval/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | Palantir 框架见 `[[palantir-ontology]]`；OWL 语义见 `[[ontology]]` 索引 |
+
+### 方法论 · Harness 延伸
+
+> [[agent-observability]] 已建。
+
+### 模型 · 推理与部署（暂归 `model/concept/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | 见 `[[vlm]]` |
+
+### 安全与对齐（暂归 `methodology/` 或未来顶层）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （供应链） | — | — | — | 见 `[[skill-supply-chain]]` |
+
+### Agent · 训练向（`model/training/` 或 `agent/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | Tool SFT 见 `[[tool-use-sft]]` |
+
+### 前沿产品（`latest/`）
+
+| 节点（待建） | 建议 slug | 优先级 | 稳定性 | 一句话 |
+|--------------|-----------|--------|--------|--------|
+| （无） | — | — | — | 见 `[[codex-cli]]` |
+
+### 已有正文、待加深（非新建，修订 backlog）
+
+| 现有节点 | 缺口 |
+|----------|------|
+| [[langgraph]] | StateGraph、checkpointer 正文已补；可与 [[crag]] 范例对照 |
+| [[memory]] | 已链 [[agent-evaluation]]、[[agent-observability]] |
+| [[harness-engineering]] | 已链 [[agent-observability]] |
+| [[agent-paradigms]] | 宜链 [[workflow-patterns]] |
 
 ---
 
@@ -321,7 +491,7 @@ AI 系统的三层是因果链，不是分类：
 → [[knowledge-extraction\|Knowledge Extraction]] → [[knowledge-fusion\|Knowledge Fusion]] → [[conflict-resolution\|Conflict Resolution]] → [[knowledge-fusion-tools\|工具清单]]
 
 **LLM Wiki / 三层文档工作流**
-→ [[llm-wiki-overview\|LLM Wiki 模式]]
+→ [[llm-wiki-overview\|LLM Wiki 模式]] → [[qmd\|规模化检索]]
 
 **我想了解 Hermes / LangGraph / AgentMemory / … 等具体产品**
 → `docs/latest/`：[[hermes-agent\|Hermes]] / [[langgraph\|LangGraph]] / [[agentmemory\|AgentMemory]] / [[agent-zero\|Agent Zero]] / [[openclaw\|OpenClaw]] / [[claude-code\|Claude Code]] / [[memx\|memX]] / [[claude-managed-agents\|Managed Agents]] / [[memgpt\|MemGPT·Letta]] / [[mem0\|Mem0]] / [[honcho\|Honcho]]
@@ -332,6 +502,30 @@ AI 系统的三层是因果链，不是分类：
 **新文章该放哪**
 → [[STRUCTURE]] 决策树
 
+**终端编码 Agent 怎么选**
+→ [[claude-code]] → [[codex-cli]] → [[harness-engineering]]
+
+**多模态与图文理解**
+→ [[vlm]] → [[rag]] → [[chunking]]
+
+**对齐数据从哪来、怎么复现**
+→ [[data-annotation]] → [[rlhf]] / [[dpo]] → [[data-lineage]]
+
+**我想按优先级补全知识库**
+→ [[#待补充知识节点|待补充知识节点]] → Wave 1（resources 精读、workflow-patterns、agent-evaluation、chunking）
+
+**Anthropic 工作流怎么选型**
+→ [[workflow-patterns]] → [[workflow]] → [[agent]] → [[building-effective-agents]]
+
+**RAG 入库与评测指标**
+→ [[chunking]] → [[rag]] → [[triggering-retrieval]] → [[retrieval-pipeline]] → [[recall-at-k]] / [[precision-at-k]]
+
+**检索错了怎么办（CRAG）**
+→ [[rag]] → [[crag]] → [[query-transformation]]（低分 Fallback）→ [[langgraph]] §5.2
+
+**Agent 怎么评测、怎么观测**
+→ [[agent-evaluation]] → [[agent-observability]] → [[harness-engineering]]
+
 ---
 
 ## 这个地图怎么用
@@ -339,5 +533,5 @@ AI 系统的三层是因果链，不是分类：
 - **stability=permanent/long 的节点**：值得打开认真读，这些是判断框架的地基
 - **stability=mid 的节点**：知道能干嘛、知道边界就够，不需要深挖操作细节
 - **stability=short 的节点**：前沿产品/框架（如 `latest/`）与趋势日报，扫一眼边界与选型，API 随时变
-- **悬空节点**（表格里没有 wikilink 的）：还没写，或见「规划中」与 `Research/` / `new-idea/`
-- **节点总数**：`docs/` 下约 **59** 篇 wiki 正文 + 本图 + `resources/` 精读摘要；以 [[STRUCTURE]] 为准扩容
+- **悬空节点**（表格里没有 wikilink 的）：还没写；系统清单见 **[[#待补充知识节点|待补充知识节点]]**
+- **节点总数**：`docs/` 下约 **134** 篇 wiki 正文

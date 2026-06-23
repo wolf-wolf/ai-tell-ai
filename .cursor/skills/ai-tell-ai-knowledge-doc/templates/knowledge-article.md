@@ -80,5 +80,6 @@ flowchart LR
 
 - 新建/结构性改写须先写 `_meta/outline/<slug>.md`。
 - 勿在正文加字数/阅读时间/难度表；日期用 frontmatter `updated`。
+- 写前 scope 见 `writing-rules.md`「篇幅软指引（非 KPI）」；>12k 默认拆或 outline 写「不拆分理由」。
 - 正文 `##` 从「生命周期」之后计数：`### N.M` 的 N 与正文 `##` 顺序一致（生命周期、要点收束、进一步阅读不参与）。
 - 删除本说明块再保存。

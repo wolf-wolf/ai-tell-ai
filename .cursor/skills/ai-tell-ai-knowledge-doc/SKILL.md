@@ -129,7 +129,7 @@ updated: YYYY-MM-DD
 
 ## 正文写作（融合 tech-topic 能力）
 
-在固定节序之内，采用下列 **质量规则**（详见 [reference.md](reference.md)）：
+动笔前在提纲 **Phase A** 标注**主类型**（见 [writing-rules.md — 文章类型与内容契约](../../../writing-rules.md#文章类型与内容契约)）。在固定节序之内，采用下列 **质量规则**（详见 [reference.md](reference.md)）：
 
 1. **读者契约前置**：在核心本质后 **3–4 句**：适合谁、读完能复述/决策什么、读到哪可停。
 2. **阅读梯**：每个关键 `###` 按 **场景→直觉→形式化→含义** 写（见 [writing-rules.md](../../../writing-rules.md)「人类阅读约束」）。
@@ -142,7 +142,8 @@ updated: YYYY-MM-DD
 9. **专有名词**：正文叙述写 **中文（English）**（如 检索增强生成（RAG）），禁止非代码场景句中裸夹英文术语；细则见 [writing-rules.md](../../../writing-rules.md)「专有名词：中文（英文）」。
 10. **诚实边界**：写明非目标、易混淆点、产品差异（不能「因产品而异」一笔带过）；机制差异写事实，**禁止**正文以兄弟文为标尺（边界 / 对齐 / 分歧 / 同构——见 [writing-rules.md](../../../writing-rules.md)「正文不以兄弟文为标尺」）。
 11. **子主题拆分**：工程实践、选型指南、对比深潜等**独立成文**，本篇只链过去（`## 进一步阅读`），不与原理混写。
-12. **要点收束**：`## 进一步阅读` 前可选 3–5 条可复述结论。
+12. **篇幅软指引**：按 [writing-rules.md — 篇幅软指引（非 KPI）](../../../writing-rules.md#篇幅软指引非-kpi) 估算 scope；>12k 默认拆或 outline 写「不拆分理由」；**不以万字为 KPI**。
+13. **要点收束**：`## 进一步阅读` 前可选 3–5 条可复述结论。
 
 ### 图示与表格
 
@@ -187,7 +188,7 @@ updated: YYYY-MM-DD
 ### A. 新建全文
 
 1. **联网检索（强制）**：按上文「联网检索」列问句 → WebSearch / WebFetch（**含 GitHub**）→ 落盘 Phase R 或会话记录 → 再写 *检索说明* 草稿。
-2. **Phase A–C 提纲**：落盘 `_meta/outline/<slug>.md`（阅读契约 + 论证线 + 术语预算 + **Phase R 检索记录**）；见 [writing-rules.md](../../../writing-rules.md)「先提纲，再写」。
+2. **Phase A–C 提纲**：落盘 `_meta/outline/<slug>.md`（**主类型** + 阅读契约 + 论证线 + 术语预算 + **Phase R 检索记录**）；见 [writing-rules.md](../../../writing-rules.md)「先提纲，再写」与「文章类型与内容契约」。
 3. **若源码深潜**：走 [task-doc-codebase-mechanism-deep-dive](../task-doc-codebase-mechanism-deep-dive/SKILL.md) 至 source map + 深读完成，再映射到 [bridge](references/codebase-deep-dive-bridge.md) 提纲。
 4. **定语言**：跟用户会话语言（中文请求 → 中文正文）。
 5. **定归属**：STRUCTURE 决策树 + 是否应拆独立子文。
@@ -218,6 +219,7 @@ updated: YYYY-MM-DD
 - [ ] 核心本质无目录/meta 废话；生命周期四标签格式正确
 - [ ] wikilink 无路径前缀（`[[skill]]` 非 `[[agent/skill/skill]]`）
 - [ ] 子主题未塞进原理篇；进一步阅读有对应链接
+- [ ] 篇幅在类型软区间内，或 >12k 时 outline 已写「不拆分理由」（见 writing-rules 篇幅软指引；非 KPI）
 - [ ] 正文无「与 [[兄弟文]] 的边界 / 对齐 / 分歧 / 同构」式 meta；易混淆处只写机制本身
 - [ ] 版本敏感声明有日期；外链在进一步阅读可溯源
 - [ ] Mermaid 未超 ~20 节点；长 `##` 已拆 `###`

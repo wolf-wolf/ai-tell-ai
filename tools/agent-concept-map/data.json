@@ -1,0 +1,302 @@
+{
+  "id": "agent",
+  "label": "Agent 概念谱系",
+  "visual": "compose",
+  "summary": "模型底座 + Harness 运行时 + 多 Agent + 工程治理四层叠合。Harness 把单次生成串成可终止的多步任务。",
+  "wiki": ["agent"],
+  "docs": ["docs/agent/core/agent.md"],
+  "children": [
+    {
+      "id": "model",
+      "label": "① 模型底座",
+      "visual": "compose",
+      "summary": "推理核从哪来、默认行为是什么。Agent 的依赖层，不是 Harness 本身。",
+      "wiki": ["llm"],
+      "docs": ["docs/model/concept/llm.md"],
+      "children": [
+        {
+          "id": "model-pipeline",
+          "label": "生产流程",
+          "visual": "pipeline",
+          "summary": "从语料到可部署模型的主线。",
+          "wiki": ["training-data", "sft", "rlhf"],
+          "children": [
+            { "id": "model-data", "label": "训练数据准备", "wiki": ["training-data"], "docs": ["docs/model/training/training-data.md"] },
+            { "id": "model-pretrain", "label": "预训练", "wiki": ["local-llama-pretrain"], "docs": ["docs/model/training/local-llama-pretrain.md"] },
+            { "id": "model-align", "label": "对齐训练", "wiki": ["rlhf", "dpo"], "docs": ["docs/model/training/rlhf.md", "docs/model/training/dpo.md"] },
+            { "id": "model-ft", "label": "微调", "wiki": ["sft", "lora-peft"], "docs": ["docs/model/training/sft.md", "docs/model/fine-tuning/lora-peft.md"] }
+          ]
+        },
+        {
+          "id": "model-concepts",
+          "label": "核心概念",
+          "summary": "理解 Agent 行为边界所需的模型机制。",
+          "children": [
+            { "id": "model-transformer", "label": "Transformer", "wiki": ["transformer"], "docs": ["docs/model/mechanism/transformer.md"] },
+            { "id": "model-attention", "label": "注意力机制", "wiki": ["attention"], "docs": ["docs/model/mechanism/attention.md"] },
+            { "id": "model-emergence", "label": "涌现", "wiki": ["emergence"], "docs": ["docs/model/concept/emergence.md"] },
+            { "id": "model-hallucination", "label": "幻觉", "wiki": ["hallucination"], "docs": ["docs/model/concept/hallucination.md"] }
+          ]
+        },
+        {
+          "id": "model-infer",
+          "label": "推理参数",
+          "summary": "温度、top-k 等影响单轮生成多样性与稳定性。",
+          "wiki": ["llm"],
+          "children": [
+            { "id": "model-temp", "label": "温度" },
+            { "id": "model-topk", "label": "top-k" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "harness",
+      "label": "② Harness 运行时",
+      "visual": "compose",
+      "summary": "单 Agent 如何闭环执行任务：循环、记忆、工具、推理范式、检索。",
+      "wiki": ["harness-engineering", "agent"],
+      "docs": ["docs/methodology/harness-engineering.md", "docs/agent/core/agent.md"],
+      "children": [
+        {
+          "id": "h-runtime",
+          "label": "Runtime 循环",
+          "summary": "感知-思考-行动闭环；状态管理、错误恢复、步数上限。",
+          "wiki": ["agent", "workflow", "harness-engineering"],
+          "docs": ["docs/agent/core/agent.md", "docs/agent/core/workflow.md"],
+          "children": [
+            { "id": "h-pta", "label": "感知-思考-行动" },
+            { "id": "h-state", "label": "状态管理" },
+            { "id": "h-error", "label": "错误恢复" }
+          ]
+        },
+        {
+          "id": "h-context",
+          "label": "上下文资产",
+          "summary": "静态注入物：Rules / Skill / Soul。不等同于 RAG 动态检索。",
+          "wiki": ["agent-context-stack", "skill"],
+          "docs": ["docs/agent/context/agent-context-stack.md", "docs/agent/skill/skill.md"],
+          "children": [
+            { "id": "h-rules", "label": "Rules" },
+            { "id": "h-skill-asset", "label": "Skill（程序性 SOP）" },
+            { "id": "h-soul", "label": "Soul" }
+          ]
+        },
+        {
+          "id": "h-memory",
+          "label": "记忆",
+          "summary": "短期上下文与长期持久化分工。",
+          "wiki": ["memory", "context-compaction"],
+          "docs": ["docs/agent/pattern/memory.md"],
+          "children": [
+            {
+              "id": "h-mem-short",
+              "label": "短期记忆",
+              "children": [
+                { "id": "h-ctx-window", "label": "上下文窗口", "wiki": ["context-window"] },
+                { "id": "h-ctx-compact", "label": "上下文压缩", "wiki": ["context-compaction"], "docs": ["docs/agent/retrieval/context-compaction.md"] }
+              ]
+            },
+            {
+              "id": "h-mem-long",
+              "label": "长期记忆",
+              "children": [
+                { "id": "h-mem-rag", "label": "RAG", "wiki": ["rag", "retrieval-pipeline"] },
+                { "id": "h-mem-summary", "label": "会话摘要" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "h-tools",
+          "label": "工具能力",
+          "wiki": ["tool-use", "tool-mcp", "function-calling"],
+          "docs": ["docs/agent/tool/tool-use.md", "docs/agent/tool/tool-mcp.md"],
+          "children": [
+            { "id": "h-tool-use", "label": "Tool Use", "wiki": ["tool-use"] },
+            { "id": "h-mcp", "label": "MCP", "wiki": ["tool-mcp"] },
+            { "id": "h-skill-tool", "label": "Skill 加载", "wiki": ["skill"] }
+          ]
+        },
+        {
+          "id": "h-patterns",
+          "label": "推理范式",
+          "summary": "决定「怎么想、走哪条路」——与意图路由相邻但不同层。",
+          "wiki": ["agent-paradigms"],
+          "docs": ["docs/agent/pattern/agent-paradigms.md"],
+          "children": [
+            { "id": "h-react", "label": "ReAct", "wiki": ["reAct"], "docs": ["docs/agent/pattern/reAct.md"] },
+            { "id": "h-cot", "label": "CoT", "wiki": ["chain-of-thought"], "docs": ["docs/agent/pattern/chain-of-thought.md"] },
+            { "id": "h-tot", "label": "ToT", "wiki": ["planning"] },
+            { "id": "h-planning", "label": "Planning", "wiki": ["planning", "plan-and-solve"], "docs": ["docs/agent/pattern/planning.md"] },
+            { "id": "h-reflect", "label": "Reflection", "wiki": ["reflection"], "docs": ["docs/agent/pattern/reflection.md"] },
+            { "id": "h-routing", "label": "Routing", "wiki": ["routing", "workflow-patterns"], "docs": ["docs/agent/pattern/routing.md"] }
+          ]
+        },
+        {
+          "id": "h-intent",
+          "label": "意图与路由",
+          "summary": "任务澄清、Query 改写、是否触发检索或调工具。",
+          "wiki": ["query-transformation", "triggering-retrieval"],
+          "docs": ["docs/agent/retrieval/query-transformation.md", "docs/agent/retrieval/triggering-retrieval.md"],
+          "children": [
+            {
+              "id": "h-query",
+              "label": "Query 改写",
+              "children": [
+                { "id": "h-query-expand", "label": "扩写" },
+                { "id": "h-query-shrink", "label": "简写" },
+                { "id": "h-hyde", "label": "HyDE", "wiki": ["hyde"], "docs": ["docs/agent/retrieval/hyde.md"] }
+              ]
+            },
+            { "id": "h-trigger", "label": "触发检索", "wiki": ["triggering-retrieval"] }
+          ]
+        },
+        {
+          "id": "h-rag",
+          "label": "RAG 子系统",
+          "visual": "pipeline",
+          "summary": "知识管理 → 存储 → 粗排 → 精排；可选 CRAG / Modular / Graph。",
+          "wiki": ["retrieval-pipeline", "rag"],
+          "docs": ["docs/agent/retrieval/retrieval-pipeline.md", "docs/agent/retrieval/rag.md"],
+          "children": [
+            {
+              "id": "h-rag-mgmt",
+              "label": "知识管理",
+              "wiki": ["knowledge-fusion", "knowledge-extraction"],
+              "children": [
+                { "id": "h-rag-pre", "label": "预处理" },
+                { "id": "h-rag-extract", "label": "提取", "wiki": ["knowledge-extraction"], "docs": ["docs/agent/retrieval/knowledge-extraction.md"] },
+                { "id": "h-rag-disambig", "label": "消歧", "wiki": ["conflict-resolution"] },
+                { "id": "h-rag-fuse", "label": "融合", "wiki": ["knowledge-fusion"], "docs": ["docs/agent/retrieval/knowledge-fusion.md"] },
+                { "id": "h-rag-dedup", "label": "去重" }
+              ]
+            },
+            {
+              "id": "h-rag-store",
+              "label": "存储处理",
+              "children": [
+                { "id": "h-chunk", "label": "切片", "wiki": ["chunking"], "docs": ["docs/agent/retrieval/chunking.md"] },
+                { "id": "h-embed", "label": "Embedding" }
+              ]
+            },
+            {
+              "id": "h-rag-retrieve",
+              "label": "知识检索",
+              "children": [
+                {
+                  "id": "h-coarse",
+                  "label": "粗排",
+                  "children": [
+                    { "id": "h-ann", "label": "ANN", "wiki": ["ann"], "docs": ["docs/algorithms/ann.md"] },
+                    { "id": "h-fts5", "label": "FTS5", "wiki": ["fts5"], "docs": ["docs/agent/retrieval/fts5.md"] },
+                    { "id": "h-bm25", "label": "BM25", "wiki": ["bm25"], "docs": ["docs/algorithms/bm25.md"] },
+                    { "id": "h-cosine", "label": "向量相似度" }
+                  ]
+                },
+                { "id": "h-rerank", "label": "精排 Rerank", "wiki": ["rerank"], "docs": ["docs/agent/retrieval/rerank.md"] }
+              ]
+            },
+            {
+              "id": "h-rag-adv",
+              "label": "进阶形态",
+              "children": [
+                { "id": "h-crag", "label": "CRAG", "wiki": ["crag"], "docs": ["docs/agent/retrieval/crag.md"] },
+                { "id": "h-modular", "label": "Modular RAG", "wiki": ["modular-rag"], "docs": ["docs/agent/retrieval/modular-rag.md"] },
+                { "id": "h-graph", "label": "Graph RAG", "wiki": ["graph-rag"], "docs": ["docs/agent/retrieval/graph-rag.md"] }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi",
+      "label": "③ 多 Agent",
+      "visual": "hub",
+      "summary": "多个 Agent 如何分工、传递状态与通讯。",
+      "wiki": ["multi-agent"],
+      "docs": ["docs/agent/core/multi-agent.md"],
+      "children": [
+        {
+          "id": "ma-topo",
+          "label": "架构拓扑",
+          "children": [
+            { "id": "ma-swarm", "label": "Swarm" },
+            { "id": "ma-handoff", "label": "Handoff" },
+            { "id": "ma-leader", "label": "Leader" }
+          ]
+        },
+        { "id": "ma-a2a", "label": "通讯 A2A", "wiki": ["a2a"], "docs": ["docs/agent/tool/a2a.md"] },
+        {
+          "id": "ma-orch",
+          "label": "编排模式",
+          "wiki": ["agent-frameworks"],
+          "children": [
+            { "id": "ma-orchestrator", "label": "Orchestrator" },
+            { "id": "ma-supervisor", "label": "Supervisor" },
+            { "id": "ma-debate", "label": "Debate" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gov",
+      "label": "④ 工程与治理",
+      "visual": "compose",
+      "summary": "观测、评测、上线与安全边界。",
+      "wiki": ["harness-engineering", "agent-observability"],
+      "children": [
+        {
+          "id": "gov-obs",
+          "label": "可观测性",
+          "wiki": ["agent-observability"],
+          "docs": ["docs/methodology/agent-observability.md"],
+          "children": [
+            { "id": "gov-trace", "label": "Tracing" },
+            { "id": "gov-cost", "label": "成本归因" }
+          ]
+        },
+        {
+          "id": "gov-eval",
+          "label": "评测",
+          "wiki": ["agent-evaluation", "llm-as-judge"],
+          "docs": ["docs/model/evaluation/agent-evaluation.md"],
+          "children": [
+            { "id": "gov-eval-model", "label": "模型评测" },
+            { "id": "gov-eval-skill", "label": "Skill 评测" },
+            { "id": "gov-eval-agent", "label": "Agent 轨迹评测" }
+          ]
+        },
+        {
+          "id": "gov-harness",
+          "label": "Harness 工程",
+          "wiki": ["harness-engineering", "loop-engineering"],
+          "children": [
+            { "id": "gov-sandbox", "label": "沙箱", "wiki": ["agent-sandbox"], "docs": ["docs/methodology/agent-sandbox.md"] },
+            { "id": "gov-loop", "label": "Loop 工程", "wiki": ["loop-engineering"] }
+          ]
+        },
+        {
+          "id": "gov-sec",
+          "label": "安全与对齐",
+          "wiki": ["prompt-injection"],
+          "children": [
+            { "id": "gov-prompt", "label": "Prompt 注入", "wiki": ["prompt-injection"], "docs": ["docs/methodology/prompt-injection.md"] },
+            { "id": "gov-perm", "label": "工具权限" },
+            { "id": "gov-token", "label": "Token 与密钥" }
+          ]
+        },
+        {
+          "id": "gov-land",
+          "label": "框架落地",
+          "children": [
+            { "id": "gov-langgraph", "label": "LangGraph", "wiki": ["langgraph"], "docs": ["docs/latest/langgraph.md"] },
+            { "id": "gov-crewai", "label": "CrewAI", "wiki": ["crewai"], "docs": ["docs/latest/crewai.md"] },
+            { "id": "gov-lowcode", "label": "低代码平台", "wiki": ["low-code-agents"], "docs": ["docs/latest/low-code-agents.md"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

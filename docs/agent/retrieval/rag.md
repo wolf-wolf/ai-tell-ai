@@ -1,7 +1,7 @@
 ---
 tags: [technique]
 aliases: [RAG, 检索增强生成, Retrieval-Augmented Generation]
-related: ["[[llm]]", "[[context-window]]", "[[embedding]]", "[[cosine-similarity]]", "[[retrieval-pipeline]]", "[[context-engineering]]", "[[prompt-engineering]]", "[[query-transformation]]", "[[knowledge-fusion]]", "[[agent-context-stack]]", "[[agent]]", "[[hallucination]]"]
+related: ["[[llm]]", "[[context-window]]", "[[embedding]]", "[[cosine-similarity]]", "[[retrieval-pipeline]]", "[[context-engineering]]", "[[prompt-engineering]]", "[[query-transformation]]", "[[crag]]", "[[knowledge-fusion]]", "[[agent-context-stack]]", "[[agent]]", "[[hallucination]]"]
 prerequisites: ["[[llm]]", "[[context-window]]", "[[embedding]]"]
 stability: long
 layer: application
@@ -19,7 +19,7 @@ updated: 2026-05-30
 
 **预期寿命**：长期。只要 LLM 上下文有限、训练数据有截止、组织知识持续更新，「外部检索 + 生成」就比「全量进权重」更经济。形态会从单路向量检索，演化为多阶段 Agentic RAG 与混合检索栈。
 
-**近期演进**：查询改写 / HyDE / 子查询拆解（见 [[query-transformation]]）、重排序（Rerank）、GraphRAG、CRAG 式「检索置信度不够再换策略」、以及把 RAG 作为 Agent 工具节点而非固定流水线。多源异构知识场景向上衔接 [[knowledge-fusion]]。
+**近期演进**：查询改写 / [[hyde]] / 子查询拆解（见 [[query-transformation]]）、重排序（Rerank）、GraphRAG、[[crag]] 式「检索评估后再换策略」、以及把 RAG 作为 Agent 工具节点而非固定流水线。多源异构知识场景向上衔接 [[knowledge-fusion]]。
 
 **终极威胁**：超长上下文下中小库「全量塞进窗口」绕过检索；端到端检索（模型内置 retrieval head）吸收显式 RAG 管线；基础模型实时浏览/API 能力增强后，部分「查文档」场景退化为 [[tool-use]]。RAG 不会消失，但会从默认架构收缩为**大规模、多模态、需权限与版本治理**的知识接入层。
 
@@ -145,7 +145,9 @@ RAG 提供「读外部知识」能力；[[tool-use]] 提供「执行动作」能
 
 - Lewis et al., [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) — RAG 原始论文（2020）。
 - [[embedding]] — 向量从哪来、相似度为何有效；RAG 检索的地基。
-- [[query-transformation]] — 查询改写、HyDE、子查询拆解；Advanced RAG 的前置环节。
+- [[chunking]] — 入库分块策略：fixed、parent-child、Late/Contextual；检索质量第一杠杆。
+- [[query-transformation]] — 查询改写、[[hyde]]、子查询拆解；Advanced RAG 的前置环节。
+- [[crag]] — 检索后评估与三态纠错；检索失败时加固生成。
 - [[rrf]] — 多路检索排名融合（RRF）原理、加权 k 与实现要点。
 - [[retrieval-pipeline]] — 检索全链路深度拆解：粗排/精排/融合/Rerank 模型选型/生产架构。
 - [[knowledge-fusion]] — 多源知识对齐与融合；RAG 只覆盖其子集。

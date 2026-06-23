@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent 概念谱系 · 手绘拆解</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600&family=Patrick+Hand&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=core5" />
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="sketch-wobble" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" seed="2" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+  <header class="topbar">
+    <div class="topbar-left">
+      <p class="topbar-kicker">手绘概念拆解</p>
+      <h1>Agent 概念谱系</h1>
+      <nav class="breadcrumb" id="breadcrumb" aria-label="路径"></nav>
+    </div>
+    <div class="topbar-actions">
+      <span class="progress-stat" id="progress-stat">—</span>
+      <input type="search" id="search" placeholder="检索模块…" autocomplete="off" />
+      <button type="button" id="btn-exit-focus" class="hidden">↑ 返回上层</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="canvas-wrap" id="canvas-wrap">
+      <div class="blueprint-grid" aria-hidden="true"></div>
+      <div id="scene" class="scene-root" aria-live="polite"></div>
+      <div class="canvas-hint">点击模块聚焦到中心 · 边缘为同级 · 画布内可一览全貌</div>
+      <div class="legend">
+        <span><i class="dot lit"></i>已点亮</span>
+        <span><i class="dot active"></i>进行中</span>
+        <span><i class="dot dim"></i>未触达</span>
+      </div>
+    </section>
+    <aside class="detail" id="detail">
+      <div class="detail-empty">
+        <p class="detail-kicker">查阅便签</p>
+        <p>点选模块，看说明与关联文章。</p>
+        <p class="muted">读完后工位会慢慢亮起来 ✎</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>图谱 <code>data.json</code></span>
+    <span>进度 <code>ai-read-tracker</code></span>
+  </footer>
+
+  <script src="progress.js?v=core5"></script>
+  <script src="scenes.js?v=core5"></script>
+  <script src="app.js?v=core5"></script>
+</body>
+</html>

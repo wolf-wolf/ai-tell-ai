@@ -16,6 +16,7 @@ related:
   - "[[loop-engineering]]"
   - "[[agent]]"
   - "[[workflow]]"
+  - "[[triggering-retrieval]]"
   - "[[skill-loading-library]]"
   - "[[cursor-hooks]]"
   - "[[building-effective-agents]]"
@@ -77,7 +78,7 @@ Harness 借自软件测试里的 test harness：包裹被测核心、提供受�
 
 本节回答：**Harness 与 Prompt/Context、与 Agent 产品的边界各在哪？**
 
-易与「Agent 产品」混为一谈：Agent 是面向用户的整体能力，Harness 是其中的 Runtime 层——负责循环与工具，不负责模型权重或业务 UI。三代范式则解决不同粒度的问题；Harness 不取代 Prompt/Context，而是在每次循环迭代里仍依赖它们：
+易与「Agent 产品」混为一谈：Agent 是面向用户的整体能力，Harness 是其中的**多步运行与治理层**（循环、工具、state、错误、安全边界；**Runtime** 在本文与 [[agent]] 中多指其**编排实现**子集）——不负责模型权重或业务 UI。更长任务、定时验收还可再包 [[loop-engineering]] 外层。
 
 ```
 Prompt Engineering → Context Engineering → Harness Engineering → Loop Engineering
@@ -222,7 +223,7 @@ LlamaIndex Agents（[模块指南](https://docs.llamaindex.ai/en/stable/module_g
 | 概念 | 决定什么 | 典型误判 |
 |------|---------|---------|
 | Agent 产品 | 面向用户的整体能力（UI、模型、策略） | 把产品名当 Runtime；忽略其下的 Harness 层 |
-| Harness / Runtime | 多轮循环、工具、状态、安全 | 与 Agent 产品混谈；或以为可完全内置于模型 |
+| Harness / Runtime | 多步循环、工具、state、安全；Runtime 常指编排实现 | 把 Harness 等同 `while` 循环；或把 Hook/Skill 误当 Prompt 问题 |
 | Prompt Engineering | 单轮怎么说 | 用更长 system prompt 代替循环与工具 |
 | Context Engineering | 单轮看什么 | 用 RAG 塞满 context 代替跨步 state 管理 |
 | Workflow | 步骤固定的 DAG | 步骤写死后当 Agent 用，遇异常无法改道 |
@@ -240,7 +241,7 @@ LlamaIndex Agents（[模块指南](https://docs.llamaindex.ai/en/stable/module_g
 
 **库内**
 
-- [[agent]] — 谱系、薄循环代码示例；Runtime 层即 Harness 的产物
+- [[agent]] — 谱系、薄循环代码示例；Runtime 多指 Harness 的编排实现
 - [[prompt-engineering]] / [[context-engineering]] — Harness 每轮调用仍依赖这两层
 - [[workflow]] — 何时不必上 Harness；与 Anthropic Workflow 定义互证
 - [[tool-use]] — schema 校验、工具风险分层（走读 schema 拒执场景依据）

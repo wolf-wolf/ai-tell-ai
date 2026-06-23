@@ -2,7 +2,7 @@
 tags: [technique]
 aliases: [查询转换, Query Transformation, 问题改写, 查询扩充, 查询改写]
 prerequisites: ["[[rag]]", "[[embedding]]"]
-related: ["[[retrieval-pipeline]]", "[[rag]]", "[[embedding]]", "[[context-engineering]]"]
+related: ["[[retrieval-pipeline]]", "[[rag]]", "[[embedding]]", "[[context-engineering]]", "[[crag]]", "[[hyde]]"]
 stability: mid
 layer: application
 updated: 2026-05-31
@@ -56,24 +56,13 @@ updated: 2026-05-31
 
 ---
 
-### 2. HyDE（Hypothetical Document Embeddings）
+### 2. HyDE（假设文档嵌入）
 
 **问题**：疑问句（「如何配置 X？」）和陈述句（「X 的配置步骤是...」）在向量空间差距很大。
 
-**HyDE 的反直觉做法**：不直接检索原问题，而是先让 LLM 生成一段「假设答案」（内容可能是错的），再用假设答案的 embedding 去检索真实文档。
+**做法**：先让 LLM 生成一段假设答案文档（可含错误事实），再对假设文档做 embedding，用文档—文档相似度检索真实 chunk。机制、变体、工程代码与失效模式见专文 **[[hyde]]**。
 
-```
-原问题：「HNSW 的 ef_search 参数怎么调？」
-                    ↓ LLM 生成假设答案
-假设答案：「ef_search 控制搜索时的候选列表大小，值越大召回越高但延迟增加，
-           一般从 50 开始调，目标召回率 95% 时通常设 100–200...」
-                    ↓ 用假设答案的 embedding 检索
-真实文档：「ef_search 参数说明...」（向量距离更近，命中率更高）
-```
-
-**为什么有效**：假设答案的**句型和术语分布**与真实文档类似，即使事实错误，向量表示也更接近目标文档。本质是用幻觉特性解决对齐问题。
-
-**适用场景**：专业领域文档（医疗、法律、技术手册），用户口语表达和文档书面语差距大时效果最显著。
+**一句话**：用「答案形态」的向量去找文档，而不是用短问句的向量——假设文档里的幻觉由编码器瓶颈与真实语料邻域共同过滤。
 
 ---
 
@@ -165,7 +154,7 @@ Step-back：「Cross-Encoder Reranker 的性能特征和延迟影响因素」
       └── 不需要改写，跳过
 ```
 
-**现代架构（CRAG 模式）**：先用原始 Query 检索并打分，得分低时才触发改写，避免无谓的延迟惩罚。
+**现代架构（CRAG 模式）**：先用原始 Query 检索并打分，得分低时才触发改写，避免无谓的延迟惩罚。机制见 [[crag]]。
 
 ```python
 def modern_rag_workflow(user_query, history):
@@ -207,6 +196,8 @@ def modern_rag_workflow(user_query, history):
 
 ## 进一步阅读
 
+- [[hyde]] — 假设文档嵌入专文（机制、变体、工程代码）
+- [[crag]] — 检索后评估与三态纠错（全文）
 - [[rrf]] — Multi-Query 等多路检索结果的排名融合
 - [[retrieval-pipeline]] — 查询预处理在完整检索链路中的位置（第一阶段）
 - [[rag]] — RAG 整体框架，查询转换是高级 RAG 的前置环节

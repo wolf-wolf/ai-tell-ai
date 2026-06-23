@@ -30,6 +30,7 @@ updated: 2026-05-30
 | 写法 | [[skill-engineering]] | 各层写什么、模型如何误读 |
 | 加载与库演化 | [[skill-loading-library]] | Discovery / Activation / merge / Library Drift |
 | **治理（本篇）** | skill-governance | 发布流程、测试、安全、退役、职责 |
+| **供应链** | [[skill-supply-chain]] | 第三方市场、ClawHub、MCP 投毒 |
 | 执行 | [[skill-scripts]] | scripts 如何跑、stdout 如何闭环 |
 
 ```mermaid

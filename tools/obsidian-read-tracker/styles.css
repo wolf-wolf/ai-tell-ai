@@ -1225,16 +1225,17 @@
 
 .ai-coverage-graph .acg-header {
   flex-shrink: 0;
-  padding: 8px 12px 6px;
+  padding: 10px 14px 8px;
   border-bottom: 1px solid var(--background-modifier-border);
+  background: color-mix(in srgb, var(--background-secondary) 38%, var(--background-primary));
 }
 
 .ai-coverage-graph .acg-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 8px;
   min-width: 0;
 }
 
@@ -1249,68 +1250,108 @@
 
 .ai-coverage-graph .acg-title {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
 }
 
 .ai-coverage-graph .acg-scope {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--text-muted);
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  white-space: nowrap;
 }
 
 .ai-coverage-graph .acg-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   margin-bottom: 0;
 }
 
+.ai-coverage-graph .acg-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+@media (max-width: 720px) {
+  .ai-coverage-graph .acg-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .ai-coverage-graph .acg-stat {
-  padding: 3px 8px;
+  padding: 6px 8px;
   border-radius: var(--radius-s, 6px);
-  background: var(--background-secondary);
+  background: var(--background-primary);
   border: 1px solid var(--background-modifier-border);
   text-align: center;
-  min-width: 52px;
+  min-width: 0;
 }
 
 .ai-coverage-graph .acg-stat-value {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  color: var(--text-normal);
+  letter-spacing: -0.01em;
+}
+
+.ai-coverage-graph .acg-stat-accent .acg-stat-value {
+  color: var(--interactive-accent);
+}
+
+.ai-coverage-graph .acg-stat-warn .acg-stat-value {
+  color: var(--color-yellow, #d4a72c);
 }
 
 .ai-coverage-graph .acg-stat-label {
+  margin-top: 2px;
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--text-faint, var(--text-muted));
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ai-coverage-graph .acg-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 5px;
   margin-bottom: 0;
   flex-shrink: 0;
   justify-content: flex-end;
 }
 
 .ai-coverage-graph .acg-btn {
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: var(--radius-s, 6px);
   border: 1px solid var(--background-modifier-border);
-  background: var(--background-secondary);
-  color: var(--text-normal);
+  background: var(--background-primary);
+  color: var(--text-muted);
   font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 
 .ai-coverage-graph .acg-btn:hover {
   background: var(--background-modifier-hover);
+  color: var(--text-normal);
 }
 
 .ai-coverage-graph .acg-btn-accent {
-  border-color: var(--interactive-accent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary));
   color: var(--interactive-accent);
+}
+
+.ai-coverage-graph .acg-btn-accent:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 16%, var(--background-primary));
 }
 
 .ai-coverage-graph .acg-legend-row {
@@ -1436,9 +1477,10 @@
   position: absolute;
   inset: 0;
   cursor: grab;
-  background:
-    radial-gradient(ellipse at 50% 42%, rgba(127, 127, 127, 0.06), transparent 62%),
-    var(--background-primary);
+  background-color: var(--background-primary);
+  background-image:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-faint, #888) 14%, transparent) 1px, transparent 0);
+  background-size: 22px 22px;
 }
 
 .ai-coverage-graph .acg-canvas-wrap:active {
